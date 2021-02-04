@@ -1,4 +1,4 @@
-import 'package:coryat/screens/gamescreens/gamescreen.dart';
+import 'package:coryat/screens/gamescreens/datescreen.dart';
 import 'package:flutter/cupertino.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 Navigator.of(context).push(
                   CupertinoPageRoute(builder: (context) {
-                    return GameScreen();
+                    return DateScreen();
                   }),
                 );
               },
