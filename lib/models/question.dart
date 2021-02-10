@@ -1,3 +1,4 @@
+import 'package:coryat/data/serialize.dart';
 import 'package:coryat/enums/round.dart';
 
 class Question {
@@ -12,5 +13,20 @@ class Question {
 
   bool isNone() {
     return value == 0;
+  }
+
+  // Serialization
+
+  static String delimiter = "^";
+
+  String encode() {
+    List<String> data = [category, text, value.toString(), round.toString()];
+    return Serialize.encode(data, delimiter);
+  }
+
+  static Question decode(String encoded) {
+    List<String> dec = Serialize.decode(encoded, delimiter);
+    Question q = Question(int.parse(dec[3]), dec[0], int.parse(dec[2]), dec[1]);
+    return q;
   }
 }

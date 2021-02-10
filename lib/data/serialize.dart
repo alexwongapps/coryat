@@ -1,19 +1,27 @@
 class Serialize {
+  static List<String> allDelimiters = ["!", "@", "^", "&"];
+
   static String encode(List<String> items, String delimiter) {
+    if (items.length == 0) {
+      return "";
+    }
     assert(delimiter != "\\");
     assert(delimiter.length == 1);
-    assert(items.length > 0);
     String _ret = "";
     items.forEach((String item) {
-      item.replaceAll("\\", "\\\\");
-      item.replaceAll(delimiter, "\\" + delimiter);
+      item = item.replaceAll("\\", "\\\\");
+      allDelimiters.forEach((String delim) {
+        item = item.replaceAll(delim, "\\" + delim);
+      });
       _ret += item + delimiter;
     });
     return _ret.substring(0, _ret.length - 1);
   }
 
   static List<String> decode(String encoded, String delimiter) {
-    assert(encoded.length > 0);
+    if (encoded.length == 0) {
+      return [];
+    }
     List<String> _ret = [];
     String _curr = "";
     int index = 0;

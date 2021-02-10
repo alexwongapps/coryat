@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:coryat/data/serialize.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
@@ -11,14 +12,16 @@ import 'package:coryat/models/placeholderevent.dart';
 import 'package:coryat/models/user.dart';
 
 class Game {
-  List<Event> _events;
   DateTime date;
-  User user = User();
-  bool synced = false;
+  User user;
+  bool synced;
+  List<Event> _events;
 
   Game(int year, int month, int day, [this.user, this._events]) {
     this.date = new DateTime(year, month, day);
     this._events = [];
+    this.user = User();
+    this.synced = false;
   }
 
   void addResponse(int response, String notes) {
@@ -89,5 +92,40 @@ class Game {
         }
       }
     });
+  }
+
+  // Serialize
+
+  static String delimiter = "@";
+
+  String encode() {
+    print("here");
+    String s = synced ? "1" : "0";
+    List<String> data = [
+      date.year.toString(),
+      date.month.toString(),
+      date.day.toString(),
+      user.encode(),
+      s
+    ];
+    print("here");
+    _events.forEach((Event event) {
+      data.add(event.encode());
+    });
+    return Serialize.encode(data, delimiter);
+  }
+
+  static Game decode(String encoded) {
+    List<String> dec = Serialize.decode(encoded, delimiter);
+    List<String> events = dec.sublist(5);
+    List<Event> ev = [];
+    events.forEach((String evs) {
+      ev.add(Event.decode(evs));
+    });
+    Game g = Game(int.parse(dec[0]), int.parse(dec[1]), int.parse(dec[2]),
+        User.decode(dec[3]));
+    g.synced = (dec[4] == "1") ? true : false;
+    g._events = ev;
+    return g;
   }
 }

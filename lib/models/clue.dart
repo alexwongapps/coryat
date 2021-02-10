@@ -5,14 +5,19 @@ import 'package:coryat/models/event.dart';
 import 'package:coryat/models/question.dart';
 
 class Clue implements Event {
-  String order = "";
-  int type = EventType.clue;
+  String order;
+  int type;
   int response;
-  Question question = Question.none;
+  Question question;
   String notes;
-  List<String> tags = [];
+  List<String> tags;
 
-  Clue(this.response, [this.question, this.tags, this.notes = ""]);
+  Clue(this.response, [this.notes = ""]) {
+    this.order = "";
+    this.type = EventType.clue;
+    this.question = Question.none;
+    this.tags = [];
+  }
 
   String primaryText() {
     switch (this.response) {
@@ -28,8 +33,6 @@ class Clue implements Event {
 
   // Serialize
 
-  static String delimiter = "!";
-
   String encode() {
     List<String> data = [
       order,
@@ -39,15 +42,16 @@ class Clue implements Event {
       notes
     ];
     data.addAll(tags);
-    return Serialize.encode(data, delimiter);
+    return Serialize.encode(data, Event.delimiter);
   }
 
   static Clue decode(String encoded) {
-    List<String> dec = Serialize.decode(encoded, delimiter);
-    Clue c = Clue(
-        int.parse(dec[2]), Question.decode(dec[3]), dec.sublist(5), dec[4]);
+    List<String> dec = Serialize.decode(encoded, Event.delimiter);
+    Clue c = Clue(int.parse(dec[2]), dec[4]);
     c.order = dec[0];
     c.type = int.parse(dec[1]);
+    c.question = Question.decode(dec[3]);
+    c.tags = dec.sublist(5);
     return c;
   }
 }

@@ -32,6 +32,7 @@ class _GameScreenState extends State<GameScreen> {
                     setState(() {
                       widget.game
                           .addResponse(Response.correct, notesController.text);
+                      notesController.text = "";
                     });
                   },
                 ),
@@ -41,6 +42,7 @@ class _GameScreenState extends State<GameScreen> {
                     setState(() {
                       widget.game.addResponse(
                           Response.incorrect, notesController.text);
+                      notesController.text = "";
                     });
                   },
                 ),
@@ -50,6 +52,7 @@ class _GameScreenState extends State<GameScreen> {
                     setState(() {
                       widget.game
                           .addResponse(Response.none, notesController.text);
+                      notesController.text = "";
                     });
                   },
                 ),
@@ -83,6 +86,7 @@ class _GameScreenState extends State<GameScreen> {
             CupertinoButton(
               child: Text("Finish Game"),
               onPressed: () {
+                // TODO: save this String encoded = widget.game.encode();
                 int count = 0;
                 Navigator.of(context).popUntil((_) => count++ >= 2);
               },
