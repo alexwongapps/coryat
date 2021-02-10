@@ -12,6 +12,7 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  TextEditingController notesController = new TextEditingController();
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -29,7 +30,8 @@ class _GameScreenState extends State<GameScreen> {
                   child: Text("Correct"),
                   onPressed: () {
                     setState(() {
-                      widget.game.addResponse(Response.correct);
+                      widget.game
+                          .addResponse(Response.correct, notesController.text);
                     });
                   },
                 ),
@@ -37,7 +39,8 @@ class _GameScreenState extends State<GameScreen> {
                   child: Text("Incorrect"),
                   onPressed: () {
                     setState(() {
-                      widget.game.addResponse(Response.incorrect);
+                      widget.game.addResponse(
+                          Response.incorrect, notesController.text);
                     });
                   },
                 ),
@@ -45,7 +48,8 @@ class _GameScreenState extends State<GameScreen> {
                   child: Text("Didn't Answer"),
                   onPressed: () {
                     setState(() {
-                      widget.game.addResponse(Response.none);
+                      widget.game
+                          .addResponse(Response.none, notesController.text);
                     });
                   },
                 ),
@@ -56,19 +60,33 @@ class _GameScreenState extends State<GameScreen> {
               children: [
                 CupertinoButton(
                   child: Text("Next Round"),
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      widget.game.nextRound();
+                    });
+                  },
                 ),
               ],
             ),
             CupertinoTextField(
               placeholder: "Notes",
+              controller: notesController,
             ),
             Table(
-              children: (widget.game.events)
-                  .map((event) =>
-                      TableRow(children: [Text(event.primaryText())]))
+              children: (widget.game.lastEvents(5))
+                  .map((event) => TableRow(children: [
+                        Text(event.order),
+                        Text(event.primaryText()),
+                      ]))
                   .toList(),
             ),
+            CupertinoButton(
+              child: Text("Finish Game"),
+              onPressed: () {
+                int count = 0;
+                Navigator.of(context).popUntil((_) => count++ >= 2);
+              },
+            )
           ],
         ),
       ),

@@ -1,7 +1,6 @@
-import 'package:coryat/enums/eventtype.dart';
-
 abstract class Event {
-  EventType type;
+  String order;
+  int type;
   List<String> tags;
   String notes;
 

@@ -2,14 +2,16 @@ import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/models/event.dart';
 
 class Marker implements Event {
-  EventType type = EventType.marker;
-  String name;
+  static const NEXT_ROUND = "Next Round";
+  String order = "";
+  int type = EventType.marker;
+  String _name;
   List<String> tags = [];
   String notes;
 
-  Marker(this.name, [this.tags, this.notes = ""]);
+  Marker(this._name, [this.tags, this.notes = ""]);
 
   String primaryText() {
-    return this.name;
+    return this._name;
   }
 }

@@ -4,7 +4,7 @@ class Question {
   String category;
   String text;
   int value;
-  Round round;
+  int round;
 
   static Question none = Question(Round.jeopardy, "", 0, "");
 

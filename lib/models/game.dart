@@ -1,25 +1,93 @@
+import 'dart:math';
+
+import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
+import 'package:coryat/enums/round.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/marker.dart';
+import 'package:coryat/models/nextroundmarker.dart';
+import 'package:coryat/models/placeholderevent.dart';
 import 'package:coryat/models/user.dart';
 
 class Game {
-  List<Event> events;
+  List<Event> _events;
   DateTime date;
   User user = User();
   bool synced = false;
 
-  Game(int year, int month, int day, [this.user, this.events]) {
+  Game(int year, int month, int day, [this.user, this._events]) {
     this.date = new DateTime(year, month, day);
-    this.events = [];
+    this._events = [];
   }
 
-  void addResponse(Response response) {
-    events.add(Clue(response));
+  void addResponse(int response, String notes) {
+    Event clue = Clue(response);
+    clue.notes = notes;
+    _events.add(clue);
+    updateOrders();
   }
 
-  void addMarker(String name) {
-    events.add(Marker(name));
+  void addMarker(String name, String notes) {
+    Event marker = Marker(name);
+    marker.notes = notes;
+    _events.add(marker);
+    updateOrders();
+  }
+
+  void nextRound() {
+    _events.add(NextRoundMarker());
+    updateOrders();
+  }
+
+  List<Event> getEvents() {
+    return _events;
+  }
+
+  List<Event> lastEvents(int number) {
+    List<Event> evs =
+        _events.sublist(max(_events.length - number, 0)).reversed.toList();
+    int len = evs.length;
+    while (len < number) {
+      evs.add(PlaceholderEvent());
+      len++;
+    }
+    return evs;
+  }
+
+  void updateOrders() {
+    int number = 0;
+    int round = Round.jeopardy;
+
+    _events.forEach((Event event) {
+      if (event.type == EventType.clue) {
+        number++;
+        switch (round) {
+          case Round.jeopardy:
+            event.order = "J" + number.toString();
+            break;
+          case Round.double_jeopardy:
+            event.order = "DJ" + number.toString();
+            break;
+          case Round.final_jeopardy:
+            event.order = "FJ" + number.toString();
+            break;
+        }
+      } else if (event.type == EventType.marker &&
+          event.primaryText() == Marker.NEXT_ROUND) {
+        switch (round) {
+          case Round.jeopardy:
+            round = Round.double_jeopardy;
+            number = 0;
+            break;
+          case Round.double_jeopardy:
+            round = Round.final_jeopardy;
+            number = 0;
+            break;
+          case Round.final_jeopardy:
+            break;
+        }
+      }
+    });
   }
 }
