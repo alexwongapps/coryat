@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:coryat/data/jarchive.dart';
 import 'package:coryat/data/serialize.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';

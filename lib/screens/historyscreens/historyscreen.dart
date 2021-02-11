@@ -1,6 +1,8 @@
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/models/game.dart';
+import 'package:coryat/screens/historyscreens/gamedetailscreen.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class HistoryScreen extends StatefulWidget {
   @override
@@ -26,11 +28,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Table(
-                children: _games
-                    .map((game) =>
-                        TableRow(children: [Text(game.dateAired.toString())]))
-                    .toList()),
+            Material(
+              child: DataTable(
+                columns: [DataColumn(label: Text("Game"))],
+                rows: _games
+                    .map(
+                      (game) => DataRow(
+                          cells: [DataCell(Text(game.dateAired.toString()))],
+                          onSelectChanged: (value) {
+                            Navigator.of(context)
+                                .push(CupertinoPageRoute(builder: (context) {
+                              return GameDetailScreen(game: game);
+                            }));
+                          }),
+                    )
+                    .toList(),
+              ),
+            )
           ],
         ),
       ),

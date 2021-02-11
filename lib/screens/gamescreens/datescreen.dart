@@ -34,7 +34,7 @@ class _DateScreenState extends State<DateScreen> {
                   CupertinoPageRoute(builder: (context) {
                     return GameScreen(
                         game: Game(_chosenDateTime.year, _chosenDateTime.month,
-                            _chosenDateTime.day)); // TODO: date picker
+                            _chosenDateTime.day));
                   }),
                 );
               },
