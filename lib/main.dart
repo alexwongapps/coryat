@@ -1,8 +1,11 @@
+import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/screens/homescreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SqlitePersistence.init();
   runApp(MyApp());
 }
 

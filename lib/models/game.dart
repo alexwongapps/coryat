@@ -12,13 +12,15 @@ import 'package:coryat/models/placeholderevent.dart';
 import 'package:coryat/models/user.dart';
 
 class Game {
-  DateTime date;
+  DateTime dateAired;
+  DateTime datePlayed;
   User user;
   bool synced;
   List<Event> _events;
 
   Game(int year, int month, int day, [this.user, this._events]) {
-    this.date = new DateTime(year, month, day);
+    this.dateAired = new DateTime(year, month, day);
+    this.datePlayed = DateTime.now();
     this._events = [];
     this.user = User();
     this.synced = false;
@@ -102,9 +104,10 @@ class Game {
     print("here");
     String s = synced ? "1" : "0";
     List<String> data = [
-      date.year.toString(),
-      date.month.toString(),
-      date.day.toString(),
+      dateAired.year.toString(),
+      dateAired.month.toString(),
+      dateAired.day.toString(),
+      datePlayed.millisecondsSinceEpoch.toString(),
       user.encode(),
       s
     ];
@@ -117,15 +120,16 @@ class Game {
 
   static Game decode(String encoded) {
     List<String> dec = Serialize.decode(encoded, delimiter);
-    List<String> events = dec.sublist(5);
+    List<String> events = dec.sublist(6);
     List<Event> ev = [];
     events.forEach((String evs) {
       ev.add(Event.decode(evs));
     });
     Game g = Game(int.parse(dec[0]), int.parse(dec[1]), int.parse(dec[2]),
-        User.decode(dec[3]));
-    g.synced = (dec[4] == "1") ? true : false;
+        User.decode(dec[4]));
+    g.synced = (dec[5] == "1") ? true : false;
     g._events = ev;
+    g.datePlayed = DateTime.fromMillisecondsSinceEpoch(int.parse(dec[3]));
     return g;
   }
 }

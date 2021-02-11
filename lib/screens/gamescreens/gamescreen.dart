@@ -1,3 +1,4 @@
+import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/models/game.dart';
 import 'package:flutter/cupertino.dart';
@@ -86,7 +87,7 @@ class _GameScreenState extends State<GameScreen> {
             CupertinoButton(
               child: Text("Finish Game"),
               onPressed: () {
-                // TODO: save this String encoded = widget.game.encode();
+                SqlitePersistence.addGame(widget.game);
                 int count = 0;
                 Navigator.of(context).popUntil((_) => count++ >= 2);
               },

@@ -1,4 +1,5 @@
 import 'package:coryat/screens/gamescreens/datescreen.dart';
+import 'package:coryat/screens/historyscreens/historyscreen.dart';
 import 'package:flutter/cupertino.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -42,7 +43,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             CupertinoButton(
               child: Text("History"),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) {
+                    return HistoryScreen();
+                  }),
+                );
+              },
             ),
             CupertinoButton(
               child: Text("Stats"),
