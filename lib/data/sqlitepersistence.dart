@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:coryat/models/game.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class SqlitePersistence {
@@ -11,13 +11,8 @@ class SqlitePersistence {
     if (_db != null) {
       return;
     }
-
-    try {
-      String _path = await getDatabasesPath() + 'games';
-      _db = await openDatabase(_path, version: _version, onCreate: onCreate);
-    } catch (ex) {
-      print(ex);
-    }
+    _db = await openDatabase(join(await getDatabasesPath(), 'games.db'),
+        onCreate: onCreate, version: _version);
   }
 
   static void onCreate(Database db, int version) async =>

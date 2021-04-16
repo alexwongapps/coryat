@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:coryat/models/game.dart';
+
 class JArchive {
-  static void getGame(DateTime date) {
+  static Future<Map> _getGameMap(DateTime date) async {
     String month = date.month.toString();
     if (month.length == 1) {
       month = "0" + month;
@@ -12,7 +14,7 @@ class JArchive {
       day = "0" + day;
     }
     String year = date.year.toString();
-    HttpClient()
+    await HttpClient()
         .getUrl(Uri.parse('https://jarchive-json.glitch.me/game/' +
             month +
             "/" +
@@ -21,9 +23,17 @@ class JArchive {
             year)) // produces a request object
         .then((request) => request.close()) // sends the request
         .then((response) => response
-            .transform(Utf8Decoder())
-            .listen(print)); // transforms and prints the response
+                .transform(Utf8Decoder())
+                .transform(JsonDecoder())
+                .listen((contents) {
+              return contents;
+            })); // transforms and prints the response
+  }
 
-    // TODO: stuff with this
+  static void loadIntoGame(Game game) async {
+    Map json = await _getGameMap(game.dateAired);
+    json["jeopardy"].forEach((Map<String, dynamic> m) {
+      game.addClue()
+    });
   }
 }

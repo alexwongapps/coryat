@@ -34,6 +34,20 @@ class Game {
     updateOrders();
   }
 
+  void addClue(int round, String category, int value, String clue,
+      String answer, int order) {
+    _events.forEach((Event event) {
+      if (event.order == Round.toAbbrev(round) + order.toString()) {
+        Clue c = event as Clue;
+        c.question.category = category;
+        c.question.answer = answer;
+        c.question.round = round;
+        c.question.text = clue;
+        c.question.value = value;
+      }
+    });
+  }
+
   void addMarker(String name, String notes) {
     Event marker = Marker(name);
     marker.notes = notes;
@@ -68,17 +82,7 @@ class Game {
     _events.forEach((Event event) {
       if (event.type == EventType.clue) {
         number++;
-        switch (round) {
-          case Round.jeopardy:
-            event.order = "J" + number.toString();
-            break;
-          case Round.double_jeopardy:
-            event.order = "DJ" + number.toString();
-            break;
-          case Round.final_jeopardy:
-            event.order = "FJ" + number.toString();
-            break;
-        }
+        event.order = Round.toAbbrev(round) + number.toString();
       } else if (event.type == EventType.marker &&
           event.primaryText() == Marker.NEXT_ROUND) {
         switch (round) {
@@ -102,7 +106,6 @@ class Game {
   static String delimiter = "@";
 
   String encode() {
-    print("here");
     String s = synced ? "1" : "0";
     List<String> data = [
       dateAired.year.toString(),
@@ -112,7 +115,6 @@ class Game {
       user.encode(),
       s
     ];
-    print("here");
     _events.forEach((Event event) {
       data.add(event.encode());
     });

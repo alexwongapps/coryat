@@ -4,12 +4,13 @@ import 'package:coryat/enums/round.dart';
 class Question {
   String category;
   String text;
+  String answer;
   int value;
   int round;
 
-  static Question none = Question(Round.jeopardy, "", 0, "");
+  static Question none = Question(Round.jeopardy, "", 0, "", "");
 
-  Question(this.round, this.category, this.value, this.text);
+  Question(this.round, this.category, this.value, this.text, this.answer);
 
   bool isNone() {
     return value == 0;
@@ -20,13 +21,20 @@ class Question {
   static String delimiter = "^";
 
   String encode() {
-    List<String> data = [category, text, value.toString(), round.toString()];
+    List<String> data = [
+      category,
+      text,
+      answer,
+      value.toString(),
+      round.toString()
+    ];
     return Serialize.encode(data, delimiter);
   }
 
   static Question decode(String encoded) {
     List<String> dec = Serialize.decode(encoded, delimiter);
-    Question q = Question(int.parse(dec[3]), dec[0], int.parse(dec[2]), dec[1]);
+    Question q =
+        Question(int.parse(dec[4]), dec[0], int.parse(dec[3]), dec[1], dec[2]);
     return q;
   }
 }

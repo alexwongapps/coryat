@@ -1,3 +1,4 @@
+import 'package:coryat/data/jarchive.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/screens/historyscreens/gamedetailscreen.dart';
@@ -15,6 +16,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     refresh();
+    JArchive.loadIntoGame(Game(2018, 11, 15));
     super.initState();
   }
 
