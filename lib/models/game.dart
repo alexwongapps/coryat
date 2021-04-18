@@ -27,9 +27,21 @@ class Game {
     this.synced = false;
   }
 
-  void addResponse(int response, String notes) {
+  void addAutomaticResponse(int response, String notes) {
     Event clue = Clue(response);
     clue.notes = notes;
+    _events.add(clue);
+    updateOrders();
+  }
+
+  void addManualResponse(
+      int response, int value, bool isDailyDouble, String notes) {
+    Clue clue = Clue(response);
+    clue.question.value = value;
+    clue.notes = notes;
+    if (isDailyDouble) {
+      clue.tags = ["Daily Double"];
+    }
     _events.add(clue);
     updateOrders();
   }

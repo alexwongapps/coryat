@@ -12,4 +12,14 @@ class Round {
       return "FJ";
     }
   }
+
+  static int nextRound(int round) {
+    if (round == jeopardy) {
+      return double_jeopardy;
+    } else if (round == double_jeopardy) {
+      return final_jeopardy;
+    } else {
+      return final_jeopardy;
+    }
+  }
 }

@@ -1,19 +1,21 @@
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/response.dart';
+import 'package:coryat/enums/round.dart';
 import 'package:coryat/models/game.dart';
 import 'package:flutter/cupertino.dart';
 
-class GameScreen extends StatefulWidget {
+class AutomaticGameScreen extends StatefulWidget {
   final Game game;
 
-  GameScreen({Key key, @required this.game}) : super(key: key);
+  AutomaticGameScreen({Key key, @required this.game}) : super(key: key);
 
   @override
-  _GameScreenState createState() => _GameScreenState();
+  _AutomaticGameScreenState createState() => _AutomaticGameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _AutomaticGameScreenState extends State<AutomaticGameScreen> {
   TextEditingController notesController = new TextEditingController();
+  int currentRound = Round.jeopardy;
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -31,9 +33,7 @@ class _GameScreenState extends State<GameScreen> {
                   child: Text("Correct"),
                   onPressed: () {
                     setState(() {
-                      widget.game
-                          .addResponse(Response.correct, notesController.text);
-                      notesController.text = "";
+                      addResponse(Response.correct);
                     });
                   },
                 ),
@@ -41,9 +41,7 @@ class _GameScreenState extends State<GameScreen> {
                   child: Text("Incorrect"),
                   onPressed: () {
                     setState(() {
-                      widget.game.addResponse(
-                          Response.incorrect, notesController.text);
-                      notesController.text = "";
+                      addResponse(Response.incorrect);
                     });
                   },
                 ),
@@ -51,9 +49,7 @@ class _GameScreenState extends State<GameScreen> {
                   child: Text("Didn't Answer"),
                   onPressed: () {
                     setState(() {
-                      widget.game
-                          .addResponse(Response.none, notesController.text);
-                      notesController.text = "";
+                      addResponse(Response.none);
                     });
                   },
                 ),
@@ -67,6 +63,8 @@ class _GameScreenState extends State<GameScreen> {
                   onPressed: () {
                     setState(() {
                       widget.game.nextRound();
+                      currentRound = Round.nextRound(currentRound);
+                      resetClue();
                     });
                   },
                 ),
@@ -96,5 +94,16 @@ class _GameScreenState extends State<GameScreen> {
         ),
       ),
     );
+  }
+
+  void addResponse(int response) {
+    widget.game.addAutomaticResponse(response, notesController.text);
+    resetClue();
+  }
+
+  void resetClue() {
+    setState(() {
+      notesController.text = "";
+    });
   }
 }

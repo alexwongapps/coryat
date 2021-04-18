@@ -1,5 +1,6 @@
 import 'package:coryat/models/game.dart';
-import 'package:coryat/screens/gamescreens/gamescreen.dart';
+import 'package:coryat/screens/gamescreens/manualgamescreen.dart';
+import 'package:coryat/screens/gamescreens/automaticgamescreen.dart';
 import 'package:flutter/cupertino.dart';
 
 class DateScreen extends StatefulWidget {
@@ -28,11 +29,23 @@ class _DateScreenState extends State<DateScreen> {
               },
             ),
             CupertinoButton(
-              child: Text("Start Game"),
+              child: Text("Start Game (Automatic)"),
               onPressed: () {
                 Navigator.of(context).push(
                   CupertinoPageRoute(builder: (context) {
-                    return GameScreen(
+                    return AutomaticGameScreen(
+                        game: Game(_chosenDateTime.year, _chosenDateTime.month,
+                            _chosenDateTime.day));
+                  }),
+                );
+              },
+            ),
+            CupertinoButton(
+              child: Text("Start Game (Manual)"),
+              onPressed: () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) {
+                    return ManualGameScreen(
                         game: Game(_chosenDateTime.year, _chosenDateTime.month,
                             _chosenDateTime.day));
                   }),
