@@ -35,9 +35,10 @@ class Game {
   }
 
   void addManualResponse(
-      int response, int value, bool isDailyDouble, String notes) {
+      int response, int round, int value, bool isDailyDouble, String notes) {
     Clue clue = Clue(response);
     clue.question.value = value;
+    clue.question.round = round;
     clue.notes = notes;
     if (isDailyDouble) {
       clue.tags = ["Daily Double"];
@@ -111,6 +112,69 @@ class Game {
         }
       }
     });
+  }
+
+  // Stats
+
+  int getCoryat() {
+    int total = 0;
+    _events.forEach((Event event) {
+      if (event.type == EventType.clue) {
+        Clue c = event as Clue;
+        if (c.response == Response.correct) {
+          total += c.question.value;
+        } else if (c.response == Response.incorrect) {
+          total -= c.question.value;
+        }
+      }
+    });
+    return total;
+  }
+
+  int getJeopardyCoryat() {
+    int total = 0;
+    _events.forEach((Event event) {
+      if (event.type == EventType.clue) {
+        Clue c = event as Clue;
+        if (c.question.round == Round.jeopardy) {
+          if (c.response == Response.correct) {
+            total += c.question.value;
+          } else if (c.response == Response.incorrect) {
+            total -= c.question.value;
+          }
+        }
+      }
+    });
+    return total;
+  }
+
+  int getDoubleJeopardyCoryat() {
+    int total = 0;
+    _events.forEach((Event event) {
+      if (event.type == EventType.clue) {
+        Clue c = event as Clue;
+        if (c.question.round == Round.double_jeopardy) {
+          if (c.response == Response.correct) {
+            total += c.question.value;
+          } else if (c.response == Response.incorrect) {
+            total -= c.question.value;
+          }
+        }
+      }
+    });
+    return total;
+  }
+
+  bool getFinalJeopardyResponse() {
+    _events.forEach((Event event) {
+      if (event.type == EventType.clue) {
+        Clue c = event as Clue;
+        if (c.question.round == Round.final_jeopardy) {
+          return c.response == Response.correct;
+        }
+      }
+    });
+    return false;
   }
 
   // Serialize

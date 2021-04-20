@@ -162,7 +162,9 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
               children: (widget.game.lastEvents(5))
                   .map((event) => TableRow(children: [
                         Text(event.order),
-                        Text(event.type == EventType.marker
+                        Text(event.type == EventType.marker ||
+                                (event as Clue).question.round ==
+                                    Round.final_jeopardy
                             ? ""
                             : (event as Clue).question.value.toString()),
                         Text(event.primaryText()),
@@ -185,8 +187,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
 
   void addResponse(int response) {
     if (selectedValue != 0 || currentRound == Round.final_jeopardy) {
-      widget.game.addManualResponse(
-          response, selectedValue, isDailyDouble, notesController.text);
+      widget.game.addManualResponse(response, currentRound, selectedValue,
+          isDailyDouble, notesController.text);
       resetClue();
     }
   }

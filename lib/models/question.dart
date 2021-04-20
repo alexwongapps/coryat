@@ -8,12 +8,16 @@ class Question {
   int value;
   int round;
 
-  static Question none = Question(Round.jeopardy, "", 0, "", "");
-
   Question(this.round, this.category, this.value, this.text, this.answer);
+
+  // none
 
   bool isNone() {
     return value == 0;
+  }
+
+  static Question none() {
+    return new Question(Round.jeopardy, "", 0, "", "");
   }
 
   // Serialization

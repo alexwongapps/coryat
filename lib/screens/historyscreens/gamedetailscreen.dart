@@ -1,3 +1,6 @@
+import 'package:coryat/enums/eventtype.dart';
+import 'package:coryat/enums/round.dart';
+import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/game.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -25,6 +28,11 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
               children: (widget.game.getEvents())
                   .map((event) => TableRow(children: [
                         Text(event.order),
+                        Text(event.type == EventType.marker ||
+                                (event as Clue).question.round ==
+                                    Round.final_jeopardy
+                            ? ""
+                            : (event as Clue).question.value.toString()),
                         Text(event.primaryText()),
                       ]))
                   .toList(),

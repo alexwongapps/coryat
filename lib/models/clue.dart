@@ -15,7 +15,7 @@ class Clue implements Event {
   Clue(this.response, [this.notes = ""]) {
     this.order = "";
     this.type = EventType.clue;
-    this.question = Question.none;
+    this.question = Question.none();
     this.tags = [];
   }
 

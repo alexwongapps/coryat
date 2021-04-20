@@ -16,7 +16,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     refresh();
-    JArchive.loadIntoGame(Game(2018, 11, 15));
     super.initState();
   }
 
