@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>299388645684-id7g584k838h1r6seosi14doodrvhb1t.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.299388645684-id7g584k838h1r6seosi14doodrvhb1t</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDT3B4TU6EFmTGplzdyEh6ZCebMDZDhLgc</string>
+	<key>GCM_SENDER_ID</key>
+	<string>299388645684</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.coryat</string>
+	<key>PROJECT_ID</key>
+	<string>coryat-alex-wong-apps</string>
+	<key>STORAGE_BUCKET</key>
+	<string>coryat-alex-wong-apps.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:299388645684:ios:1801c8b6c455801fad7561</string>
+</dict>
+</plist>

@@ -1,7 +1,10 @@
 import 'package:coryat/data/sqlitepersistence.dart';
+import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
+import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
+import 'package:coryat/models/marker.dart';
 import 'package:flutter/cupertino.dart';
 
 class AutomaticGameScreen extends StatefulWidget {
@@ -64,6 +67,20 @@ class _AutomaticGameScreenState extends State<AutomaticGameScreen> {
                     setState(() {
                       widget.game.nextRound();
                       currentRound = Round.nextRound(currentRound);
+                      resetClue();
+                    });
+                  },
+                ),
+                CupertinoButton(
+                  child: Text("Undo"),
+                  onPressed: () {
+                    setState(() {
+                      Event last = widget.game.undo();
+                      if (last != null && last.type == EventType.marker) {
+                        if ((last as Marker).type == EventType.marker) {
+                          currentRound = Round.previousRound(currentRound);
+                        }
+                      }
                       resetClue();
                     });
                   },

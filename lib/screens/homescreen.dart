@@ -1,5 +1,6 @@
 import 'package:coryat/screens/gamescreens/datescreen.dart';
 import 'package:coryat/screens/historyscreens/historyscreen.dart';
+import 'package:coryat/screens/leaderboardscreens/leaderboardscreen.dart';
 import 'package:coryat/screens/statsscreens/statsscreen.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -63,8 +64,14 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             CupertinoButton(
-              child: Text("Account"),
-              onPressed: () {},
+              child: Text("Leaderboard"),
+              onPressed: () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) {
+                    return LeaderboardScreen();
+                  }),
+                );
+              },
             ),
             CupertinoButton(
               child: Text("Settings"),

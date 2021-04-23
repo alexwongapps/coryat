@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "299388645684",
+    "project_id": "coryat-alex-wong-apps",
+    "storage_bucket": "coryat-alex-wong-apps.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:299388645684:android:0985fcb0d73fbe04ad7561",
+        "android_client_info": {
+          "package_name": "com.example.coryat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "299388645684-6ove2t0gl15bmjuegns21v5956516et1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.coryat",
+            "certificate_hash": "26307564a1bd7e82e76171d9eaf308cc36a158af"
+          }
+        },
+        {
+          "client_id": "299388645684-9mqto4clp4jskn2t02u6khr5j1va8cft.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvyZ01LJRXKkMG1LlVMIR0evQeiZxGVjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "299388645684-9mqto4clp4jskn2t02u6khr5j1va8cft.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "299388645684-id7g584k838h1r6seosi14doodrvhb1t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.coryat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -22,4 +22,14 @@ class Round {
       return final_jeopardy;
     }
   }
+
+  static int previousRound(int round) {
+    if (round == jeopardy) {
+      return jeopardy;
+    } else if (round == double_jeopardy) {
+      return jeopardy;
+    } else {
+      return double_jeopardy;
+    }
+  }
 }

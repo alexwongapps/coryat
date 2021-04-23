@@ -35,7 +35,7 @@ class JArchive {
     Map json = await _getGameMap(game.dateAired); // TODO: this doesn't wait
     Map<String, List<int>> seen = new Map();
     List<Map<String, dynamic>> stash = new List();
-    json["jeopardy"].forEach((Map<String, dynamic> m) {
+    for (final m in json["jeopardy"]) {
       if (m["value"] == "Daily Double") {
         stash.add(m);
       } else {
@@ -47,9 +47,7 @@ class JArchive {
           seen[m["category"]] = new List();
         }
       }
-    });
-    stash.forEach((Map<String, dynamic> m) {
-      // TODO: putting a pin in this — what if there's a DD and the entire category wasn't answered?
-    });
+    }
+    // TODO: putting a pin in this — what if there's a DD and the entire category wasn't answered?
   }
 }

@@ -73,6 +73,15 @@ class Game {
     updateOrders();
   }
 
+  Event undo() {
+    if (_events.length == 0) {
+      return null;
+    }
+    Event last = _events.removeLast();
+    updateOrders();
+    return last;
+  }
+
   List<Event> getEvents() {
     return _events;
   }
@@ -166,14 +175,14 @@ class Game {
   }
 
   bool getFinalJeopardyResponse() {
-    _events.forEach((Event event) {
+    for (final event in _events) {
       if (event.type == EventType.clue) {
         Clue c = event as Clue;
         if (c.question.round == Round.final_jeopardy) {
           return c.response == Response.correct;
         }
       }
-    });
+    }
     return false;
   }
 

@@ -1,9 +1,12 @@
+import 'package:coryat/data/firebase.dart';
 import 'package:coryat/data/jarchive.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/models/game.dart';
+import 'package:coryat/models/user.dart';
 import 'package:coryat/screens/historyscreens/gamedetailscreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HistoryScreen extends StatefulWidget {
   @override
@@ -12,10 +15,17 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   List<Game> _games = [];
+  User _user;
 
   @override
   void initState() {
     refresh();
+    FirebaseAuth.instance.currentUser().then((user) => user != null
+        ? setState(() {
+            _user = User(user.email, user.displayName, user.uid);
+            // _games = await Firebase.loadGames(_user); // TODO: async shouldn't be in setState
+          })
+        : null);
     super.initState();
   }
 
@@ -55,5 +65,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void refresh() async {
     _games = await SqlitePersistence.getGames();
     setState(() {});
+  }
+
+  bool _isLoggedIn() {
+    return _user != null;
   }
 }

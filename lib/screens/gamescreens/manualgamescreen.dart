@@ -3,7 +3,9 @@ import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
 import 'package:coryat/models/clue.dart';
+import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
+import 'package:coryat/models/marker.dart';
 import 'package:flutter/cupertino.dart';
 
 class ManualGameScreen extends StatefulWidget {
@@ -152,6 +154,20 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     });
                   },
                 ),
+                CupertinoButton(
+                  child: Text("Undo"),
+                  onPressed: () {
+                    setState(() {
+                      Event last = widget.game.undo();
+                      if (last != null && last.type == EventType.marker) {
+                        if ((last as Marker).type == EventType.marker) {
+                          currentRound = Round.previousRound(currentRound);
+                        }
+                      }
+                      resetClue();
+                    });
+                  },
+                ),
               ],
             ),
             CupertinoTextField(
@@ -171,6 +187,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                       ]))
                   .toList(),
             ),
+            Text("Current Coryat: \$" + widget.game.getCoryat().toString()),
             CupertinoButton(
               child: Text("Finish Game"),
               onPressed: () {

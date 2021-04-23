@@ -49,7 +49,7 @@ class _StatsScreenState extends State<StatsScreen> {
     _games.forEach((Game game) {
       total += game.getCoryat();
     });
-    return total;
+    return total ~/ _games.length;
   }
 
   int getAverageJeopardyCoryat() {
@@ -57,7 +57,7 @@ class _StatsScreenState extends State<StatsScreen> {
     _games.forEach((Game game) {
       total += game.getJeopardyCoryat();
     });
-    return total;
+    return total ~/ _games.length;
   }
 
   int getAverageDoubleJeopardyCoryat() {
@@ -65,13 +65,14 @@ class _StatsScreenState extends State<StatsScreen> {
     _games.forEach((Game game) {
       total += game.getDoubleJeopardyCoryat();
     });
-    return total;
+    return total ~/ _games.length;
   }
 
   String getFinalJeopardyString() {
     int right = 0;
     int total = _games.length;
     _games.forEach((Game game) {
+      print("started");
       if (game.getFinalJeopardyResponse()) {
         right += 1;
       }
