@@ -9,10 +9,9 @@ class Clue implements Event {
   int type;
   int response;
   Question question;
-  String notes;
   List<String> tags;
 
-  Clue(this.response, [this.notes = ""]) {
+  Clue(this.response) {
     this.order = "";
     this.type = EventType.clue;
     this.question = Question.none();
@@ -39,7 +38,6 @@ class Clue implements Event {
       type.toString(),
       response.toString(),
       question.encode(firebase: firebase),
-      notes
     ];
     data.addAll(tags);
     return Serialize.encode(data, Event.delimiter);
@@ -47,11 +45,11 @@ class Clue implements Event {
 
   static Clue decode(String encoded, {bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, Event.delimiter);
-    Clue c = Clue(int.parse(dec[2]), dec[4]);
+    Clue c = Clue(int.parse(dec[2]));
     c.order = dec[0];
     c.type = int.parse(dec[1]);
     c.question = Question.decode(dec[3]);
-    c.tags = dec.sublist(5);
+    c.tags = dec.sublist(4);
     return c;
   }
 }

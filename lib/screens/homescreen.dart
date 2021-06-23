@@ -64,16 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             CupertinoButton(
-              child: Text("Leaderboard"),
-              onPressed: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) {
-                    return LeaderboardScreen();
-                  }),
-                );
-              },
-            ),
-            CupertinoButton(
               child: Text("Settings"),
               onPressed: () {},
             ),

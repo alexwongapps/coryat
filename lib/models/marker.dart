@@ -9,10 +9,9 @@ class Marker implements Event {
   String order;
   int type;
   String _name;
-  String notes;
   List<String> tags;
 
-  Marker(this._name, [this.notes = ""]) {
+  Marker(this._name) {
     this.order = "";
     this.type = EventType.marker;
     this.tags = [];
@@ -25,17 +24,17 @@ class Marker implements Event {
   // Serialize
 
   String encode({bool firebase = false}) {
-    List<String> data = [order, type.toString(), _name, notes];
+    List<String> data = [order, type.toString(), _name];
     data.addAll(tags);
     return Serialize.encode(data, Event.delimiter);
   }
 
   static Marker decode(String encoded, {bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, Event.delimiter);
-    Marker m = Marker(dec[2], dec[3]);
+    Marker m = Marker(dec[2]);
     m.order = dec[0];
     m.type = int.parse(dec[1]);
-    m.tags = dec.sublist(4);
+    m.tags = dec.sublist(3);
     return m;
   }
 }

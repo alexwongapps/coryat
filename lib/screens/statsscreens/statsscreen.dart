@@ -42,8 +42,7 @@ class _StatsScreenState extends State<StatsScreen> {
 
   void refresh() async {
     _games = await SqlitePersistence.getGames();
-    print(_games[0].encode());
-    print(_games[0].encode().length);
+    print(_games[1].encode());
     setState(() {});
   }
 

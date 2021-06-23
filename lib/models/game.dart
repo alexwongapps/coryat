@@ -28,22 +28,18 @@ class Game {
     this.synced = false;
   }
 
-  void addAutomaticResponse(int response, String notes) {
+  void addAutomaticResponse(int response) {
     Event clue = Clue(response);
-    clue.notes = notes;
     _events.add(clue);
     updateOrders();
   }
 
   void addManualResponse(
-      int response, int round, int value, bool isDailyDouble, String notes) {
+      int response, int round, int value, List<String> tags) {
     Clue clue = Clue(response);
     clue.question.value = value;
     clue.question.round = round;
-    clue.notes = notes;
-    if (isDailyDouble) {
-      clue.tags = ["Daily Double"];
-    }
+    clue.tags = tags;
     _events.add(clue);
     updateOrders();
   }
@@ -62,9 +58,8 @@ class Game {
     });
   }
 
-  void addMarker(String name, String notes) {
+  void addMarker(String name) {
     Event marker = Marker(name);
-    marker.notes = notes;
     _events.add(marker);
     updateOrders();
   }

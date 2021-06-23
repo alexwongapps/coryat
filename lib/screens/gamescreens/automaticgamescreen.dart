@@ -17,7 +17,6 @@ class AutomaticGameScreen extends StatefulWidget {
 }
 
 class _AutomaticGameScreenState extends State<AutomaticGameScreen> {
-  TextEditingController notesController = new TextEditingController();
   int currentRound = Round.jeopardy;
   @override
   Widget build(BuildContext context) {
@@ -87,10 +86,6 @@ class _AutomaticGameScreenState extends State<AutomaticGameScreen> {
                 ),
               ],
             ),
-            CupertinoTextField(
-              placeholder: "Notes",
-              controller: notesController,
-            ),
             Table(
               children: (widget.game.lastEvents(5))
                   .map((event) => TableRow(children: [
@@ -114,13 +109,11 @@ class _AutomaticGameScreenState extends State<AutomaticGameScreen> {
   }
 
   void addResponse(int response) {
-    widget.game.addAutomaticResponse(response, notesController.text);
+    widget.game.addAutomaticResponse(response);
     resetClue();
   }
 
   void resetClue() {
-    setState(() {
-      notesController.text = "";
-    });
+    setState(() {});
   }
 }

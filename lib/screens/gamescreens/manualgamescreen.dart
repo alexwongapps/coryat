@@ -19,7 +19,6 @@ class ManualGameScreen extends StatefulWidget {
 }
 
 class _ManualGameScreenState extends State<ManualGameScreen> {
-  TextEditingController notesController = new TextEditingController();
   int currentRound = Round.jeopardy;
   int selectedValue = 0;
   bool isDailyDouble = false;
@@ -171,10 +170,6 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                 ),
               ],
             ),
-            CupertinoTextField(
-              placeholder: "Notes",
-              controller: notesController,
-            ),
             Table(
               children: (widget.game.lastEvents(5))
                   .map((event) => TableRow(children: [
@@ -207,14 +202,13 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   void addResponse(int response) {
     if (selectedValue != 0 || currentRound == Round.final_jeopardy) {
       widget.game.addManualResponse(response, currentRound, selectedValue,
-          isDailyDouble, notesController.text);
+          isDailyDouble ? ["Daily Double"] : []);
       resetClue();
     }
   }
 
   void resetClue() {
     setState(() {
-      notesController.text = "";
       selectedValue = 0;
       isDailyDouble = false;
     });

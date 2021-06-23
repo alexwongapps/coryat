@@ -29,19 +29,7 @@ class _DateScreenState extends State<DateScreen> {
               },
             ),
             CupertinoButton(
-              child: Text("Start Game (Automatic)"),
-              onPressed: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) {
-                    return AutomaticGameScreen(
-                        game: Game(_chosenDateTime.year, _chosenDateTime.month,
-                            _chosenDateTime.day));
-                  }),
-                );
-              },
-            ),
-            CupertinoButton(
-              child: Text("Start Game (Manual)"),
+              child: Text("Start Game"),
               onPressed: () {
                 Navigator.of(context).push(
                   CupertinoPageRoute(builder: (context) {
