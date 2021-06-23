@@ -5,6 +5,7 @@ import 'package:coryat/data/serialize.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
+import 'package:coryat/enums/stat.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/marker.dart';
@@ -125,53 +126,56 @@ class Game {
 
   // Stats
 
-  int getCoryat() {
-    int total = 0;
-    _events.forEach((Event event) {
-      if (event.type == EventType.clue) {
-        Clue c = event as Clue;
-        if (c.response == Response.correct) {
-          total += c.question.value;
-        } else if (c.response == Response.incorrect) {
-          total -= c.question.value;
-        }
-      }
-    });
-    return total;
-  }
-
-  int getJeopardyCoryat() {
-    int total = 0;
-    _events.forEach((Event event) {
-      if (event.type == EventType.clue) {
-        Clue c = event as Clue;
-        if (c.question.round == Round.jeopardy) {
-          if (c.response == Response.correct) {
-            total += c.question.value;
-          } else if (c.response == Response.incorrect) {
-            total -= c.question.value;
+  int getStat(int stat) {
+    switch (stat) {
+      case Stat.CORYAT:
+        int total = 0;
+        _events.forEach((Event event) {
+          if (event.type == EventType.clue) {
+            Clue c = event as Clue;
+            if (c.response == Response.correct) {
+              total += c.question.value;
+            } else if (c.response == Response.incorrect) {
+              total -= c.question.value;
+            }
           }
-        }
-      }
-    });
-    return total;
-  }
-
-  int getDoubleJeopardyCoryat() {
-    int total = 0;
-    _events.forEach((Event event) {
-      if (event.type == EventType.clue) {
-        Clue c = event as Clue;
-        if (c.question.round == Round.double_jeopardy) {
-          if (c.response == Response.correct) {
-            total += c.question.value;
-          } else if (c.response == Response.incorrect) {
-            total -= c.question.value;
+        });
+        return total;
+        break;
+      case Stat.JEOPARDY_CORYAT:
+        int total = 0;
+        _events.forEach((Event event) {
+          if (event.type == EventType.clue) {
+            Clue c = event as Clue;
+            if (c.question.round == Round.jeopardy) {
+              if (c.response == Response.correct) {
+                total += c.question.value;
+              } else if (c.response == Response.incorrect) {
+                total -= c.question.value;
+              }
+            }
           }
-        }
-      }
-    });
-    return total;
+        });
+        return total;
+        break;
+      case Stat.DOUBLE_JEOPARDY_CORYAT:
+        int total = 0;
+        _events.forEach((Event event) {
+          if (event.type == EventType.clue) {
+            Clue c = event as Clue;
+            if (c.question.round == Round.double_jeopardy) {
+              if (c.response == Response.correct) {
+                total += c.question.value;
+              } else if (c.response == Response.incorrect) {
+                total -= c.question.value;
+              }
+            }
+          }
+        });
+        return total;
+        break;
+    }
+    return 0;
   }
 
   bool getFinalJeopardyResponse() {
@@ -190,23 +194,24 @@ class Game {
 
   static String delimiter = "@";
 
-  String encode() {
+  String encode({bool firebase = false}) {
+    // TODO: smart serialization (use firebase variable)
     String s = synced ? "1" : "0";
     List<String> data = [
       dateAired.year.toString(),
       dateAired.month.toString(),
       dateAired.day.toString(),
       datePlayed.millisecondsSinceEpoch.toString(),
-      user.encode(),
+      user.encode(firebase: firebase),
       s
     ];
     _events.forEach((Event event) {
-      data.add(event.encode());
+      data.add(event.encode(firebase: firebase));
     });
     return Serialize.encode(data, delimiter);
   }
 
-  static Game decode(String encoded) {
+  static Game decode(String encoded, {bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, delimiter);
     List<String> events = dec.sublist(6);
     List<Event> ev = [];

@@ -19,13 +19,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   void initState() {
-    refresh();
-    FirebaseAuth.instance.currentUser().then((user) => user != null
-        ? setState(() {
-            _user = User(user.email, user.displayName, user.uid);
-            // _games = await Firebase.loadGames(_user); // TODO: async shouldn't be in setState
-          })
-        : null);
+    FirebaseAuth.instance.currentUser().then((user) => refresh(user));
     super.initState();
   }
 
@@ -62,8 +56,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  void refresh() async {
-    _games = await SqlitePersistence.getGames();
+  void refresh(FirebaseUser firebaseUser) async {
+    if (firebaseUser == null) {
+      _games = await SqlitePersistence.getGames();
+    } else {
+      _user =
+          User(firebaseUser.email, firebaseUser.displayName, firebaseUser.uid);
+      _games = await Firebase.loadGames(_user);
+    }
     setState(() {});
   }
 

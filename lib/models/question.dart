@@ -24,7 +24,7 @@ class Question {
 
   static String delimiter = "^";
 
-  String encode() {
+  String encode({bool firebase = false}) {
     List<String> data = [
       category,
       text,
@@ -35,7 +35,7 @@ class Question {
     return Serialize.encode(data, delimiter);
   }
 
-  static Question decode(String encoded) {
+  static Question decode(String encoded, {bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, delimiter);
     Question q =
         Question(int.parse(dec[4]), dec[0], int.parse(dec[3]), dec[1], dec[2]);

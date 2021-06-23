@@ -2,6 +2,7 @@ import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
+import 'package:coryat/enums/stat.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
@@ -187,7 +188,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                       ]))
                   .toList(),
             ),
-            Text("Current Coryat: \$" + widget.game.getCoryat().toString()),
+            Text("Current Coryat: \$" +
+                widget.game.getStat(Stat.CORYAT).toString()),
             CupertinoButton(
               child: Text("Finish Game"),
               onPressed: () {

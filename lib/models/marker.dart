@@ -24,13 +24,13 @@ class Marker implements Event {
 
   // Serialize
 
-  String encode() {
+  String encode({bool firebase = false}) {
     List<String> data = [order, type.toString(), _name, notes];
     data.addAll(tags);
     return Serialize.encode(data, Event.delimiter);
   }
 
-  static Marker decode(String encoded) {
+  static Marker decode(String encoded, {bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, Event.delimiter);
     Marker m = Marker(dec[2], dec[3]);
     m.order = dec[0];

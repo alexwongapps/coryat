@@ -33,19 +33,19 @@ class Clue implements Event {
 
   // Serialize
 
-  String encode() {
+  String encode({bool firebase = false}) {
     List<String> data = [
       order,
       type.toString(),
       response.toString(),
-      question.encode(),
+      question.encode(firebase: firebase),
       notes
     ];
     data.addAll(tags);
     return Serialize.encode(data, Event.delimiter);
   }
 
-  static Clue decode(String encoded) {
+  static Clue decode(String encoded, {bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, Event.delimiter);
     Clue c = Clue(int.parse(dec[2]), dec[4]);
     c.order = dec[0];

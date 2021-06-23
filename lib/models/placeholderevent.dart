@@ -21,13 +21,13 @@ class PlaceholderEvent implements Event {
 
   // Serialization
 
-  String encode() {
+  String encode({bool firebase = false}) {
     List<String> data = [order, type.toString(), notes];
     data.addAll(tags);
     return Serialize.encode(data, Event.delimiter);
   }
 
-  static PlaceholderEvent decode(String encoded) {
+  static PlaceholderEvent decode(String encoded, {bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, Event.delimiter);
     PlaceholderEvent p = PlaceholderEvent();
     p.order = dec[0];

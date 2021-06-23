@@ -19,12 +19,12 @@ class User {
 
   static String delimiter = "&";
 
-  String encode() {
+  String encode({bool firebase = false}) {
     List<String> data = [email, username, firebaseID];
     return Serialize.encode(data, delimiter);
   }
 
-  static User decode(String encoded) {
+  static User decode(String encoded, {bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, delimiter);
     return User(dec[0], dec[1], dec[2]);
   }

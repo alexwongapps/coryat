@@ -29,4 +29,11 @@ class SqlitePersistence {
     });
     return g;
   }
+
+  static Future<void> setGames(List<Game> games) async {
+    await _db.delete("games");
+    for (final game in games) {
+      await addGame(game);
+    }
+  }
 }

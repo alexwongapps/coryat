@@ -14,9 +14,9 @@ abstract class Event {
 
   static String delimiter = "!";
 
-  String encode();
+  String encode({bool firebase = false});
 
-  static Event decode(String encoded) {
+  static Event decode(String encoded, {bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, delimiter);
     switch (int.parse(dec[1])) {
       case EventType.clue:
