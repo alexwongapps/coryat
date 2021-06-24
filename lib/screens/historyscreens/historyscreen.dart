@@ -39,7 +39,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 rows: _games
                     .map(
                       (game) => DataRow(
-                          cells: [DataCell(Text(game.dateAired.toString()))],
+                          cells: [DataCell(Text(game.dateDescription()))],
                           onSelectChanged: (value) {
                             Navigator.of(context)
                                 .push(CupertinoPageRoute(builder: (context) {

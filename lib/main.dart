@@ -14,11 +14,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(
-      title: 'Flutter Demo',
+      title: 'Coryat',
       theme: CupertinoThemeData(
+        textTheme: CupertinoTextThemeData(
+            textStyle: TextStyle(
+                fontFamily: 'Lato',
+                fontSize: 18,
+                color: CupertinoColors.black)),
+        barBackgroundColor: Colors.lightBlue[200],
+        scaffoldBackgroundColor: Colors.lightBlue[200],
         primaryColor: Colors.blue[900],
       ),
-      home: HomeScreen(title: 'Flutter Demo Home Page'),
+      home: HomeScreen(title: 'Coryat'),
     );
   }
 }

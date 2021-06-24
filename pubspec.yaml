@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^0.4.0+9
+  intl: ^0.16.1
 
   # Add the dependency for the FlutterFire plugin for Google Analytics
   firebase_analytics: ^5.0.2
@@ -86,3 +87,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+  fonts:
+    - family: Lato
+      fonts:
+        - asset: assets/Lato/Lato-Regular.ttf
+        - asset: assets/Lato/Lato-Italic.ttf
+        - asset: assets/Lato/Lato-Bold.ttf

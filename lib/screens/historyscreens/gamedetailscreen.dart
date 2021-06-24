@@ -18,7 +18,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.game.dateAired.toString()),
+        middle: Text(widget.game.dateDescription()),
       ),
       child: Center(
         child: Column(

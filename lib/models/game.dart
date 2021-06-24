@@ -12,6 +12,7 @@ import 'package:coryat/models/marker.dart';
 import 'package:coryat/models/nextroundmarker.dart';
 import 'package:coryat/models/placeholderevent.dart';
 import 'package:coryat/models/user.dart';
+import 'package:intl/intl.dart';
 
 class Game {
   DateTime dateAired;
@@ -183,6 +184,11 @@ class Game {
       }
     }
     return false;
+  }
+
+  String dateDescription() {
+    final df = new DateFormat('MM/dd/yyyy (EEEE)');
+    return df.format(dateAired);
   }
 
   // Serialize

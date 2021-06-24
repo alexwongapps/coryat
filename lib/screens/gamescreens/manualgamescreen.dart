@@ -1,5 +1,6 @@
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
+import 'package:coryat/enums/fontsize.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
 import 'package:coryat/enums/stat.dart';
@@ -21,12 +22,17 @@ class ManualGameScreen extends StatefulWidget {
 class _ManualGameScreenState extends State<ManualGameScreen> {
   int currentRound = Round.jeopardy;
   int selectedValue = 0;
+  int selectedButton = 0;
   bool isDailyDouble = false;
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text("Play Game"),
+        middle: Text(currentRound == Round.jeopardy
+            ? "Jeopardy Round"
+            : currentRound == Round.double_jeopardy
+                ? "Double Jeopardy Round"
+                : "Final Jeopardy"),
       ),
       child: Center(
         child: Column(
@@ -35,65 +41,63 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(selectedValue.toString()),
-                isDailyDouble ? Text("Daily Double") : Text(""),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
                 CupertinoButton(
-                  child: currentRound == Round.jeopardy
-                      ? Text("\$200")
-                      : Text("\$400"),
+                  child: Text(
+                    currentRound == Round.jeopardy
+                        ? "\$200"
+                        : currentRound == Round.double_jeopardy
+                            ? "\$400"
+                            : "",
+                    style: TextStyle(
+                        color: selectedButton != 1
+                            ? CupertinoTheme.of(context).primaryColor
+                            : CupertinoColors.systemPurple),
+                  ),
                   onPressed: () {
                     setState(() {
                       selectedValue =
                           currentRound == Round.jeopardy ? 200 : 400;
+                      selectedButton = 1;
                     });
                   },
                 ),
                 CupertinoButton(
-                  child: currentRound == Round.jeopardy
-                      ? Text("\$400")
-                      : Text("\$800"),
+                  child: Text(
+                    currentRound == Round.jeopardy
+                        ? "\$400"
+                        : currentRound == Round.double_jeopardy
+                            ? "\$800"
+                            : "",
+                    style: TextStyle(
+                        color: selectedButton != 2
+                            ? CupertinoTheme.of(context).primaryColor
+                            : CupertinoColors.systemPurple),
+                  ),
                   onPressed: () {
                     setState(() {
                       selectedValue =
                           currentRound == Round.jeopardy ? 400 : 800;
+                      selectedButton = 2;
                     });
                   },
                 ),
                 CupertinoButton(
-                  child: currentRound == Round.jeopardy
-                      ? Text("\$600")
-                      : Text("\$1200"),
+                  child: Text(
+                    currentRound == Round.jeopardy
+                        ? "\$600"
+                        : currentRound == Round.double_jeopardy
+                            ? "\$1200"
+                            : "",
+                    style: TextStyle(
+                        color: selectedButton != 3
+                            ? CupertinoTheme.of(context).primaryColor
+                            : CupertinoColors.systemPurple),
+                  ),
                   onPressed: () {
                     setState(() {
                       selectedValue =
                           currentRound == Round.jeopardy ? 600 : 1200;
-                    });
-                  },
-                ),
-                CupertinoButton(
-                  child: currentRound == Round.jeopardy
-                      ? Text("\$800")
-                      : Text("\$1600"),
-                  onPressed: () {
-                    setState(() {
-                      selectedValue =
-                          currentRound == Round.jeopardy ? 800 : 1600;
-                    });
-                  },
-                ),
-                CupertinoButton(
-                  child: currentRound == Round.jeopardy
-                      ? Text("\$1000")
-                      : Text("\$2000"),
-                  onPressed: () {
-                    setState(() {
-                      selectedValue =
-                          currentRound == Round.jeopardy ? 1000 : 2000;
+                      selectedButton = 3;
                     });
                   },
                 ),
@@ -103,7 +107,58 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CupertinoButton(
-                  child: Text("Daily Double"),
+                  child: Text(
+                    currentRound == Round.jeopardy
+                        ? "\$800"
+                        : currentRound == Round.double_jeopardy
+                            ? "\$1600"
+                            : "",
+                    style: TextStyle(
+                        color: selectedButton != 4
+                            ? CupertinoTheme.of(context).primaryColor
+                            : CupertinoColors.systemPurple),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      selectedValue =
+                          currentRound == Round.jeopardy ? 800 : 1600;
+                      selectedButton = 4;
+                    });
+                  },
+                ),
+                CupertinoButton(
+                  child: Text(
+                    currentRound == Round.jeopardy
+                        ? "\$1000"
+                        : currentRound == Round.double_jeopardy
+                            ? "\$2000"
+                            : "",
+                    style: TextStyle(
+                        color: selectedButton != 5
+                            ? CupertinoTheme.of(context).primaryColor
+                            : CupertinoColors.systemPurple),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      selectedValue =
+                          currentRound == Round.jeopardy ? 1000 : 2000;
+                      selectedButton = 5;
+                    });
+                  },
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CupertinoButton(
+                  child: Text(
+                    currentRound == Round.final_jeopardy ? "" : "Daily Double",
+                    style: TextStyle(
+                        color: !isDailyDouble
+                            ? CupertinoTheme.of(context).primaryColor
+                            : CupertinoColors.systemPurple),
+                  ),
                   onPressed: () {
                     setState(() {
                       isDailyDouble = !isDailyDouble;
@@ -145,12 +200,12 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CupertinoButton(
-                  child: Text("Next Round"),
+                  child: currentRound == Round.final_jeopardy
+                      ? Text("")
+                      : Text("Next Round"),
                   onPressed: () {
                     setState(() {
-                      widget.game.nextRound();
-                      currentRound = Round.nextRound(currentRound);
-                      resetClue();
+                      nextRound();
                     });
                   },
                 ),
@@ -160,7 +215,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     setState(() {
                       Event last = widget.game.undo();
                       if (last != null && last.type == EventType.marker) {
-                        if ((last as Marker).type == EventType.marker) {
+                        if ((last as Marker).primaryText() ==
+                            Marker.NEXT_ROUND) {
                           currentRound = Round.previousRound(currentRound);
                         }
                       }
@@ -204,12 +260,22 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
       widget.game.addManualResponse(response, currentRound, selectedValue,
           isDailyDouble ? ["Daily Double"] : []);
       resetClue();
+      if (widget.game.getEvents().last.order.endsWith("30")) {
+        nextRound();
+      }
     }
+  }
+
+  void nextRound() {
+    widget.game.nextRound();
+    currentRound = Round.nextRound(currentRound);
+    resetClue();
   }
 
   void resetClue() {
     setState(() {
       selectedValue = 0;
+      selectedButton = 0;
       isDailyDouble = false;
     });
   }

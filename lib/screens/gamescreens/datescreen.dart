@@ -23,7 +23,7 @@ class _DateScreenState extends State<DateScreen> {
           children: [
             Text(_dateString(_chosenDateTime)),
             CupertinoButton(
-              child: Text("Select Date"),
+              child: Text("Select Other Date"),
               onPressed: () {
                 _showDatePicker(context);
               },
@@ -31,13 +31,44 @@ class _DateScreenState extends State<DateScreen> {
             CupertinoButton(
               child: Text("Start Game"),
               onPressed: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) {
-                    return ManualGameScreen(
-                        game: Game(_chosenDateTime.year, _chosenDateTime.month,
-                            _chosenDateTime.day));
-                  }),
-                );
+                if (!(DateTime(_chosenDateTime.year, _chosenDateTime.month,
+                                _chosenDateTime.day)
+                            .weekday ==
+                        DateTime.saturday ||
+                    DateTime(_chosenDateTime.year, _chosenDateTime.month,
+                                _chosenDateTime.day)
+                            .weekday ==
+                        DateTime.sunday)) {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(builder: (context) {
+                      return ManualGameScreen(
+                          game: Game(_chosenDateTime.year,
+                              _chosenDateTime.month, _chosenDateTime.day));
+                    }),
+                  );
+                } else {
+                  Widget okButton = CupertinoButton(
+                    child: Text("OK"),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  );
+
+                  CupertinoAlertDialog alert = CupertinoAlertDialog(
+                    title: Text("Invalid date"),
+                    content: Text("Please chose a weekday"),
+                    actions: [
+                      okButton,
+                    ],
+                  );
+
+                  showCupertinoDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return alert;
+                    },
+                  );
+                }
               },
             )
           ],
