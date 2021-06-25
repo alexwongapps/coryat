@@ -52,23 +52,23 @@ class _StatsScreenState extends State<StatsScreen> {
     switch (stat) {
       case Stat.CORYAT:
         int total = 0;
-        _games.forEach((Game game) {
+        for (Game game in _games) {
           total += game.getStat(Stat.CORYAT);
-        });
+        }
         return total ~/ _games.length;
         break;
       case Stat.JEOPARDY_CORYAT:
         int total = 0;
-        _games.forEach((Game game) {
+        for (Game game in _games) {
           total += game.getStat(Stat.JEOPARDY_CORYAT);
-        });
+        }
         return total ~/ _games.length;
         break;
       case Stat.DOUBLE_JEOPARDY_CORYAT:
         int total = 0;
-        _games.forEach((Game game) {
+        for (Game game in _games) {
           total += game.getStat(Stat.DOUBLE_JEOPARDY_CORYAT);
-        });
+        }
         return total ~/ _games.length;
         break;
     }
@@ -81,11 +81,11 @@ class _StatsScreenState extends State<StatsScreen> {
     }
     int right = 0;
     int total = _games.length;
-    _games.forEach((Game game) {
+    for (Game game in _games) {
       if (game.getFinalJeopardyResponse()) {
         right += 1;
       }
-    });
+    }
     return right.toString() +
         "–" +
         total.toString() +

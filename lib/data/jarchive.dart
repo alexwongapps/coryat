@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:coryat/enums/round.dart';
+import 'package:coryat/enums/tags.dart';
 import 'package:coryat/models/game.dart';
 
 class JArchive {
@@ -34,9 +35,9 @@ class JArchive {
   static void loadIntoGame(Game game) async {
     Map json = await _getGameMap(game.dateAired); // TODO: this doesn't wait
     Map<String, List<int>> seen = new Map();
-    List<Map<String, dynamic>> stash = new List();
+    List<Map<String, dynamic>> stash = [];
     for (final m in json["jeopardy"]) {
-      if (m["value"] == "Daily Double") {
+      if (m["value"] == Tags.DAILY_DOUBLE) {
         stash.add(m);
       } else {
         game.addClue(Round.jeopardy, m["category"], m["value"] as int,

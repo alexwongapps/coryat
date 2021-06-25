@@ -24,15 +24,15 @@ class SqlitePersistence {
   static Future<List<Game>> getGames() async {
     List<Map<String, dynamic>> l = await _db.query("games");
     List<Game> g = [];
-    l.forEach((Map<String, dynamic> m) {
+    for (Map<String, dynamic> m in l) {
       g.add(Game.decode(m['game']));
-    });
+    }
     return g;
   }
 
   static Future<void> setGames(List<Game> games) async {
     await _db.delete("games");
-    for (final game in games) {
+    for (Game game in games) {
       await addGame(game);
     }
   }

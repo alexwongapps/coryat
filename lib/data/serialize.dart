@@ -8,13 +8,13 @@ class Serialize {
     assert(delimiter != "\\");
     assert(delimiter.length == 1);
     String _ret = "";
-    items.forEach((String item) {
+    for (String item in items) {
       item = item.replaceAll("\\", "\\\\");
-      allDelimiters.forEach((String delim) {
+      for (String delim in allDelimiters) {
         item = item.replaceAll(delim, "\\" + delim);
-      });
+      }
       _ret += item + delimiter;
-    });
+    }
     return _ret.substring(0, _ret.length - 1);
   }
 

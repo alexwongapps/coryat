@@ -1,6 +1,7 @@
 import 'package:coryat/data/serialize.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
+import 'package:coryat/enums/tags.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/question.dart';
 
@@ -28,6 +29,10 @@ class Clue implements Event {
         return "No Answer";
     }
     return "No Answer";
+  }
+
+  bool isDailyDouble() {
+    return tags.contains(Tags.DAILY_DOUBLE);
   }
 
   // Serialize

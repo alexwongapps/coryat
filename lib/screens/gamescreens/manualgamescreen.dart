@@ -4,6 +4,7 @@ import 'package:coryat/enums/fontsize.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
 import 'package:coryat/enums/stat.dart';
+import 'package:coryat/enums/tags.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
@@ -153,7 +154,9 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
               children: [
                 CupertinoButton(
                   child: Text(
-                    currentRound == Round.final_jeopardy ? "" : "Daily Double",
+                    currentRound == Round.final_jeopardy
+                        ? ""
+                        : Tags.DAILY_DOUBLE,
                     style: TextStyle(
                         color: !isDailyDouble
                             ? CupertinoTheme.of(context).primaryColor
@@ -230,11 +233,15 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
               children: (widget.game.lastEvents(5))
                   .map((event) => TableRow(children: [
                         Text(event.order),
-                        Text(event.type == EventType.marker ||
-                                (event as Clue).question.round ==
-                                    Round.final_jeopardy
-                            ? ""
-                            : (event as Clue).question.value.toString()),
+                        Text((event.type == EventType.marker ||
+                                    (event as Clue).question.round ==
+                                        Round.final_jeopardy
+                                ? ""
+                                : (event as Clue).question.value.toString()) +
+                            (event.type == EventType.clue &&
+                                    (event as Clue).isDailyDouble()
+                                ? " (DD)"
+                                : "")),
                         Text(event.primaryText()),
                       ]))
                   .toList(),
@@ -258,7 +265,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   void addResponse(int response) {
     if (selectedValue != 0 || currentRound == Round.final_jeopardy) {
       widget.game.addManualResponse(response, currentRound, selectedValue,
-          isDailyDouble ? ["Daily Double"] : []);
+          isDailyDouble ? [Tags.DAILY_DOUBLE] : []);
       resetClue();
       if (widget.game.getEvents().last.order.endsWith("30")) {
         nextRound();

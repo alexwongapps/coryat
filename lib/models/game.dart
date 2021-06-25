@@ -47,7 +47,7 @@ class Game {
 
   void addClue(int round, String category, int value, String clue,
       String answer, int order) {
-    _events.forEach((Event event) {
+    for (Event event in _events) {
       if (event.order == Round.toAbbrev(round) + order.toString()) {
         Clue c = event as Clue;
         c.question.category = category;
@@ -56,7 +56,7 @@ class Game {
         c.question.text = clue;
         c.question.value = value;
       }
-    });
+    }
   }
 
   void addMarker(String name) {
@@ -98,7 +98,7 @@ class Game {
     int number = 0;
     int round = Round.jeopardy;
 
-    _events.forEach((Event event) {
+    for (Event event in _events) {
       if (event.type == EventType.clue) {
         number++;
         event.order = Round.toAbbrev(round) + number.toString();
@@ -117,7 +117,7 @@ class Game {
             break;
         }
       }
-    });
+    }
   }
 
   // Stats
@@ -126,7 +126,7 @@ class Game {
     switch (stat) {
       case Stat.CORYAT:
         int total = 0;
-        _events.forEach((Event event) {
+        for (Event event in _events) {
           if (event.type == EventType.clue) {
             Clue c = event as Clue;
             if (c.response == Response.correct) {
@@ -135,12 +135,12 @@ class Game {
               total -= c.question.value;
             }
           }
-        });
+        }
         return total;
         break;
       case Stat.JEOPARDY_CORYAT:
         int total = 0;
-        _events.forEach((Event event) {
+        for (Event event in _events) {
           if (event.type == EventType.clue) {
             Clue c = event as Clue;
             if (c.question.round == Round.jeopardy) {
@@ -151,12 +151,12 @@ class Game {
               }
             }
           }
-        });
+        }
         return total;
         break;
       case Stat.DOUBLE_JEOPARDY_CORYAT:
         int total = 0;
-        _events.forEach((Event event) {
+        for (Event event in _events) {
           if (event.type == EventType.clue) {
             Clue c = event as Clue;
             if (c.question.round == Round.double_jeopardy) {
@@ -167,15 +167,38 @@ class Game {
               }
             }
           }
-        });
+        }
         return total;
+        break;
+      case Stat.MAX_CORYAT:
+        int seenInRound = 0;
+        int currentRound = Round.jeopardy;
+        for (Event event in _events) {
+          if (event.type == EventType.clue) {
+            Clue c = event as Clue;
+            seenInRound += c.question.value;
+          } else if (event.type == EventType.marker) {
+            Marker m = event as Marker;
+            if (m.primaryText() == Marker.NEXT_ROUND) {
+              seenInRound = 0;
+              currentRound = Round.nextRound(currentRound);
+            }
+          }
+        }
+        if (currentRound == Round.jeopardy) {
+          return getStat(Stat.CORYAT) + (18000 - seenInRound) + 36000;
+        } else if (currentRound == Round.double_jeopardy) {
+          return getStat(Stat.CORYAT) + (36000 - seenInRound);
+        } else {
+          return getStat(Stat.CORYAT);
+        }
         break;
     }
     return 0;
   }
 
   bool getFinalJeopardyResponse() {
-    for (final event in _events) {
+    for (Event event in _events) {
       if (event.type == EventType.clue) {
         Clue c = event as Clue;
         if (c.question.round == Round.final_jeopardy) {
@@ -206,9 +229,9 @@ class Game {
       user.encode(firebase: firebase),
       s
     ];
-    _events.forEach((Event event) {
+    for (Event event in _events) {
       data.add(event.encode(firebase: firebase));
-    });
+    }
     return Serialize.encode(data, delimiter);
   }
 
@@ -216,9 +239,9 @@ class Game {
     List<String> dec = Serialize.decode(encoded, delimiter);
     List<String> events = dec.sublist(6);
     List<Event> ev = [];
-    events.forEach((String evs) {
+    for (String evs in events) {
       ev.add(Event.decode(evs));
-    });
+    }
     Game g = Game(int.parse(dec[0]), int.parse(dec[1]), int.parse(dec[2]),
         User.decode(dec[4]));
     g.synced = (dec[5] == "1") ? true : false;
