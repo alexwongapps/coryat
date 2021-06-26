@@ -3,6 +3,7 @@ import 'package:coryat/constants/font.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/screens/gamescreens/manualgamescreen.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 
 class DateScreen extends StatefulWidget {
   @override
@@ -18,9 +19,10 @@ class _DateScreenState extends State<DateScreen> {
       navigationBar: CoryatElement.cupertinoNavigationBar("Pick Game Date"),
       child: Center(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text(_dateString(_chosenDateTime)),
+            CoryatElement.text(_dateString(_chosenDateTime),
+                size: Font.size_large_text),
             CoryatElement.cupertinoButton(
               "Select Other Date",
               () {
@@ -111,10 +113,7 @@ class _DateScreenState extends State<DateScreen> {
   }
 
   String _dateString(DateTime date) {
-    return date.month.toString() +
-        "/" +
-        date.day.toString() +
-        "/" +
-        date.year.toString();
+    final df = new DateFormat('M/dd/yyyy (EEEE)');
+    return df.format(date);
   }
 }

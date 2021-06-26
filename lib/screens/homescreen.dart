@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
       navigationBar: CoryatElement.cupertinoNavigationBar("Coryat"),
       child: Center(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             CoryatElement.cupertinoButton(
               "Start Game",

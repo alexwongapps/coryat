@@ -216,20 +216,21 @@ class Game {
     return 0;
   }
 
-  bool getFinalJeopardyResponse() {
+  List<int> getCustomPerformance(bool Function(Clue) filter) {
+    List<int> performance = [0, 0, 0];
     for (Event event in _events) {
       if (event.type == EventType.clue) {
         Clue c = event as Clue;
-        if (c.question.round == Round.final_jeopardy) {
-          return c.response == Response.correct;
+        if (filter(c)) {
+          performance[c.response]++;
         }
       }
     }
-    return false;
+    return performance;
   }
 
   String dateDescription() {
-    final df = new DateFormat('MM/dd/yyyy (EEEE)');
+    final df = new DateFormat('M/dd/yyyy (EEEE)');
     return df.format(dateAired);
   }
 

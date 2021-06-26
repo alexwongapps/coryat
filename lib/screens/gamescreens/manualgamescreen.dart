@@ -1,4 +1,6 @@
 import 'package:coryat/constants/coryatelement.dart';
+import 'package:coryat/constants/customcolor.dart';
+import 'package:coryat/constants/design.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/constants/font.dart';
@@ -11,6 +13,7 @@ import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/models/marker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class ManualGameScreen extends StatefulWidget {
   final Game game;
@@ -40,7 +43,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CupertinoButton(
                   child: Text(
@@ -108,7 +111,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CupertinoButton(
                   child: Text(
@@ -176,8 +179,9 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                 ),
               ],
             ),
+            CoryatElement.divider(),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CoryatElement.cupertinoButton(
                   "Correct",
@@ -206,7 +210,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CoryatElement.cupertinoButton(
                   _currentRound == Round.final_jeopardy ? "" : "Next Round",
@@ -233,6 +237,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                 ),
               ],
             ),
+            CoryatElement.divider(),
+            CoryatElement.text("Latest Clues"),
             Table(
               children: (widget.game.lastEvents(5))
                   .map((event) => TableRow(children: [
@@ -250,15 +256,30 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                       ]))
                   .toList(),
             ),
+            CoryatElement.divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  "\$" +
+                      widget.game.getStat(Stat.CORRECT_TOTAL_VALUE).toString(),
+                  style: TextStyle(color: CustomColor.correctGreen),
+                ),
+                Text(
+                  "−\$" +
+                      widget.game
+                          .getStat(Stat.INCORRECT_TOTAL_VALUE)
+                          .toString(),
+                  style: TextStyle(color: CustomColor.incorrectRed),
+                ),
+                Text("(\$" +
+                    widget.game.getStat(Stat.NO_ANSWER_TOTAL_VALUE).toString() +
+                    ")"),
+              ],
+            ),
             Text("Current Coryat: \$" +
                 widget.game.getStat(Stat.CORYAT).toString()),
-            Text("Correct-Incorrect-No Answer: " +
-                widget.game.getStat(Stat.CORRECT_TOTAL_VALUE).toString() +
-                "-" +
-                widget.game.getStat(Stat.INCORRECT_TOTAL_VALUE).toString() +
-                "-" +
-                widget.game.getStat(Stat.NO_ANSWER_TOTAL_VALUE).toString()),
-            Text("Maximum Possible Coryat: " +
+            Text("Maximum Possible Coryat: \$" +
                 widget.game.getStat(Stat.MAX_CORYAT).toString()),
             CoryatElement.cupertinoButton(
                 _currentRound == Round.final_jeopardy ? "Finish Game" : "", () {
