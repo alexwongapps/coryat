@@ -18,7 +18,7 @@ class AutomaticGameScreen extends StatefulWidget {
 }
 
 class _AutomaticGameScreenState extends State<AutomaticGameScreen> {
-  int currentRound = Round.jeopardy;
+  int _currentRound = Round.jeopardy;
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -64,7 +64,7 @@ class _AutomaticGameScreenState extends State<AutomaticGameScreen> {
                   onPressed: () {
                     setState(() {
                       widget.game.nextRound();
-                      currentRound = Round.nextRound(currentRound);
+                      _currentRound = Round.nextRound(_currentRound);
                       resetClue();
                     });
                   },
@@ -76,7 +76,7 @@ class _AutomaticGameScreenState extends State<AutomaticGameScreen> {
                       Event last = widget.game.undo();
                       if (last != null && last.type == EventType.marker) {
                         if ((last as Marker).type == EventType.marker) {
-                          currentRound = Round.previousRound(currentRound);
+                          _currentRound = Round.previousRound(_currentRound);
                         }
                       }
                       resetClue();

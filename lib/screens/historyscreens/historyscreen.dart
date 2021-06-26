@@ -1,4 +1,5 @@
 import 'package:coryat/constants/coryatelement.dart';
+import 'package:coryat/constants/fontsize.dart';
 import 'package:coryat/data/firebase.dart';
 import 'package:coryat/data/jarchive.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
@@ -24,35 +25,33 @@ class _HistoryScreenState extends State<HistoryScreen> {
     super.initState();
   }
 
+  Widget _buildGameRow(Game game) {
+    return new ListTile(
+      title: Text(game.dateDescription()),
+      onTap: () {
+        Navigator.of(context).push(CupertinoPageRoute(builder: (context) {
+          return GameDetailScreen(game: game);
+        }));
+      },
+    );
+  }
+
+  Widget _buildGames() {
+    return new ListView.builder(itemBuilder: (context, i) {
+      if (i < _games.length) {
+        return _buildGameRow(_games[i]);
+      }
+      return null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CoryatElement.cupertinoNavigationBar("Games Played"),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Material(
-              child: DataTable(
-                columns: [DataColumn(label: Text("Game"))],
-                rows: _games
-                    .map(
-                      (game) => DataRow(
-                          cells: [DataCell(Text(game.dateDescription()))],
-                          onSelectChanged: (value) {
-                            Navigator.of(context)
-                                .push(CupertinoPageRoute(builder: (context) {
-                              return GameDetailScreen(game: game);
-                            }));
-                          }),
-                    )
-                    .toList(),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
+        navigationBar: CoryatElement.cupertinoNavigationBar("Games Played"),
+        child: Material(
+          child: _buildGames(),
+        ));
   }
 
   void refresh(FirebaseUser firebaseUser) async {
