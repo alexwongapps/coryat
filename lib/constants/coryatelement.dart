@@ -1,4 +1,4 @@
-import 'package:coryat/constants/fontsize.dart';
+import 'package:coryat/constants/font.dart';
 import 'package:flutter/cupertino.dart';
 
 class CoryatElement {
@@ -12,5 +12,15 @@ class CoryatElement {
       ),
       border: null,
     );
+  }
+
+  static cupertinoButton(String text, Function onPressed,
+      {double size = Font.size_regular_button}) {
+    return CupertinoButton(
+        child: Text(
+          text,
+          style: TextStyle(fontSize: size),
+        ),
+        onPressed: onPressed);
   }
 }

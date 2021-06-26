@@ -35,9 +35,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CupertinoButton(
-              child: _isLoggedIn() ? Text("Log Out") : Text("Log In"),
-              onPressed: () {
+            CoryatElement.cupertinoButton(
+              _isLoggedIn() ? "Log Out" : "Log In",
+              () {
                 _isLoggedIn() ? logOut() : logIn();
               },
             )

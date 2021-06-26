@@ -1,5 +1,5 @@
 import 'package:coryat/constants/coryatelement.dart';
-import 'package:coryat/constants/fontsize.dart';
+import 'package:coryat/constants/font.dart';
 import 'package:coryat/data/firebase.dart';
 import 'package:coryat/data/jarchive.dart';
 import 'package:coryat/data/sqlitepersistence.dart';

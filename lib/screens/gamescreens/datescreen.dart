@@ -1,7 +1,7 @@
 import 'package:coryat/constants/coryatelement.dart';
+import 'package:coryat/constants/font.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/screens/gamescreens/manualgamescreen.dart';
-import 'package:coryat/screens/gamescreens/automaticgamescreen.dart';
 import 'package:flutter/cupertino.dart';
 
 class DateScreen extends StatefulWidget {
@@ -21,15 +21,16 @@ class _DateScreenState extends State<DateScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(_dateString(_chosenDateTime)),
-            CupertinoButton(
-              child: Text("Select Other Date"),
-              onPressed: () {
+            CoryatElement.cupertinoButton(
+              "Select Other Date",
+              () {
                 _showDatePicker(context);
               },
+              size: Font.size_large_button,
             ),
-            CupertinoButton(
-              child: Text("Start Game"),
-              onPressed: () {
+            CoryatElement.cupertinoButton(
+              "Start Game",
+              () {
                 if (!(DateTime(_chosenDateTime.year, _chosenDateTime.month,
                                 _chosenDateTime.day)
                             .weekday ==
@@ -46,9 +47,9 @@ class _DateScreenState extends State<DateScreen> {
                     }),
                   );
                 } else {
-                  Widget okButton = CupertinoButton(
-                    child: Text("OK"),
-                    onPressed: () {
+                  Widget okButton = CoryatElement.cupertinoButton(
+                    "OK",
+                    () {
                       Navigator.pop(context);
                     },
                   );
@@ -69,6 +70,7 @@ class _DateScreenState extends State<DateScreen> {
                   );
                 }
               },
+              size: Font.size_large_button,
             )
           ],
         ),
@@ -99,9 +101,9 @@ class _DateScreenState extends State<DateScreen> {
                   ),
 
                   // Close the modal
-                  CupertinoButton(
-                    child: Text('OK'),
-                    onPressed: () => Navigator.of(ctx).pop(),
+                  CoryatElement.cupertinoButton(
+                    "OK",
+                    () => Navigator.of(ctx).pop(),
                   )
                 ],
               ),

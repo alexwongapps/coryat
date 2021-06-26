@@ -1,7 +1,7 @@
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
-import 'package:coryat/constants/fontsize.dart';
+import 'package:coryat/constants/font.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
 import 'package:coryat/enums/stat.dart';
@@ -52,7 +52,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     style: TextStyle(
                         color: _selectedButton != 1
                             ? CupertinoTheme.of(context).primaryColor
-                            : CupertinoColors.systemPurple),
+                            : CupertinoColors.systemPurple,
+                        fontSize: Font.size_large_button),
                   ),
                   onPressed: () {
                     setState(() {
@@ -72,7 +73,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     style: TextStyle(
                         color: _selectedButton != 2
                             ? CupertinoTheme.of(context).primaryColor
-                            : CupertinoColors.systemPurple),
+                            : CupertinoColors.systemPurple,
+                        fontSize: Font.size_large_button),
                   ),
                   onPressed: () {
                     setState(() {
@@ -92,7 +94,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     style: TextStyle(
                         color: _selectedButton != 3
                             ? CupertinoTheme.of(context).primaryColor
-                            : CupertinoColors.systemPurple),
+                            : CupertinoColors.systemPurple,
+                        fontSize: Font.size_large_button),
                   ),
                   onPressed: () {
                     setState(() {
@@ -117,7 +120,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     style: TextStyle(
                         color: _selectedButton != 4
                             ? CupertinoTheme.of(context).primaryColor
-                            : CupertinoColors.systemPurple),
+                            : CupertinoColors.systemPurple,
+                        fontSize: Font.size_large_button),
                   ),
                   onPressed: () {
                     setState(() {
@@ -137,7 +141,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     style: TextStyle(
                         color: _selectedButton != 5
                             ? CupertinoTheme.of(context).primaryColor
-                            : CupertinoColors.systemPurple),
+                            : CupertinoColors.systemPurple,
+                        fontSize: Font.size_large_button),
                   ),
                   onPressed: () {
                     setState(() {
@@ -160,7 +165,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     style: TextStyle(
                         color: !_isDailyDouble
                             ? CupertinoTheme.of(context).primaryColor
-                            : CupertinoColors.systemPurple),
+                            : CupertinoColors.systemPurple,
+                        fontSize: Font.size_large_button),
                   ),
                   onPressed: () {
                     setState(() {
@@ -173,25 +179,25 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CupertinoButton(
-                  child: Text("Correct"),
-                  onPressed: () {
+                CoryatElement.cupertinoButton(
+                  "Correct",
+                  () {
                     setState(() {
                       addResponse(Response.correct);
                     });
                   },
                 ),
-                CupertinoButton(
-                  child: Text("Incorrect"),
-                  onPressed: () {
+                CoryatElement.cupertinoButton(
+                  "Incorrect",
+                  () {
                     setState(() {
                       addResponse(Response.incorrect);
                     });
                   },
                 ),
-                CupertinoButton(
-                  child: Text("Didn't Answer"),
-                  onPressed: () {
+                CoryatElement.cupertinoButton(
+                  "Didn't Answer",
+                  () {
                     setState(() {
                       addResponse(Response.none);
                     });
@@ -202,19 +208,17 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CupertinoButton(
-                  child: _currentRound == Round.final_jeopardy
-                      ? Text("")
-                      : Text("Next Round"),
-                  onPressed: () {
+                CoryatElement.cupertinoButton(
+                  _currentRound == Round.final_jeopardy ? "" : "Next Round",
+                  () {
                     setState(() {
                       nextRound();
                     });
                   },
                 ),
-                CupertinoButton(
-                  child: Text("Undo"),
-                  onPressed: () {
+                CoryatElement.cupertinoButton(
+                  "Undo",
+                  () {
                     setState(() {
                       Event last = widget.game.undo();
                       if (last != null && last.type == EventType.marker) {
@@ -256,14 +260,12 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                 widget.game.getStat(Stat.NO_ANSWER_TOTAL_VALUE).toString()),
             Text("Maximum Possible Coryat: " +
                 widget.game.getStat(Stat.MAX_CORYAT).toString()),
-            CupertinoButton(
-              child: Text("Finish Game"),
-              onPressed: () {
-                SqlitePersistence.addGame(widget.game);
-                int count = 0;
-                Navigator.of(context).popUntil((_) => count++ >= 2);
-              },
-            )
+            CoryatElement.cupertinoButton(
+                _currentRound == Round.final_jeopardy ? "Finish Game" : "", () {
+              SqlitePersistence.addGame(widget.game);
+              int count = 0;
+              Navigator.of(context).popUntil((_) => count++ >= 2);
+            }, size: Font.size_large_button)
           ],
         ),
       ),

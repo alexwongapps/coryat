@@ -1,5 +1,5 @@
 import 'package:coryat/constants/coryatelement.dart';
-import 'package:coryat/constants/fontsize.dart';
+import 'package:coryat/constants/font.dart';
 import 'package:coryat/screens/gamescreens/datescreen.dart';
 import 'package:coryat/screens/historyscreens/historyscreen.dart';
 import 'package:coryat/screens/leaderboardscreens/leaderboardscreen.dart';
@@ -33,39 +33,43 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CupertinoButton(
-              child: Text("Start Game"),
-              onPressed: () {
+            CoryatElement.cupertinoButton(
+              "Start Game",
+              () {
                 Navigator.of(context).push(
                   CupertinoPageRoute(builder: (context) {
                     return DateScreen();
                   }),
                 );
               },
+              size: Font.size_large_button,
             ),
-            CupertinoButton(
-              child: Text("History"),
-              onPressed: () {
+            CoryatElement.cupertinoButton(
+              "History",
+              () {
                 Navigator.of(context).push(
                   CupertinoPageRoute(builder: (context) {
                     return HistoryScreen();
                   }),
                 );
               },
+              size: Font.size_large_button,
             ),
-            CupertinoButton(
-              child: Text("Stats"),
-              onPressed: () {
+            CoryatElement.cupertinoButton(
+              "Stats",
+              () {
                 Navigator.of(context).push(
                   CupertinoPageRoute(builder: (context) {
                     return StatsScreen();
                   }),
                 );
               },
+              size: Font.size_large_button,
             ),
-            CupertinoButton(
-              child: Text("Settings"),
-              onPressed: () {},
+            CoryatElement.cupertinoButton(
+              "Settings",
+              () {},
+              size: Font.size_large_button,
             ),
           ],
         ),
