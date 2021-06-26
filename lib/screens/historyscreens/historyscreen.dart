@@ -1,3 +1,4 @@
+import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/data/firebase.dart';
 import 'package:coryat/data/jarchive.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
@@ -26,9 +27,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text("Games Played"),
-      ),
+      navigationBar: CoryatElement.cupertinoNavigationBar("Games Played"),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

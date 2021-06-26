@@ -1,3 +1,4 @@
+import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/round.dart';
 import 'package:coryat/models/clue.dart';
@@ -17,9 +18,8 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.game.dateDescription()),
-      ),
+      navigationBar:
+          CoryatElement.cupertinoNavigationBar(widget.game.dateDescription()),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

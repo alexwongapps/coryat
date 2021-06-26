@@ -1,6 +1,7 @@
+import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
-import 'package:coryat/enums/fontsize.dart';
+import 'package:coryat/constants/fontsize.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
 import 'package:coryat/enums/stat.dart';
@@ -28,13 +29,12 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(currentRound == Round.jeopardy
-            ? "Jeopardy Round"
-            : currentRound == Round.double_jeopardy
-                ? "Double Jeopardy Round"
-                : "Final Jeopardy"),
-      ),
+      navigationBar:
+          CoryatElement.cupertinoNavigationBar(currentRound == Round.jeopardy
+              ? "Jeopardy Round"
+              : currentRound == Round.double_jeopardy
+                  ? "Double Jeopardy Round"
+                  : "Final Jeopardy"),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -248,6 +248,14 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
             ),
             Text("Current Coryat: \$" +
                 widget.game.getStat(Stat.CORYAT).toString()),
+            Text("Correct-Incorrect-No Answer: " +
+                widget.game.getStat(Stat.CORRECT_TOTAL_VALUE).toString() +
+                "-" +
+                widget.game.getStat(Stat.INCORRECT_TOTAL_VALUE).toString() +
+                "-" +
+                widget.game.getStat(Stat.NO_ANSWER_TOTAL_VALUE).toString()),
+            Text("Maximum Possible Coryat: " +
+                widget.game.getStat(Stat.MAX_CORYAT).toString()),
             CupertinoButton(
               child: Text("Finish Game"),
               onPressed: () {

@@ -1,3 +1,4 @@
+import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/screens/gamescreens/manualgamescreen.dart';
 import 'package:coryat/screens/gamescreens/automaticgamescreen.dart';
@@ -14,9 +15,7 @@ class _DateScreenState extends State<DateScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text("Pick Game Date"),
-      ),
+      navigationBar: CoryatElement.cupertinoNavigationBar("Pick Game Date"),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

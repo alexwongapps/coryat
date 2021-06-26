@@ -1,3 +1,4 @@
+import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
@@ -21,9 +22,7 @@ class _AutomaticGameScreenState extends State<AutomaticGameScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text("Play Game"),
-      ),
+      navigationBar: CoryatElement.cupertinoNavigationBar("Play Game"),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

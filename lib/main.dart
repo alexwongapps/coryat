@@ -3,6 +3,8 @@ import 'package:coryat/screens/homescreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'constants/fontsize.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SqlitePersistence.init();
@@ -18,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: CupertinoThemeData(
         textTheme: CupertinoTextThemeData(
             textStyle: TextStyle(
-                fontFamily: 'Lato',
+                fontFamily: Font.family,
                 fontSize: 18,
                 color: CupertinoColors.black)),
         barBackgroundColor: Colors.lightBlue[200],

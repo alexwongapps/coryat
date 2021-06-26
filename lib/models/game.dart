@@ -123,26 +123,25 @@ class Game {
   // Stats
 
   int getStat(int stat) {
-    switch (stat) {
-      case Stat.CORYAT:
-        int total = 0;
-        for (Event event in _events) {
-          if (event.type == EventType.clue) {
-            Clue c = event as Clue;
+    // variables you can use
+    int total = 0;
+    int currentRound = Round.jeopardy;
+
+    // process each event
+    for (Event event in _events) {
+      if (event.type == EventType.clue) {
+        Clue c = event as Clue;
+
+        // 1) process clues
+        switch (stat) {
+          case Stat.CORYAT:
             if (c.response == Response.correct) {
               total += c.question.value;
             } else if (c.response == Response.incorrect) {
               total -= c.question.value;
             }
-          }
-        }
-        return total;
-        break;
-      case Stat.JEOPARDY_CORYAT:
-        int total = 0;
-        for (Event event in _events) {
-          if (event.type == EventType.clue) {
-            Clue c = event as Clue;
+            break;
+          case Stat.JEOPARDY_CORYAT:
             if (c.question.round == Round.jeopardy) {
               if (c.response == Response.correct) {
                 total += c.question.value;
@@ -150,15 +149,8 @@ class Game {
                 total -= c.question.value;
               }
             }
-          }
-        }
-        return total;
-        break;
-      case Stat.DOUBLE_JEOPARDY_CORYAT:
-        int total = 0;
-        for (Event event in _events) {
-          if (event.type == EventType.clue) {
-            Clue c = event as Clue;
+            break;
+          case Stat.DOUBLE_JEOPARDY_CORYAT:
             if (c.question.round == Round.double_jeopardy) {
               if (c.response == Response.correct) {
                 total += c.question.value;
@@ -166,29 +158,56 @@ class Game {
                 total -= c.question.value;
               }
             }
-          }
+            break;
+          case Stat.MAX_CORYAT:
+            total += c.question.value;
+            break;
+          case Stat.CORRECT_TOTAL_VALUE:
+            if (c.response == Response.correct) {
+              total += c.question.value;
+            }
+            break;
+          case Stat.INCORRECT_TOTAL_VALUE:
+            if (c.response == Response.incorrect) {
+              total += c.question.value;
+            }
+            break;
+          case Stat.NO_ANSWER_TOTAL_VALUE:
+            if (c.response == Response.none) {
+              total += c.question.value;
+            }
+            break;
         }
+      } else if (event.type == EventType.marker) {
+        Marker m = event as Marker;
+
+        // 2) process markers
+        switch (stat) {
+          case Stat.MAX_CORYAT:
+            if (m.primaryText() == Marker.NEXT_ROUND) {
+              total = 0;
+              currentRound = Round.nextRound(currentRound);
+            }
+            break;
+        }
+      }
+    }
+
+    // 3) post-process/return
+    switch (stat) {
+      case Stat.CORYAT:
+      case Stat.JEOPARDY_CORYAT:
+      case Stat.DOUBLE_JEOPARDY_CORYAT:
+      case Stat.CORRECT_TOTAL_VALUE:
+      case Stat.INCORRECT_TOTAL_VALUE:
+      case Stat.NO_ANSWER_TOTAL_VALUE:
         return total;
         break;
       case Stat.MAX_CORYAT:
-        int seenInRound = 0;
-        int currentRound = Round.jeopardy;
-        for (Event event in _events) {
-          if (event.type == EventType.clue) {
-            Clue c = event as Clue;
-            seenInRound += c.question.value;
-          } else if (event.type == EventType.marker) {
-            Marker m = event as Marker;
-            if (m.primaryText() == Marker.NEXT_ROUND) {
-              seenInRound = 0;
-              currentRound = Round.nextRound(currentRound);
-            }
-          }
-        }
         if (currentRound == Round.jeopardy) {
-          return getStat(Stat.CORYAT) + (18000 - seenInRound) + 36000;
+          return getStat(Stat.CORYAT) + (18000 - total) + 36000;
         } else if (currentRound == Round.double_jeopardy) {
-          return getStat(Stat.CORYAT) + (36000 - seenInRound);
+          return getStat(Stat.CORYAT) + (36000 - total);
         } else {
           return getStat(Stat.CORYAT);
         }

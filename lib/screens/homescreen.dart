@@ -1,3 +1,5 @@
+import 'package:coryat/constants/coryatelement.dart';
+import 'package:coryat/constants/fontsize.dart';
 import 'package:coryat/screens/gamescreens/datescreen.dart';
 import 'package:coryat/screens/historyscreens/historyscreen.dart';
 import 'package:coryat/screens/leaderboardscreens/leaderboardscreen.dart';
@@ -26,9 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text("Coryat"),
-      ),
+      navigationBar: CoryatElement.cupertinoNavigationBar("Coryat"),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

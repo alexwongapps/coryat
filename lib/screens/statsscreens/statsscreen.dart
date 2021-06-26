@@ -1,3 +1,4 @@
+import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/stat.dart';
 import 'package:coryat/models/game.dart';
@@ -20,9 +21,7 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text("Games Played"),
-      ),
+      navigationBar: CoryatElement.cupertinoNavigationBar("Stats"),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -33,6 +32,12 @@ class _StatsScreenState extends State<StatsScreen> {
                 getAverageStat(Stat.JEOPARDY_CORYAT).toString()),
             Text("Average Double Jeopardy Coryat: " +
                 getAverageStat(Stat.DOUBLE_JEOPARDY_CORYAT).toString()),
+            Text("Correct-Incorrect-No Answer: " +
+                getAverageStat(Stat.CORRECT_TOTAL_VALUE).toString() +
+                "-" +
+                getAverageStat(Stat.INCORRECT_TOTAL_VALUE).toString() +
+                "-" +
+                getAverageStat(Stat.NO_ANSWER_TOTAL_VALUE).toString()),
             Text("Final Jeopardy: " + getFinalJeopardyString()),
           ],
         ),
@@ -49,30 +54,11 @@ class _StatsScreenState extends State<StatsScreen> {
     if (_games.length == 0) {
       return 0;
     }
-    switch (stat) {
-      case Stat.CORYAT:
-        int total = 0;
-        for (Game game in _games) {
-          total += game.getStat(Stat.CORYAT);
-        }
-        return total ~/ _games.length;
-        break;
-      case Stat.JEOPARDY_CORYAT:
-        int total = 0;
-        for (Game game in _games) {
-          total += game.getStat(Stat.JEOPARDY_CORYAT);
-        }
-        return total ~/ _games.length;
-        break;
-      case Stat.DOUBLE_JEOPARDY_CORYAT:
-        int total = 0;
-        for (Game game in _games) {
-          total += game.getStat(Stat.DOUBLE_JEOPARDY_CORYAT);
-        }
-        return total ~/ _games.length;
-        break;
+    int total = 0;
+    for (Game game in _games) {
+      total += game.getStat(stat);
     }
-    return 0;
+    return total ~/ _games.length;
   }
 
   String getFinalJeopardyString() {
