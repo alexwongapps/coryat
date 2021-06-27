@@ -3,9 +3,9 @@ import 'package:coryat/data/serialize.dart';
 class User {
   String email;
   String username;
-  String firebaseID;
+  String id;
 
-  User([this.email = "", this.username = "", this.firebaseID = ""]);
+  User([this.email = "", this.username = "", this.id = ""]);
 
   bool hasUsername() {
     return username != "";
@@ -20,7 +20,7 @@ class User {
   static String delimiter = "&";
 
   String encode({bool firebase = false}) {
-    List<String> data = [email, username, firebaseID];
+    List<String> data = [email, username, id];
     return Serialize.encode(data, delimiter);
   }
 

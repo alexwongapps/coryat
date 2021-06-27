@@ -1,3 +1,4 @@
+import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/screens/homescreen.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
                 color: CupertinoColors.black)),
         barBackgroundColor: Colors.lightBlue[200],
         scaffoldBackgroundColor: Colors.lightBlue[200],
-        primaryColor: Colors.blue[900],
+        primaryColor: CustomColor.primaryColor,
       ),
       home: HomeScreen(title: 'Coryat'),
     );

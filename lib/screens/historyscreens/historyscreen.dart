@@ -27,7 +27,49 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget _buildGameRow(Game game) {
     return new ListTile(
-      title: Text(game.dateDescription()),
+      title: Row(
+        children: [
+          CoryatElement.text(game.dateDescription()),
+          CoryatElement.cupertinoButton(
+            "Delete",
+            () {
+              Widget noButton = CoryatElement.cupertinoButton(
+                "No",
+                () {
+                  Navigator.pop(context);
+                },
+                color: CupertinoColors.destructiveRed,
+              );
+              Widget yesButton = CoryatElement.cupertinoButton(
+                "Yes",
+                () {
+                  SqlitePersistence.deleteGame(game);
+                  _games.remove(game);
+                  setState(() {});
+                  Navigator.pop(context);
+                },
+              );
+
+              CupertinoAlertDialog alert = CupertinoAlertDialog(
+                title: Text("Are you sure?"),
+                content: Text("Once deleted, this game cannot be recovered"),
+                actions: [
+                  noButton,
+                  yesButton,
+                ],
+              );
+
+              showCupertinoDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return alert;
+                },
+              );
+            },
+            color: CupertinoColors.destructiveRed,
+          ),
+        ],
+      ),
       onTap: () {
         Navigator.of(context).push(CupertinoPageRoute(builder: (context) {
           return GameDetailScreen(game: game);

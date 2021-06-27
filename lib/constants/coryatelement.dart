@@ -1,3 +1,4 @@
+import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/font.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,11 +19,13 @@ class CoryatElement {
   }
 
   static cupertinoButton(String text, Function onPressed,
-      {double size = Font.size_regular_button}) {
+      {double size = Font.size_regular_button, Color color}) {
     return CupertinoButton(
         child: Text(
           text,
-          style: TextStyle(fontSize: size),
+          style: TextStyle(
+              fontSize: size,
+              color: color == null ? CustomColor.primaryColor : color),
         ),
         onPressed: onPressed);
   }
@@ -40,6 +43,31 @@ class CoryatElement {
       indent: Design.divider_indent,
       endIndent: Design.divider_indent,
       thickness: Design.divider_thickness,
+    );
+  }
+
+  static void presentBasicAlertDialog(
+      BuildContext context, String title, String content) {
+    Widget okButton = CoryatElement.cupertinoButton(
+      "OK",
+      () {
+        Navigator.pop(context);
+      },
+    );
+
+    CupertinoAlertDialog alert = CupertinoAlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: [
+        okButton,
+      ],
+    );
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

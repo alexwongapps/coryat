@@ -13,8 +13,10 @@ import 'package:coryat/models/nextroundmarker.dart';
 import 'package:coryat/models/placeholderevent.dart';
 import 'package:coryat/models/user.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 class Game {
+  String id;
   DateTime dateAired;
   DateTime datePlayed;
   User user;
@@ -22,6 +24,7 @@ class Game {
   List<Event> _events;
 
   Game(int year, int month, int day, [this.user, this._events]) {
+    this.id = Uuid().v4();
     this.dateAired = new DateTime(year, month, day);
     this.datePlayed = DateTime.now();
     this._events = [];
@@ -242,6 +245,7 @@ class Game {
     // TODO: smart serialization (use firebase variable)
     String s = synced ? "1" : "0";
     List<String> data = [
+      id,
       dateAired.year.toString(),
       dateAired.month.toString(),
       dateAired.day.toString(),
@@ -257,16 +261,17 @@ class Game {
 
   static Game decode(String encoded, {bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, delimiter);
-    List<String> events = dec.sublist(6);
+    List<String> events = dec.sublist(7);
     List<Event> ev = [];
     for (String evs in events) {
       ev.add(Event.decode(evs));
     }
-    Game g = Game(int.parse(dec[0]), int.parse(dec[1]), int.parse(dec[2]),
-        User.decode(dec[4]));
-    g.synced = (dec[5] == "1") ? true : false;
+    Game g = Game(int.parse(dec[1]), int.parse(dec[2]), int.parse(dec[3]),
+        User.decode(dec[5]));
+    g.synced = (dec[6] == "1") ? true : false;
     g._events = ev;
-    g.datePlayed = DateTime.fromMillisecondsSinceEpoch(int.parse(dec[3]));
+    g.datePlayed = DateTime.fromMillisecondsSinceEpoch(int.parse(dec[4]));
+    g.id = dec[0];
     return g;
   }
 }

@@ -10,7 +10,7 @@ class Firebase {
   static Future<List<Game>> loadGames(User user) async {
     CollectionReference users = Firestore.instance.collection(USERS_COLLECTION);
 
-    DocumentSnapshot snapshot = await users.document(user.firebaseID).get();
+    DocumentSnapshot snapshot = await users.document(user.id).get();
     // TODO: PlatformException (PlatformException(Error 14, FIRFirestoreErrorDomain, Failed to get document because the client is offline., null))
 
     if (!snapshot.exists) {
@@ -42,19 +42,19 @@ class Firebase {
     try {
       await Firestore.instance
           .collection(USERS_COLLECTION)
-          .document(user.firebaseID)
+          .document(user.id)
           .get()
           .then((doc) {
         if (doc.exists) {
           Firestore.instance
               .collection(USERS_COLLECTION)
-              .document(user.firebaseID)
+              .document(user.id)
               .updateData(m);
           return;
         } else {
           Firestore.instance
               .collection(USERS_COLLECTION)
-              .document(user.firebaseID)
+              .document(user.id)
               .setData(m);
           return;
         }

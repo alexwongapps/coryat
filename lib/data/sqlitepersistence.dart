@@ -21,6 +21,9 @@ class SqlitePersistence {
   static Future<int> addGame(Game game) async =>
       await _db.insert("games", {'game': game.encode()});
 
+  static Future<void> deleteGame(Game game) async =>
+      await _db.delete("games", where: 'game = ?', whereArgs: [game.encode()]);
+
   static Future<List<Game>> getGames() async {
     List<Map<String, dynamic>> l = await _db.query("games");
     List<Game> g = [];

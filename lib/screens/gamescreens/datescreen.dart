@@ -49,27 +49,8 @@ class _DateScreenState extends State<DateScreen> {
                     }),
                   );
                 } else {
-                  Widget okButton = CoryatElement.cupertinoButton(
-                    "OK",
-                    () {
-                      Navigator.pop(context);
-                    },
-                  );
-
-                  CupertinoAlertDialog alert = CupertinoAlertDialog(
-                    title: Text("Invalid date"),
-                    content: Text("Please chose a weekday"),
-                    actions: [
-                      okButton,
-                    ],
-                  );
-
-                  showCupertinoDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return alert;
-                    },
-                  );
+                  CoryatElement.presentBasicAlertDialog(
+                      context, "Invalid date", "Please choose a weekday");
                 }
               },
               size: Font.size_large_button,
