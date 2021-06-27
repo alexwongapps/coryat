@@ -19,6 +19,10 @@ class PlaceholderEvent implements Event {
     return "";
   }
 
+  String getValueString() {
+    return "";
+  }
+
   // Serialization
 
   String encode({bool firebase = false}) {

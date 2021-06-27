@@ -86,6 +86,10 @@ class Game {
     return _events;
   }
 
+  void removeEvent(Event event) {
+    _events.remove(event);
+  }
+
   List<Event> lastEvents(int number) {
     List<Event> evs =
         _events.sublist(max(_events.length - number, 0)).reversed.toList();
@@ -245,7 +249,6 @@ class Game {
     // TODO: smart serialization (use firebase variable)
     String s = synced ? "1" : "0";
     List<String> data = [
-      id,
       dateAired.year.toString(),
       dateAired.month.toString(),
       dateAired.day.toString(),
@@ -259,19 +262,21 @@ class Game {
     return Serialize.encode(data, delimiter);
   }
 
-  static Game decode(String encoded, {bool firebase = false}) {
+  static Game decode(String encoded, {String id, bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, delimiter);
-    List<String> events = dec.sublist(7);
+    List<String> events = dec.sublist(6);
     List<Event> ev = [];
     for (String evs in events) {
       ev.add(Event.decode(evs));
     }
-    Game g = Game(int.parse(dec[1]), int.parse(dec[2]), int.parse(dec[3]),
-        User.decode(dec[5]));
+    Game g = Game(int.parse(dec[0]), int.parse(dec[1]), int.parse(dec[2]),
+        User.decode(dec[4]));
     g.synced = (dec[6] == "1") ? true : false;
     g._events = ev;
-    g.datePlayed = DateTime.fromMillisecondsSinceEpoch(int.parse(dec[4]));
-    g.id = dec[0];
+    g.datePlayed = DateTime.fromMillisecondsSinceEpoch(int.parse(dec[3]));
+    if (id != null) {
+      g.id = id;
+    }
     return g;
   }
 }

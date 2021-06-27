@@ -21,6 +21,10 @@ class Marker implements Event {
     return this._name;
   }
 
+  String getValueString() {
+    return "";
+  }
+
   // Serialize
 
   String encode({bool firebase = false}) {

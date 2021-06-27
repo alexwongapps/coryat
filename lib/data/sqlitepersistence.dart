@@ -16,19 +16,24 @@ class SqlitePersistence {
   }
 
   static void onCreate(Database db, int version) async =>
-      await db.execute('CREATE TABLE games (game STRING)');
+      await db.execute('CREATE TABLE games (id STRING, game STRING)');
 
   static Future<int> addGame(Game game) async =>
-      await _db.insert("games", {'game': game.encode()});
+      await _db.insert("games", {'id': game.id, 'game': game.encode()});
 
-  static Future<void> deleteGame(Game game) async =>
-      await _db.delete("games", where: 'game = ?', whereArgs: [game.encode()]);
+  static Future<void> deleteGame(Game game) async {
+    await _db.delete("games", where: 'id = ?', whereArgs: [game.id]);
+  }
+
+  static Future<void> updateGame(Game game) async =>
+      await _db.update("games", {'game': game.encode()},
+          where: 'id = ?', whereArgs: [game.id]);
 
   static Future<List<Game>> getGames() async {
     List<Map<String, dynamic>> l = await _db.query("games");
     List<Game> g = [];
     for (Map<String, dynamic> m in l) {
-      g.add(Game.decode(m['game']));
+      g.add(Game.decode(m['game'], id: m['id']));
     }
     return g;
   }

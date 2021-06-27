@@ -15,6 +15,8 @@ abstract class Event {
 
   String encode({bool firebase = false});
 
+  String getValueString();
+
   static Event decode(String encoded, {bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, delimiter);
     switch (int.parse(dec[1])) {

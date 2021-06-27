@@ -192,11 +192,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
               children: (widget.game.lastEvents(5))
                   .map((event) => TableRow(children: [
                         Text(event.order),
-                        Text((event.type == EventType.marker ||
-                                    (event as Clue).question.round ==
-                                        Round.final_jeopardy
-                                ? ""
-                                : (event as Clue).question.value.toString()) +
+                        Text(event.getValueString() +
                             (event.type == EventType.clue &&
                                     (event as Clue).isDailyDouble()
                                 ? " (DD)"

@@ -1,6 +1,7 @@
 import 'package:coryat/data/serialize.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
+import 'package:coryat/enums/round.dart';
 import 'package:coryat/enums/tags.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/question.dart';
@@ -22,9 +23,9 @@ class Clue implements Event {
   String primaryText() {
     switch (this.response) {
       case Response.correct:
-        return "Correct Answer";
+        return "Correct";
       case Response.incorrect:
-        return "Incorrect Answer";
+        return "Incorrect";
       case Response.none:
         return "No Answer";
     }
@@ -33,6 +34,13 @@ class Clue implements Event {
 
   bool isDailyDouble() {
     return tags.contains(Tags.DAILY_DOUBLE);
+  }
+
+  String getValueString() {
+    if (question.round == Round.final_jeopardy) {
+      return "";
+    }
+    return question.value.toString();
   }
 
   // Serialize
