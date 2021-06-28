@@ -32,6 +32,11 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.lightBlue[200],
         primaryColor: CustomColor.primaryColor,
       ),
+      localizationsDelegates: [
+        DefaultMaterialLocalizations.delegate,
+        DefaultCupertinoLocalizations.delegate,
+        DefaultWidgetsLocalizations.delegate,
+      ],
       home: HomeScreen(title: 'Coryat'),
     );
   }

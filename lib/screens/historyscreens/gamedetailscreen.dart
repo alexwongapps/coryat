@@ -5,6 +5,7 @@ import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
+import 'package:coryat/enums/tags.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
@@ -23,6 +24,7 @@ class GameDetailScreen extends StatefulWidget {
 class _GameDetailScreenState extends State<GameDetailScreen> {
   Widget _buildEventRow(Event event) {
     return new ListTile(
+      key: ValueKey(event),
       title: Row(
         children: [
           CoryatElement.text(event.order),
@@ -165,13 +167,232 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 
-  Widget _buildEvents() {
-    return new ListView.builder(itemBuilder: (context, i) {
-      if (i < widget.game.getEvents().length) {
-        return _buildEventRow(widget.game.getEvents()[i]);
+  Widget _addClueButton() {
+    return CoryatElement.cupertinoButton("Add Clue", () {
+      CupertinoButton roundButton(int round) {
+        return CupertinoButton(
+          child: Text(
+            round == Round.jeopardy
+                ? "Jeopardy"
+                : round == Round.double_jeopardy
+                    ? "Double Jeopardy"
+                    : "Final Jeopardy",
+          ),
+          onPressed: () {
+            setState(() {
+              Navigator.pop(context);
+              if (round == Round.final_jeopardy) {
+                _addSelectResponse(round, 0, false);
+              } else {
+                _addSelectValue(round);
+              }
+            });
+          },
+        );
       }
-      return null;
+
+      CupertinoAlertDialog alert = CupertinoAlertDialog(
+        title: Text("Select Round"),
+        content: Text("Clue will be added to the end of the round"),
+        actions: [
+          roundButton(Round.jeopardy),
+          roundButton(Round.double_jeopardy),
+          roundButton(Round.final_jeopardy),
+          CoryatElement.cupertinoButton(
+            "Cancel",
+            () => Navigator.pop(context),
+            color: CupertinoColors.destructiveRed,
+          ),
+        ],
+      );
+
+      showCupertinoDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
     });
+  }
+
+  void _addSelectValue(int round) {
+    CupertinoButton valueButton(int number) {
+      return CupertinoButton(
+        child: Text(
+          round == Round.jeopardy
+              ? "\$" + (number * 200).toString()
+              : "\$" + (number * 400).toString(),
+        ),
+        onPressed: () {
+          setState(() {
+            int value = round == Round.jeopardy ? number * 200 : number * 400;
+            Navigator.pop(context);
+            _addSelectDailyDouble(round, value);
+          });
+        },
+      );
+    }
+
+    CupertinoAlertDialog alert = CupertinoAlertDialog(
+      title: Text("Select Clue Value"),
+      actions: [
+        valueButton(1),
+        valueButton(2),
+        valueButton(3),
+        valueButton(4),
+        valueButton(5),
+        CoryatElement.cupertinoButton(
+          "Cancel",
+          () => Navigator.pop(context),
+          color: CupertinoColors.destructiveRed,
+        ),
+      ],
+    );
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void _addSelectDailyDouble(int round, int value) {
+    CupertinoButton ddButton(bool isDD) {
+      return CupertinoButton(
+        child: Text(isDD ? "Yes" : "No"),
+        onPressed: () {
+          setState(() {
+            Navigator.pop(context);
+            _addSelectResponse(round, value, isDD);
+          });
+        },
+      );
+    }
+
+    CupertinoAlertDialog alert = CupertinoAlertDialog(
+      title: Text("Daily Double?"),
+      actions: [
+        ddButton(true),
+        ddButton(false),
+        CoryatElement.cupertinoButton(
+          "Cancel",
+          () => Navigator.pop(context),
+          color: CupertinoColors.destructiveRed,
+        ),
+      ],
+    );
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void _addSelectResponse(int round, int value, bool isDailyDouble) {
+    CupertinoButton responseButton(int response) {
+      return CupertinoButton(
+        child: Text(
+          response == Response.correct
+              ? "Correct"
+              : response == Response.incorrect
+                  ? "Incorrect"
+                  : "No Answer",
+        ),
+        onPressed: () {
+          setState(() {
+            widget.game.addManualResponse(response, round, value,
+                isDailyDouble ? [Tags.DAILY_DOUBLE] : [],
+                index: widget.game.endRoundMarkerIndex(round));
+            SqlitePersistence.updateGame(widget.game);
+            Navigator.pop(context);
+          });
+        },
+      );
+    }
+
+    CupertinoAlertDialog alert = CupertinoAlertDialog(
+      title: Text("Select Response"),
+      actions: [
+        responseButton(Response.correct),
+        responseButton(Response.incorrect),
+        responseButton(Response.none),
+        CoryatElement.cupertinoButton(
+          "Cancel",
+          () => Navigator.pop(context),
+          color: CupertinoColors.destructiveRed,
+        ),
+      ],
+    );
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  Widget _buildEvents() {
+    return new ReorderableListView.builder(
+      header: Row(
+        children: [
+          _addClueButton(),
+          CoryatElement.cupertinoButton("Reorder", () {
+            CoryatElement.presentBasicAlertDialog(context, "How to Reorder",
+                "Tap and hold the clue you want to move until you see it pop out, then drag it to the appropriate spot");
+          }),
+        ],
+      ),
+      itemBuilder: (context, i) {
+        if (i < widget.game.getEvents().length) {
+          return _buildEventRow(widget.game.getEvents()[i]);
+        }
+        return null;
+      },
+      itemCount: widget.game.getEvents().length,
+      onReorder: (int oldIndex, int newIndex) {
+        setState(() {
+          Event event = widget.game.getEvents()[oldIndex];
+          if (event.type == EventType.marker) {
+            CoryatElement.presentBasicAlertDialog(
+                context, "Cannot move event", "Markers cannot be moved");
+          } else {
+            Clue c = event as Clue;
+            if (newIndex > oldIndex) {
+              newIndex -= 1;
+            }
+            if ((c.question.round == Round.jeopardy &&
+                    newIndex <
+                        widget.game.endRoundMarkerIndex(Round.jeopardy)) ||
+                (c.question.round == Round.double_jeopardy &&
+                    newIndex <
+                        widget.game
+                            .endRoundMarkerIndex(Round.double_jeopardy) &&
+                    newIndex >
+                        widget.game.endRoundMarkerIndex(Round.jeopardy)) ||
+                (c.question.round == Round.final_jeopardy &&
+                    newIndex >
+                        widget.game
+                            .endRoundMarkerIndex(Round.double_jeopardy))) {
+              if (newIndex > oldIndex) {
+                widget.game
+                    .insertEvent(newIndex, widget.game.removeEventAt(oldIndex));
+              } else if (oldIndex > newIndex) {
+                widget.game
+                    .insertEvent(newIndex, widget.game.removeEventAt(oldIndex));
+              }
+              SqlitePersistence.updateGame(widget.game);
+            } else {
+              CoryatElement.presentBasicAlertDialog(context, "Invalid location",
+                  "Events can only be moved within the round");
+            }
+          }
+        });
+      },
+    );
   }
 
   @override

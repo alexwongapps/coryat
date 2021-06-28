@@ -35,17 +35,21 @@ class Game {
   void addAutomaticResponse(int response) {
     Event clue = Clue(response);
     _events.add(clue);
-    updateOrders();
+    _updateOrders();
   }
 
-  void addManualResponse(
-      int response, int round, int value, List<String> tags) {
+  void addManualResponse(int response, int round, int value, List<String> tags,
+      {int index}) {
     Clue clue = Clue(response);
     clue.question.value = value;
     clue.question.round = round;
     clue.tags = tags;
-    _events.add(clue);
-    updateOrders();
+    if (index == null) {
+      _events.add(clue);
+    } else {
+      _events.insert(index, clue);
+    }
+    _updateOrders();
   }
 
   void addClue(int round, String category, int value, String clue,
@@ -65,12 +69,12 @@ class Game {
   void addMarker(String name) {
     Event marker = Marker(name);
     _events.add(marker);
-    updateOrders();
+    _updateOrders();
   }
 
   void nextRound() {
     _events.add(NextRoundMarker());
-    updateOrders();
+    _updateOrders();
   }
 
   Event undo() {
@@ -78,7 +82,7 @@ class Game {
       return null;
     }
     Event last = _events.removeLast();
-    updateOrders();
+    _updateOrders();
     return last;
   }
 
@@ -86,8 +90,20 @@ class Game {
     return _events;
   }
 
+  void insertEvent(int index, Event event) {
+    _events.insert(index, event);
+    _updateOrders();
+  }
+
   void removeEvent(Event event) {
     _events.remove(event);
+    _updateOrders();
+  }
+
+  Event removeEventAt(int index) {
+    Event ev = _events.removeAt(index);
+    _updateOrders();
+    return ev;
   }
 
   List<Event> lastEvents(int number) {
@@ -101,7 +117,7 @@ class Game {
     return evs;
   }
 
-  void updateOrders() {
+  void _updateOrders() {
     int number = 0;
     int round = Round.jeopardy;
 
@@ -239,6 +255,31 @@ class Game {
   String dateDescription() {
     final df = new DateFormat('M/dd/yyyy (EEEE)');
     return df.format(dateAired);
+  }
+
+  int endRoundMarkerIndex(int round) {
+    int counter = 0;
+    int index = 0;
+    for (Event event in _events) {
+      if (event.type == EventType.marker &&
+          (event as Marker).primaryText() == Marker.NEXT_ROUND) {
+        if (counter == 0) {
+          if (round == Round.jeopardy) {
+            return index;
+          } else {
+            counter++;
+          }
+        } else if (counter == 1) {
+          if (round == Round.double_jeopardy) {
+            return index;
+          } else {
+            counter++;
+          }
+        }
+      }
+      index++;
+    }
+    return index;
   }
 
   // Serialize

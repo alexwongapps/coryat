@@ -1,5 +1,7 @@
 import 'package:coryat/constants/coryatelement.dart';
+import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/font.dart';
+import 'package:coryat/constants/sharedpreferenceskey.dart';
 import 'package:coryat/data/firebase.dart';
 import 'package:coryat/data/jarchive.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
@@ -9,6 +11,7 @@ import 'package:coryat/screens/historyscreens/gamedetailscreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HistoryScreen extends StatefulWidget {
   @override
@@ -18,10 +21,17 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   List<Game> _games = [];
   User _user;
+  final int _dateAired = 0;
+  final int _datePlayed = 1;
+  int _sortMethod = 0;
 
   @override
   void initState() {
     FirebaseAuth.instance.currentUser().then((user) => refresh(user));
+    setState(() {
+      SharedPreferences.getInstance().then((prefs) => _sortMethod =
+          prefs.getInt(SharedPreferencesKey.HISTORY_SCREEN_SORT) ?? _dateAired);
+    });
     super.initState();
   }
 
@@ -80,8 +90,47 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget _buildGames() {
     return new ListView.builder(itemBuilder: (context, i) {
-      if (i < _games.length) {
-        return _buildGameRow(_games[i]);
+      if (i == 0) {
+        return Row(
+          children: [
+            Text("Sort By:"),
+            CoryatElement.cupertinoButton(
+              "Date Aired",
+              () {
+                setState(() {
+                  _sortMethod = _dateAired;
+                  SharedPreferences.getInstance().then((prefs) => prefs.setInt(
+                      SharedPreferencesKey.HISTORY_SCREEN_SORT, _dateAired));
+                });
+              },
+              color: _sortMethod == _dateAired
+                  ? CustomColor.selectedButton
+                  : CustomColor.primaryColor,
+            ),
+            CoryatElement.cupertinoButton(
+              "Date Played",
+              () {
+                setState(() {
+                  _sortMethod = _datePlayed;
+                  SharedPreferences.getInstance().then((prefs) => prefs.setInt(
+                      SharedPreferencesKey.HISTORY_SCREEN_SORT, _datePlayed));
+                });
+              },
+              color: _sortMethod == _datePlayed
+                  ? CustomColor.selectedButton
+                  : CustomColor.primaryColor,
+            ),
+          ],
+        );
+      }
+      List<Game> sorted = List.from(_games);
+      if (_sortMethod == _dateAired) {
+        sorted.sort((a, b) => b.dateAired.compareTo(a.dateAired));
+      } else {
+        sorted.sort((a, b) => b.datePlayed.compareTo(a.dateAired));
+      }
+      if (i < sorted.length + 1) {
+        return _buildGameRow(sorted[i - 1]);
       }
       return null;
     });
