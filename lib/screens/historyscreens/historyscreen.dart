@@ -127,7 +127,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       if (_sortMethod == _dateAired) {
         sorted.sort((a, b) => b.dateAired.compareTo(a.dateAired));
       } else {
-        sorted.sort((a, b) => b.datePlayed.compareTo(a.dateAired));
+        sorted.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
       }
       if (i < sorted.length + 1) {
         return _buildGameRow(sorted[i - 1]);

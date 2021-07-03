@@ -28,8 +28,8 @@ class MyApp extends StatelessWidget {
                 fontFamily: Font.family,
                 fontSize: Font.size_default,
                 color: CupertinoColors.black)),
-        barBackgroundColor: Colors.lightBlue[200],
-        scaffoldBackgroundColor: Colors.lightBlue[200],
+        barBackgroundColor: CustomColor.backgroundColor,
+        scaffoldBackgroundColor: CustomColor.backgroundColor,
         primaryColor: CustomColor.primaryColor,
       ),
       localizationsDelegates: [

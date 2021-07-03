@@ -1,28 +1,23 @@
 import 'dart:math';
 
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
+import 'package:coryat/constants/font.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
-import 'package:coryat/enums/response.dart';
-import 'package:coryat/enums/round.dart';
 import 'package:coryat/enums/stat.dart';
-import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/game.dart';
-import 'package:coryat/screens/statsscreens/graphsscreen.dart';
-import 'package:coryat/screens/statsscreens/morestatsscreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class StatsScreen extends StatefulWidget {
+class GraphsScreen extends StatefulWidget {
   @override
-  _StatsScreenState createState() => _StatsScreenState();
+  _GraphsScreenState createState() => _GraphsScreenState();
 }
 
-class _StatsScreenState extends State<StatsScreen> {
+class _GraphsScreenState extends State<GraphsScreen> {
   List<Game> _games = [];
-
-  int _roundPlaces = 1;
 
   @override
   void initState() {
@@ -35,122 +30,140 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CoryatElement.cupertinoNavigationBar("Stats"),
+      navigationBar: CoryatElement.cupertinoNavigationBar("Graphs"),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            _rangeDropdown(),
-            Text("Games Played: " + _games.length.toString()),
-            CoryatElement.divider(),
-            Text("Average Game"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CoryatElement.text(
-                    "\$" + getAverageStat(Stat.CORRECT_TOTAL_VALUE).toString(),
-                    color: CustomColor.correctGreen),
-                Text(" "),
-                CoryatElement.text(
-                    "−\$" +
-                        getAverageStat(Stat.INCORRECT_TOTAL_VALUE).toString(),
-                    color: CustomColor.incorrectRed),
-                Text(" (\$"),
-                CoryatElement.text(
-                    getAverageStat(Stat.NO_ANSWER_TOTAL_VALUE).toString()),
-                Text(")")
-              ],
-            ),
-            Text("Coryat: \$" + getAverageStat(Stat.CORYAT).toString()),
-            Text("Jeopardy Coryat: \$" +
-                getAverageStat(Stat.JEOPARDY_CORYAT).toString()),
-            Text("Double Jeopardy Coryat: \$" +
-                getAverageStat(Stat.DOUBLE_JEOPARDY_CORYAT).toString()),
-            Row(
-              children: [
-                CoryatElement.cupertinoButton("More Stats", () {
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(builder: (context) {
-                      return MoreStatsScreen();
-                    }),
-                  );
-                }),
-                CoryatElement.cupertinoButton("Graphs", () {
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(builder: (context) {
-                      return GraphsScreen();
-                    }),
-                  );
-                }),
-              ],
-            ),
-            CoryatElement.divider(),
-            Text("Daily Doubles: " + getDailyDoubleString()),
-            Text("Final Jeopardy: " + getFinalJeopardyString()),
-          ],
+          children: _games.length > 0
+              ? [
+                  _rangeDropdown(),
+                  Container(
+                    height: 200,
+                    child: charts.TimeSeriesChart(
+                      _createCoryatStackedData(),
+                      defaultRenderer: new charts.LineRendererConfig(
+                          includeArea: true,
+                          stacked: true,
+                          includePoints: true),
+                      animate: false,
+                      behaviors: [
+                        new charts.SeriesLegend(
+                          position: charts.BehaviorPosition.bottom,
+                        ),
+                        new charts.ChartTitle(
+                          'Coryat',
+                          behaviorPosition: charts.BehaviorPosition.top,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    height: 200,
+                    child: charts.TimeSeriesChart(
+                      _createCoryatStackedData(rollingDays: 7),
+                      defaultRenderer: new charts.LineRendererConfig(
+                          includeArea: true,
+                          stacked: true,
+                          includePoints: true),
+                      animate: false,
+                      behaviors: [
+                        new charts.SeriesLegend(
+                          position: charts.BehaviorPosition.bottom,
+                        ),
+                        new charts.ChartTitle(
+                          '7-Day Rolling Coryat',
+                          behaviorPosition: charts.BehaviorPosition.top,
+                        ),
+                      ],
+                    ),
+                  ),
+                ]
+              : [CoryatElement.text("No Data", size: Font.size_large_text)],
         ),
       ),
     );
   }
 
-  int getAverageStat(int stat) {
-    if (_games.length == 0) {
-      return 0;
-    }
-    int total = 0;
-    for (Game game in _games) {
-      total += game.getStat(stat);
-    }
-    return total ~/ _games.length;
-  }
+  // charts
 
-  String getFinalJeopardyString() {
-    int right = 0;
-    int total = 0;
-    for (Game game in _games) {
-      List<int> performance = game.getCustomPerformance(
-          (Clue c) => c.question.round == Round.final_jeopardy);
-      right += performance[Response.correct];
-      total += performance[Response.correct] +
-          performance[Response.incorrect] +
-          performance[Response.none];
-    }
-    if (total == 0) {
-      return "0-0 (N/A)";
-    }
-    return right.toString() +
-        "–" +
-        total.toString() +
-        " (" +
-        round(right / total * 100, _roundPlaces).toString() +
-        "%)";
-  }
+  var color1 = charts.MaterialPalette.blue.shadeDefault;
+  var color2 = charts.MaterialPalette.purple.shadeDefault;
 
-  String getDailyDoubleString() {
-    List<int> totals = [0, 0, 0];
-    for (Game game in _games) {
-      List<int> g = game.getCustomPerformance((Clue c) => c.isDailyDouble());
-      totals[Response.correct] += g[Response.correct];
-      totals[Response.incorrect] += g[Response.incorrect];
-      totals[Response.none] += g[Response.none];
+  List<charts.Series<MapEntry<DateTime, double>, DateTime>>
+      _createCoryatStackedData({rollingDays = 1}) {
+    // sort games
+    List<Game> sorted = List.from(_games);
+    if (_currentRange == _datePlayed) {
+      sorted.sort((a, b) => a.datePlayed.compareTo(b.datePlayed));
+    } else {
+      sorted.sort((a, b) => a.dateAired.compareTo(b.dateAired));
     }
 
-    int c = totals[Response.correct];
-    int t = totals.reduce((a, b) => a + b);
-
-    if (t == 0) {
-      return "0-0 (N/A)";
+    // collect rolling averages
+    Map<DateTime, double> singleData = {};
+    Map<DateTime, double> doubleData = {};
+    // for each game
+    for (int i = 0; i < _games.length; i++) {
+      // go rollingDays days or to end of games
+      for (int j = i; j < i + rollingDays && j < _games.length; j++) {
+        print(i.toString() + " " + j.toString());
+        // add coryat
+        if (_currentRange == _datePlayed) {
+          singleData[sorted[j].datePlayed] =
+              (singleData[sorted[j].datePlayed] ?? 0) +
+                  sorted[i].getStat(Stat.JEOPARDY_CORYAT).toDouble();
+          doubleData[sorted[j].datePlayed] =
+              (doubleData[sorted[j].datePlayed] ?? 0) +
+                  sorted[i].getStat(Stat.DOUBLE_JEOPARDY_CORYAT).toDouble();
+        } else {
+          singleData[sorted[j].dateAired] =
+              (singleData[sorted[j].dateAired] ?? 0) +
+                  sorted[i].getStat(Stat.JEOPARDY_CORYAT).toDouble();
+          doubleData[sorted[j].dateAired] =
+              (doubleData[sorted[j].dateAired] ?? 0) +
+                  sorted[i].getStat(Stat.DOUBLE_JEOPARDY_CORYAT).toDouble();
+        }
+      }
     }
-    return c.toString() +
-        "–" +
-        t.toString() +
-        " (" +
-        round(c / t * 100, _roundPlaces).toString() +
-        "%)";
-  }
+    // get averages
+    for (final entry in singleData.entries) {
+      singleData[entry.key] /= min(_games.length, rollingDays);
+      doubleData[entry.key] /= min(_games.length, rollingDays);
+    }
+    // put into list, sort by date
+    List<MapEntry> singleEntries = singleData.entries.toList();
+    List<MapEntry> doubleEntries = doubleData.entries.toList();
+    if (_currentRange == _datePlayed) {
+      singleEntries
+          .sort((a, b) => a.key.datePlayed.compareTo(b.key.datePlayed));
+      doubleEntries
+          .sort((a, b) => a.key.datePlayed.compareTo(b.key.datePlayed));
+    } else {
+      singleEntries.sort((a, b) => a.key.compareTo(b.key));
+      doubleEntries.sort((a, b) => a.key.compareTo(b.key));
+    }
+    // trim
+    singleEntries =
+        singleEntries.sublist(min(_games.length - 1, rollingDays - 1));
+    doubleEntries =
+        doubleEntries.sublist(min(_games.length - 1, rollingDays - 1));
 
-  double round(double number, int places) {
-    return double.parse((number).toStringAsFixed(places));
+    return [
+      new charts.Series<MapEntry<DateTime, double>, DateTime>(
+        id: 'Jeopardy Round',
+        colorFn: (_, __) => color1,
+        domainFn: (MapEntry<DateTime, double> entry, _) => entry.key,
+        measureFn: (MapEntry<DateTime, double> entry, _) => entry.value,
+        data: singleEntries,
+      ),
+      new charts.Series<MapEntry<DateTime, double>, DateTime>(
+        id: 'Total',
+        colorFn: (_, __) => color2,
+        domainFn: (MapEntry<DateTime, double> entry, _) => entry.key,
+        measureFn: (MapEntry<DateTime, double> entry, _) => entry.value,
+        data: doubleEntries,
+      ),
+    ];
   }
 
   // Range dropdown

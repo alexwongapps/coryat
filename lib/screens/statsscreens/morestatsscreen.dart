@@ -2,27 +2,30 @@ import 'dart:math';
 
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
+import 'package:coryat/constants/font.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
-import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
-import 'package:coryat/enums/stat.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/game.dart';
-import 'package:coryat/screens/statsscreens/graphsscreen.dart';
-import 'package:coryat/screens/statsscreens/morestatsscreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class StatsScreen extends StatefulWidget {
+class MoreStatsScreen extends StatefulWidget {
+  const MoreStatsScreen({Key key}) : super(key: key);
+
   @override
-  _StatsScreenState createState() => _StatsScreenState();
+  _MoreStatsScreenState createState() => _MoreStatsScreenState();
 }
 
-class _StatsScreenState extends State<StatsScreen> {
-  List<Game> _games = [];
+class _MoreStatsScreenState extends State<MoreStatsScreen> {
+  final List<String> _presetCategories = [
+    "Jeopardy Stats",
+    "Double Jeopardy Stats"
+  ];
+  int _currentCategory = 0;
 
-  int _roundPlaces = 1;
+  List<Game> _games = [];
 
   @override
   void initState() {
@@ -35,118 +38,79 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CoryatElement.cupertinoNavigationBar("Stats"),
+      navigationBar: CoryatElement.cupertinoNavigationBar("More Stats"),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             _rangeDropdown(),
-            Text("Games Played: " + _games.length.toString()),
-            CoryatElement.divider(),
-            Text("Average Game"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CoryatElement.text(
-                    "\$" + getAverageStat(Stat.CORRECT_TOTAL_VALUE).toString(),
-                    color: CustomColor.correctGreen),
-                Text(" "),
-                CoryatElement.text(
-                    "−\$" +
-                        getAverageStat(Stat.INCORRECT_TOTAL_VALUE).toString(),
-                    color: CustomColor.incorrectRed),
-                Text(" (\$"),
-                CoryatElement.text(
-                    getAverageStat(Stat.NO_ANSWER_TOTAL_VALUE).toString()),
-                Text(")")
-              ],
+            Material(
+              child: DropdownButton(
+                value: _currentCategory,
+                dropdownColor: CustomColor.backgroundColor,
+                onChanged: (int newValue) {
+                  setState(() {
+                    _currentCategory = newValue;
+                  });
+                },
+                items: [
+                  DropdownMenuItem(
+                    value: 0,
+                    child: Text(_presetCategories[0]),
+                  ),
+                  DropdownMenuItem(
+                    value: 1,
+                    child: Text(_presetCategories[1]),
+                  ),
+                ],
+              ),
             ),
-            Text("Coryat: \$" + getAverageStat(Stat.CORYAT).toString()),
-            Text("Jeopardy Coryat: \$" +
-                getAverageStat(Stat.JEOPARDY_CORYAT).toString()),
-            Text("Double Jeopardy Coryat: \$" +
-                getAverageStat(Stat.DOUBLE_JEOPARDY_CORYAT).toString()),
-            Row(
-              children: [
-                CoryatElement.cupertinoButton("More Stats", () {
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(builder: (context) {
-                      return MoreStatsScreen();
-                    }),
-                  );
-                }),
-                CoryatElement.cupertinoButton("Graphs", () {
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(builder: (context) {
-                      return GraphsScreen();
-                    }),
-                  );
-                }),
-              ],
-            ),
-            CoryatElement.divider(),
-            Text("Daily Doubles: " + getDailyDoubleString()),
-            Text("Final Jeopardy: " + getFinalJeopardyString()),
+            _currentCategory == 0
+                ? getPerformanceRichText(Round.jeopardy, 200)
+                : getPerformanceRichText(Round.double_jeopardy, 400),
+            _currentCategory == 0
+                ? getPerformanceRichText(Round.jeopardy, 400)
+                : getPerformanceRichText(Round.double_jeopardy, 800),
+            _currentCategory == 0
+                ? getPerformanceRichText(Round.jeopardy, 600)
+                : getPerformanceRichText(Round.double_jeopardy, 1200),
+            _currentCategory == 0
+                ? getPerformanceRichText(Round.jeopardy, 800)
+                : getPerformanceRichText(Round.double_jeopardy, 1600),
+            _currentCategory == 0
+                ? getPerformanceRichText(Round.jeopardy, 1000)
+                : getPerformanceRichText(Round.double_jeopardy, 2000),
           ],
         ),
       ),
     );
   }
 
-  int getAverageStat(int stat) {
-    if (_games.length == 0) {
-      return 0;
-    }
-    int total = 0;
+  RichText getPerformanceRichText(int round, int value) {
+    List<int> performance = [0, 0, 0];
     for (Game game in _games) {
-      total += game.getStat(stat);
+      List<int> g = game.getCustomPerformance(
+          (Clue c) => c.question.round == round && c.question.value == value);
+      performance[0] += g[0];
+      performance[1] += g[1];
+      performance[2] += g[2];
     }
-    return total ~/ _games.length;
-  }
-
-  String getFinalJeopardyString() {
-    int right = 0;
-    int total = 0;
-    for (Game game in _games) {
-      List<int> performance = game.getCustomPerformance(
-          (Clue c) => c.question.round == Round.final_jeopardy);
-      right += performance[Response.correct];
-      total += performance[Response.correct] +
-          performance[Response.incorrect] +
-          performance[Response.none];
-    }
-    if (total == 0) {
-      return "0-0 (N/A)";
-    }
-    return right.toString() +
-        "–" +
-        total.toString() +
-        " (" +
-        round(right / total * 100, _roundPlaces).toString() +
-        "%)";
-  }
-
-  String getDailyDoubleString() {
-    List<int> totals = [0, 0, 0];
-    for (Game game in _games) {
-      List<int> g = game.getCustomPerformance((Clue c) => c.isDailyDouble());
-      totals[Response.correct] += g[Response.correct];
-      totals[Response.incorrect] += g[Response.incorrect];
-      totals[Response.none] += g[Response.none];
-    }
-
-    int c = totals[Response.correct];
-    int t = totals.reduce((a, b) => a + b);
-
-    if (t == 0) {
-      return "0-0 (N/A)";
-    }
-    return c.toString() +
-        "–" +
-        t.toString() +
-        " (" +
-        round(c / t * 100, _roundPlaces).toString() +
-        "%)";
+    return new RichText(
+      text: new TextSpan(
+        style: TextStyle(
+            color: CupertinoColors.black, fontSize: Font.size_regular_text),
+        children: <TextSpan>[
+          new TextSpan(text: "\$" + value.toString() + " Clues: "),
+          new TextSpan(
+              text: performance[0].toString() + " ",
+              style: new TextStyle(color: CustomColor.correctGreen)),
+          new TextSpan(
+              text: "−" + performance[1].toString() + " ",
+              style: new TextStyle(color: CustomColor.incorrectRed)),
+          new TextSpan(text: "(" + performance[2].toString() + ")"),
+        ],
+      ),
+    );
   }
 
   double round(double number, int places) {

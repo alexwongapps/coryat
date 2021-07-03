@@ -3,18 +3,20 @@
 [Google Doc](https://docs.google.com/document/d/1Zv8SKOVWy4V1g2C6xmQH91oUexX5lUQnp8sOtDngBns/edit?usp=sharing)
 
 ## To-do
-- move clues in history
+- Export (Coryat)
 
 ## MVP
 - Manual game
 - Local save
 - Numerical stats
+- IAP
 
-## Basic
+## Basic (Firebase easy)
 - Firebase save
 - Accounts
+- Global average
 
-## Advanced
+## Advanced (Firebase hard)
 - Graphs
 - Leaderboard (friends/global)
 - Challenges
