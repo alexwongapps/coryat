@@ -5,7 +5,12 @@ import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/font.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
+import 'package:coryat/enums/eventtype.dart';
+import 'package:coryat/enums/response.dart';
+import 'package:coryat/enums/round.dart';
 import 'package:coryat/enums/stat.dart';
+import 'package:coryat/models/clue.dart';
+import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +23,17 @@ class GraphsScreen extends StatefulWidget {
 
 class _GraphsScreenState extends State<GraphsScreen> {
   List<Game> _games = [];
+  final double _chartHeight = 200;
+
+  final List<String> _presetCategories = [
+    "Coryat",
+    "Average Game",
+    "Clue Value Performance (%)",
+  ];
+  final int _coryat = 0;
+  final int _averageGame = 1;
+  final int _clueValuePerformance = 2;
+  int _currentTypeCategory = 0;
 
   @override
   void initState() {
@@ -36,48 +52,139 @@ class _GraphsScreenState extends State<GraphsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: _games.length > 0
               ? [
-                  _rangeDropdown(),
-                  Container(
-                    height: 200,
-                    child: charts.TimeSeriesChart(
-                      _createCoryatStackedData(),
-                      defaultRenderer: new charts.LineRendererConfig(
-                          includeArea: true,
-                          stacked: true,
-                          includePoints: true),
-                      animate: false,
-                      behaviors: [
-                        new charts.SeriesLegend(
-                          position: charts.BehaviorPosition.bottom,
-                        ),
-                        new charts.ChartTitle(
-                          'Coryat',
-                          behaviorPosition: charts.BehaviorPosition.top,
-                        ),
-                      ],
+                    _rangeDropdown(),
+                    Material(
+                      child: DropdownButton(
+                        value: _currentTypeCategory,
+                        dropdownColor: CustomColor.backgroundColor,
+                        onChanged: (int newValue) {
+                          setState(() {
+                            _currentTypeCategory = newValue;
+                          });
+                        },
+                        items: [
+                          DropdownMenuItem(
+                            value: _coryat,
+                            child: Text(_presetCategories[_coryat]),
+                          ),
+                          DropdownMenuItem(
+                            value: _averageGame,
+                            child: Text(_presetCategories[_averageGame]),
+                          ),
+                          DropdownMenuItem(
+                            value: _clueValuePerformance,
+                            child:
+                                Text(_presetCategories[_clueValuePerformance]),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Container(
-                    height: 200,
-                    child: charts.TimeSeriesChart(
-                      _createCoryatStackedData(rollingDays: 7),
-                      defaultRenderer: new charts.LineRendererConfig(
-                          includeArea: true,
-                          stacked: true,
-                          includePoints: true),
-                      animate: false,
-                      behaviors: [
-                        new charts.SeriesLegend(
-                          position: charts.BehaviorPosition.bottom,
-                        ),
-                        new charts.ChartTitle(
-                          '7-Day Rolling Coryat',
-                          behaviorPosition: charts.BehaviorPosition.top,
-                        ),
-                      ],
-                    ),
-                  ),
-                ]
+                  ] +
+                  (_currentTypeCategory == _coryat
+                      ? [
+                          Container(
+                            height: _chartHeight,
+                            child: charts.TimeSeriesChart(
+                              _createCoryatStackedData(),
+                              defaultRenderer: charts.LineRendererConfig(
+                                  includeArea: true,
+                                  stacked: true,
+                                  includePoints: true),
+                              animate: false,
+                              behaviors: [
+                                charts.SeriesLegend(
+                                  position: charts.BehaviorPosition.bottom,
+                                ),
+                                charts.ChartTitle(
+                                  'Coryat',
+                                  behaviorPosition: charts.BehaviorPosition.top,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            height: _chartHeight,
+                            child: charts.TimeSeriesChart(
+                              _createCoryatStackedData(rollingDays: 5),
+                              defaultRenderer: charts.LineRendererConfig(
+                                  includeArea: true,
+                                  stacked: true,
+                                  includePoints: true),
+                              behaviors: [
+                                charts.SeriesLegend(
+                                  position: charts.BehaviorPosition.bottom,
+                                ),
+                                charts.ChartTitle(
+                                  "5-Day Rolling Coryat",
+                                  behaviorPosition: charts.BehaviorPosition.top,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ]
+                      : _currentTypeCategory == _averageGame
+                          ? [
+                              Container(
+                                height: _chartHeight,
+                                child: charts.LineChart(
+                                  _createAverageGameData(Round.jeopardy),
+                                  defaultRenderer: charts.LineRendererConfig(
+                                      includePoints: true),
+                                  animate: false,
+                                  behaviors: [
+                                    charts.ChartTitle(
+                                      "Jeopardy Round",
+                                      behaviorPosition:
+                                          charts.BehaviorPosition.top,
+                                    ),
+                                    charts.ChartTitle("Clue Number",
+                                        behaviorPosition:
+                                            charts.BehaviorPosition.bottom),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                height: _chartHeight,
+                                child: charts.LineChart(
+                                  _createAverageGameData(Round.double_jeopardy),
+                                  defaultRenderer: charts.LineRendererConfig(
+                                      includePoints: true),
+                                  animate: false,
+                                  behaviors: [
+                                    charts.ChartTitle(
+                                      "Double Jeopardy Round",
+                                      behaviorPosition:
+                                          charts.BehaviorPosition.top,
+                                    ),
+                                    charts.ChartTitle("Clue Number",
+                                        behaviorPosition:
+                                            charts.BehaviorPosition.bottom),
+                                  ],
+                                ),
+                              ),
+                            ]
+                          : [
+                              Container(
+                                height: _chartHeight,
+                                child: charts.BarChart(
+                                  _createClueValuePerformanceData(
+                                      Round.jeopardy),
+                                  behaviors: [
+                                    charts.ChartTitle("Jeopardy Round")
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                height: _chartHeight,
+                                child: charts.BarChart(
+                                  _createClueValuePerformanceData(
+                                      Round.double_jeopardy),
+                                  behaviors: [
+                                    charts.ChartTitle("Double Jeopardy Round")
+                                  ],
+                                ),
+                              ),
+                            ])
               : [CoryatElement.text("No Data", size: Font.size_large_text)],
         ),
       ),
@@ -162,6 +269,85 @@ class _GraphsScreenState extends State<GraphsScreen> {
         domainFn: (MapEntry<DateTime, double> entry, _) => entry.key,
         measureFn: (MapEntry<DateTime, double> entry, _) => entry.value,
         data: doubleEntries,
+      ),
+    ];
+  }
+
+  List<charts.Series<MapEntry<int, List<int>>, String>>
+      _createClueValuePerformanceData(int round) {
+    Map<int, List<int>> map = {};
+    for (Game game in _games) {
+      for (Event event in game.getEvents()) {
+        if (event.type == EventType.clue) {
+          Clue c = event as Clue;
+          if (c.question.round == round) {
+            if (map[c.question.value] != null) {
+              map[c.question.value] = [
+                map[c.question.value][0] +
+                    (c.response == Response.correct ? 1 : 0),
+                map[c.question.value][1] + 1
+              ];
+            } else {
+              map[c.question.value] = [
+                c.response == Response.correct ? 1 : 0,
+                1
+              ];
+            }
+          }
+        }
+      }
+    }
+    var entries = map.entries.toList();
+    entries.sort((a, b) => a.key.compareTo(b.key));
+    return [
+      new charts.Series<MapEntry<int, List<int>>, String>(
+        id: 'Performance by Clue Value',
+        colorFn: (_, __) => color1,
+        domainFn: (MapEntry<int, List<int>> entry, _) =>
+            "\$" + entry.key.toString(),
+        measureFn: (MapEntry<int, List<int>> entry, _) =>
+            entry.value[0] / entry.value[1] * 100,
+        data: entries,
+      ),
+    ];
+  }
+
+  List<charts.Series<List<int>, int>> _createAverageGameData(int round) {
+    List<int> coryatCollect = [];
+    for (int i = 0; i < 30; i++) {
+      coryatCollect.add(0);
+    }
+    for (Game game in _games) {
+      List<Event> events = game.getEvents();
+      int start = round == Round.jeopardy
+          ? 0
+          : game.endRoundMarkerIndex(Round.jeopardy) + 1;
+      for (int i = 0; i < 30 && events[start + i].type == EventType.clue; i++) {
+        Clue c = events[start + i] as Clue;
+        int value = c.response == Response.correct
+            ? c.question.value
+            : c.response == Response.incorrect
+                ? -c.question.value
+                : 0;
+        coryatCollect[i] += value;
+      }
+    }
+
+    List<List<int>> coryatThrough = [];
+    coryatThrough.add([1, coryatCollect[0] ~/ _games.length]);
+    for (int i = 1; i < 30; i++) {
+      coryatThrough.add(
+          [i + 1, coryatThrough[i - 1][1] + coryatCollect[i] ~/ _games.length]);
+    }
+    return [
+      new charts.Series<List<int>, int>(
+        id: round == Round.jeopardy
+            ? "Jeopardy Round"
+            : "Double Jeopardy Round",
+        colorFn: (_, __) => color1,
+        domainFn: (List<int> lst, _) => lst[0],
+        measureFn: (List<int> lst, _) => lst[1],
+        data: coryatThrough,
       ),
     ];
   }
@@ -374,7 +560,7 @@ class _GraphsScreenState extends State<GraphsScreen> {
   }
 
   String _dateString(DateTime date) {
-    final df = new DateFormat('M/dd/yyyy');
+    final df = new DateFormat('M/d/yyyy');
     return df.format(date);
   }
 }

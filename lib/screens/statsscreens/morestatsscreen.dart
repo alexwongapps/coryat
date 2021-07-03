@@ -5,6 +5,7 @@ import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/font.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/round.dart';
+import 'package:coryat/enums/stat.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/game.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,6 +24,8 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
     "Jeopardy Stats",
     "Double Jeopardy Stats"
   ];
+  final int _jeopardyStats = 0;
+  final int _doubleJeopardyStats = 1;
   int _currentCategory = 0;
 
   List<Game> _games = [];
@@ -43,44 +46,53 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _rangeDropdown(),
-            Material(
-              child: DropdownButton(
-                value: _currentCategory,
-                dropdownColor: CustomColor.backgroundColor,
-                onChanged: (int newValue) {
-                  setState(() {
-                    _currentCategory = newValue;
-                  });
-                },
-                items: [
-                  DropdownMenuItem(
-                    value: 0,
-                    child: Text(_presetCategories[0]),
+                _rangeDropdown(),
+                Material(
+                  child: DropdownButton(
+                    value: _currentCategory,
+                    dropdownColor: CustomColor.backgroundColor,
+                    onChanged: (int newValue) {
+                      setState(() {
+                        _currentCategory = newValue;
+                      });
+                    },
+                    items: [
+                      DropdownMenuItem(
+                        value: _jeopardyStats,
+                        child: Text(_presetCategories[_jeopardyStats]),
+                      ),
+                      DropdownMenuItem(
+                        value: _doubleJeopardyStats,
+                        child: Text(_presetCategories[_doubleJeopardyStats]),
+                      ),
+                    ],
                   ),
-                  DropdownMenuItem(
-                    value: 1,
-                    child: Text(_presetCategories[1]),
-                  ),
-                ],
-              ),
-            ),
-            _currentCategory == 0
-                ? getPerformanceRichText(Round.jeopardy, 200)
-                : getPerformanceRichText(Round.double_jeopardy, 400),
-            _currentCategory == 0
-                ? getPerformanceRichText(Round.jeopardy, 400)
-                : getPerformanceRichText(Round.double_jeopardy, 800),
-            _currentCategory == 0
-                ? getPerformanceRichText(Round.jeopardy, 600)
-                : getPerformanceRichText(Round.double_jeopardy, 1200),
-            _currentCategory == 0
-                ? getPerformanceRichText(Round.jeopardy, 800)
-                : getPerformanceRichText(Round.double_jeopardy, 1600),
-            _currentCategory == 0
-                ? getPerformanceRichText(Round.jeopardy, 1000)
-                : getPerformanceRichText(Round.double_jeopardy, 2000),
-          ],
+                ),
+              ] +
+              (_currentCategory == _jeopardyStats
+                  ? [
+                      CoryatElement.text("Best Coryat: " +
+                          _getExtremeCoryatString(Round.jeopardy, true)),
+                      CoryatElement.text("Worst Coryat: " +
+                          _getExtremeCoryatString(Round.jeopardy, false)),
+                      getPerformanceRichText(Round.jeopardy, 200),
+                      getPerformanceRichText(Round.jeopardy, 400),
+                      getPerformanceRichText(Round.jeopardy, 600),
+                      getPerformanceRichText(Round.jeopardy, 800),
+                      getPerformanceRichText(Round.jeopardy, 1000),
+                    ]
+                  : [
+                      CoryatElement.text("Best Coryat: " +
+                          _getExtremeCoryatString(Round.double_jeopardy, true)),
+                      CoryatElement.text("Worst Coryat: " +
+                          _getExtremeCoryatString(
+                              Round.double_jeopardy, false)),
+                      getPerformanceRichText(Round.double_jeopardy, 400),
+                      getPerformanceRichText(Round.double_jeopardy, 800),
+                      getPerformanceRichText(Round.double_jeopardy, 1200),
+                      getPerformanceRichText(Round.double_jeopardy, 1600),
+                      getPerformanceRichText(Round.double_jeopardy, 2000),
+                    ]),
         ),
       ),
     );
@@ -111,6 +123,31 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
         ],
       ),
     );
+  }
+
+  String _getExtremeCoryatString(int round, bool maximum) {
+    if (_games.length == 0) {
+      return "N/A";
+    }
+    DateTime date;
+    int val = -1;
+    for (Game game in _games) {
+      int cor;
+      if (round == Round.jeopardy) {
+        cor = game.getStat(Stat.JEOPARDY_CORYAT);
+      } else {
+        cor = game.getStat(Stat.DOUBLE_JEOPARDY_CORYAT);
+      }
+      if (maximum && (val == -1 || cor > val)) {
+        date = game.dateAired;
+        val = cor;
+      }
+      if (!maximum && (val == -1 || cor < val)) {
+        date = game.dateAired;
+        val = cor;
+      }
+    }
+    return "\$" + val.toString() + " (" + _dateString(date) + ")";
   }
 
   double round(double number, int places) {
@@ -325,7 +362,7 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
   }
 
   String _dateString(DateTime date) {
-    final df = new DateFormat('M/dd/yyyy');
+    final df = new DateFormat('M/d/yyyy');
     return df.format(date);
   }
 }

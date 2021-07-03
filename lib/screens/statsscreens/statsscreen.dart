@@ -42,30 +42,35 @@ class _StatsScreenState extends State<StatsScreen> {
           children: [
             _rangeDropdown(),
             Text("Games Played: " + _games.length.toString()),
+            Text("Best Coryat: " + _getExtremeCoryatString(true)),
+            Text("Worst Coryat: " + _getExtremeCoryatString(false)),
             CoryatElement.divider(),
             Text("Average Game"),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CoryatElement.text(
-                    "\$" + getAverageStat(Stat.CORRECT_TOTAL_VALUE).toString(),
+                    "\$" + _getAverageStat(Stat.CORRECT_TOTAL_VALUE).toString(),
                     color: CustomColor.correctGreen),
                 Text(" "),
                 CoryatElement.text(
                     "−\$" +
-                        getAverageStat(Stat.INCORRECT_TOTAL_VALUE).toString(),
+                        _getAverageStat(Stat.INCORRECT_TOTAL_VALUE).toString(),
                     color: CustomColor.incorrectRed),
                 Text(" (\$"),
                 CoryatElement.text(
-                    getAverageStat(Stat.NO_ANSWER_TOTAL_VALUE).toString()),
+                    _getAverageStat(Stat.NO_ANSWER_TOTAL_VALUE).toString()),
                 Text(")")
               ],
             ),
-            Text("Coryat: \$" + getAverageStat(Stat.CORYAT).toString()),
+            Text("Coryat: \$" + _getAverageStat(Stat.CORYAT).toString()),
             Text("Jeopardy Coryat: \$" +
-                getAverageStat(Stat.JEOPARDY_CORYAT).toString()),
+                _getAverageStat(Stat.JEOPARDY_CORYAT).toString()),
             Text("Double Jeopardy Coryat: \$" +
-                getAverageStat(Stat.DOUBLE_JEOPARDY_CORYAT).toString()),
+                _getAverageStat(Stat.DOUBLE_JEOPARDY_CORYAT).toString()),
+            CoryatElement.divider(),
+            Text("Daily Doubles: " + _getDailyDoubleString()),
+            Text("Final Jeopardy: " + _getFinalJeopardyString()),
             Row(
               children: [
                 CoryatElement.cupertinoButton("More Stats", () {
@@ -84,16 +89,13 @@ class _StatsScreenState extends State<StatsScreen> {
                 }),
               ],
             ),
-            CoryatElement.divider(),
-            Text("Daily Doubles: " + getDailyDoubleString()),
-            Text("Final Jeopardy: " + getFinalJeopardyString()),
           ],
         ),
       ),
     );
   }
 
-  int getAverageStat(int stat) {
+  int _getAverageStat(int stat) {
     if (_games.length == 0) {
       return 0;
     }
@@ -104,7 +106,27 @@ class _StatsScreenState extends State<StatsScreen> {
     return total ~/ _games.length;
   }
 
-  String getFinalJeopardyString() {
+  String _getExtremeCoryatString(bool maximum) {
+    if (_games.length == 0) {
+      return "N/A";
+    }
+    DateTime date;
+    int val = -1;
+    for (Game game in _games) {
+      int cor = game.getStat(Stat.CORYAT);
+      if (maximum && (val == -1 || cor > val)) {
+        date = game.dateAired;
+        val = cor;
+      }
+      if (!maximum && (val == -1 || cor < val)) {
+        date = game.dateAired;
+        val = cor;
+      }
+    }
+    return "\$" + val.toString() + " (" + _dateString(date) + ")";
+  }
+
+  String _getFinalJeopardyString() {
     int right = 0;
     int total = 0;
     for (Game game in _games) {
@@ -122,11 +144,11 @@ class _StatsScreenState extends State<StatsScreen> {
         "–" +
         total.toString() +
         " (" +
-        round(right / total * 100, _roundPlaces).toString() +
+        _round(right / total * 100, _roundPlaces).toString() +
         "%)";
   }
 
-  String getDailyDoubleString() {
+  String _getDailyDoubleString() {
     List<int> totals = [0, 0, 0];
     for (Game game in _games) {
       List<int> g = game.getCustomPerformance((Clue c) => c.isDailyDouble());
@@ -145,11 +167,11 @@ class _StatsScreenState extends State<StatsScreen> {
         "–" +
         t.toString() +
         " (" +
-        round(c / t * 100, _roundPlaces).toString() +
+        _round(c / t * 100, _roundPlaces).toString() +
         "%)";
   }
 
-  double round(double number, int places) {
+  double _round(double number, int places) {
     return double.parse((number).toStringAsFixed(places));
   }
 
@@ -361,7 +383,7 @@ class _StatsScreenState extends State<StatsScreen> {
   }
 
   String _dateString(DateTime date) {
-    final df = new DateFormat('M/dd/yyyy');
+    final df = new DateFormat('M/d/yyyy');
     return df.format(date);
   }
 }

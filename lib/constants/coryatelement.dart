@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'design.dart';
 
 class CoryatElement {
-  static cupertinoNavigationBar(String text) {
+  static cupertinoNavigationBar(String text, {Widget trailing}) {
     return CupertinoNavigationBar(
       middle: Text(
         text,
@@ -14,6 +14,7 @@ class CoryatElement {
           fontFamily: Font.family,
         ),
       ),
+      trailing: trailing,
       border: null,
     );
   }

@@ -253,7 +253,7 @@ class Game {
   }
 
   String dateDescription() {
-    final df = new DateFormat('M/dd/yyyy (EEEE)');
+    final df = new DateFormat('M/d/yyyy (EEEE)');
     return df.format(dateAired);
   }
 

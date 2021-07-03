@@ -4,6 +4,8 @@
 
 ## To-do
 - Export (Coryat)
+- Stats
+    - percents on stats/more stats
 
 ## MVP
 - Manual game
