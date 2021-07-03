@@ -29,6 +29,7 @@ dependencies:
   shared_preferences: ^2.0.6
   charts_flutter: ^0.10.0
   csv: ^5.0.0
+  share_plus: ^2.1.4
 
   # Add the dependency for the FlutterFire plugin for Google Analytics
   firebase_analytics: ^5.0.2

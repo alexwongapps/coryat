@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/font.dart';
@@ -14,10 +16,13 @@ import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/models/user.dart';
 import 'package:coryat/screens/historyscreens/gamedetailscreen.dart';
+import 'package:csv/csv.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -148,10 +153,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return CupertinoPageScaffold(
         navigationBar: CoryatElement.cupertinoNavigationBar("Games Played",
             trailing: CoryatElement.cupertinoButton("Export", () async {
-              List<List<String>> data = _getCSV();
+              String data = ListToCsvConverter().convert(_getCSV());
               final dir = await getApplicationSupportDirectory();
               final String directory = dir.path;
-              final path = "$directory/csv-${DateTime.now()}.csv";
+              final path =
+                  "$directory/coryat-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.csv";
+              final File file = File(path);
+              await file.writeAsString(data);
+              Share.shareFiles([path]);
             })),
         child: Material(
           child: _buildGames(),
@@ -159,7 +168,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   List<List<String>> _getCSV() {
-    List<String> headers = ["Date Aired", "Date Played", "Coryat"];
+    List<String> headers = [
+      "Date Aired",
+      "Date Played",
+    ];
     for (int i = 1; i <= 30; i++) {
       headers.add("J" + i.toString());
     }
@@ -167,18 +179,32 @@ class _HistoryScreenState extends State<HistoryScreen> {
       headers.add("DJ" + i.toString());
     }
     headers.add("FJ");
+    headers.addAll([
+      "DD1",
+      "DD2",
+      "DD3",
+      "Coryat",
+    ]);
     List<List<String>> ret = [headers];
     for (Game game in _games) {
+      List<String> dds = [];
       List<String> thisGame = [
         game.dateAired.toIso8601String(),
         game.datePlayed.toIso8601String(),
-        game.getStat(Stat.CORYAT).toString()
       ];
       int numberOn = 1;
       int roundOn = Round.jeopardy;
       for (Event event in game.getEvents()) {
         if (event.type == EventType.clue) {
           Clue c = event as Clue;
+          if (c.isDailyDouble()) {
+            dds.add(c.order);
+          }
+          if (c.question.round != roundOn) {
+            for (int i = numberOn; i <= 30; i++) {
+              thisGame.add("");
+            }
+          }
           if (c.question.round == Round.final_jeopardy) {
             if (c.response == Response.correct) {
               thisGame.add("Correct");
@@ -189,9 +215,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
             }
           } else {
             if (c.question.round != roundOn) {
-              for (int i = numberOn; i <= 30; i++) {
-                thisGame.add("");
-              }
               numberOn = 1;
               roundOn = c.question.round;
             }
@@ -205,10 +228,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
           }
         }
       }
+      thisGame.addAll(dds);
+      thisGame.add(game.getStat(Stat.CORYAT).toString());
       ret.add(thisGame);
     }
     return ret;
-    // todo: share, test
   }
 
   void refresh(FirebaseUser firebaseUser) async {

@@ -231,9 +231,11 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                   "Finish Game",
                   style: TextStyle(
                       fontSize: Font.size_large_button,
-                      color: _currentRound == Round.final_jeopardy
-                          ? CustomColor.primaryColor
-                          : CustomColor.disabledButton),
+                      color:
+                          widget.game.getEvents().last.type == EventType.clue &&
+                                  _currentRound == Round.final_jeopardy
+                              ? CustomColor.primaryColor
+                              : CustomColor.disabledButton),
                 ),
                 onPressed: _currentRound != Round.final_jeopardy
                     ? null
