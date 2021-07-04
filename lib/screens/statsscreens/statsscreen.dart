@@ -41,10 +41,11 @@ class _StatsScreenState extends State<StatsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _rangeDropdown(),
+            CoryatElement.gameDivider(),
             Text("Games Played: " + _games.length.toString()),
             Text("Best Coryat: " + _getExtremeCoryatString(true)),
             Text("Worst Coryat: " + _getExtremeCoryatString(false)),
-            CoryatElement.divider(),
+            CoryatElement.gameDivider(),
             Text("Average Game"),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -68,10 +69,11 @@ class _StatsScreenState extends State<StatsScreen> {
                 _getAverageStat(Stat.JEOPARDY_CORYAT).toString()),
             Text("Double Jeopardy Coryat: \$" +
                 _getAverageStat(Stat.DOUBLE_JEOPARDY_CORYAT).toString()),
-            CoryatElement.divider(),
+            CoryatElement.gameDivider(),
             Text("Daily Doubles: " + _getDailyDoubleString()),
             Text("Final Jeopardy: " + _getFinalJeopardyString()),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CoryatElement.cupertinoButton("More Stats", () {
                   Navigator.of(context).push(
@@ -206,73 +208,79 @@ class _StatsScreenState extends State<StatsScreen> {
 
   Widget _rangeDropdown() {
     return Material(
-      child: DropdownButton(
-        value: _currentRange,
-        dropdownColor: CustomColor.backgroundColor,
-        onChanged: (int newValue) {
-          setState(() {
-            _currentRange = newValue;
-          });
-        },
-        items: [
-          DropdownMenuItem(
-            value: _allTime,
-            child: Text(_presetRanges[_allTime]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              setState(() {});
-            },
-          ),
-          DropdownMenuItem(
-            value: _lastGame,
-            child: Text(_presetRanges[_lastGame]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
-              setState(() {
-                _games = _games.sublist(0, min(_games.length, 1));
-              });
-            },
-          ),
-          DropdownMenuItem(
-            value: _last5Games,
-            child: Text(_presetRanges[_last5Games]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
-              setState(() {
-                _games = _games.sublist(0, min(_games.length, 5));
-              });
-            },
-          ),
-          DropdownMenuItem(
-            value: _last10Games,
-            child: Text(_presetRanges[_last10Games]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
-              setState(() {
-                _games = _games.sublist(0, min(_games.length, 10));
-              });
-            },
-          ),
-          DropdownMenuItem(
-            value: _dateAired,
-            child: Text(_dateAiredLabel),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _showDatePicker(context, true);
-            },
-          ),
-          DropdownMenuItem(
-            value: _datePlayed,
-            child: Text(_datePlayedLabel),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _showDatePicker(context, false);
-            },
-          ),
-        ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: CustomColor.backgroundColor,
+        ),
+        child: DropdownButton(
+          value: _currentRange,
+          dropdownColor: CustomColor.backgroundColor,
+          underline: SizedBox(),
+          onChanged: (int newValue) {
+            setState(() {
+              _currentRange = newValue;
+            });
+          },
+          items: [
+            DropdownMenuItem(
+              value: _allTime,
+              child: CoryatElement.text(_presetRanges[_allTime]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                setState(() {});
+              },
+            ),
+            DropdownMenuItem(
+              value: _lastGame,
+              child: CoryatElement.text(_presetRanges[_lastGame]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
+                setState(() {
+                  _games = _games.sublist(0, min(_games.length, 1));
+                });
+              },
+            ),
+            DropdownMenuItem(
+              value: _last5Games,
+              child: CoryatElement.text(_presetRanges[_last5Games]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
+                setState(() {
+                  _games = _games.sublist(0, min(_games.length, 5));
+                });
+              },
+            ),
+            DropdownMenuItem(
+              value: _last10Games,
+              child: CoryatElement.text(_presetRanges[_last10Games]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
+                setState(() {
+                  _games = _games.sublist(0, min(_games.length, 10));
+                });
+              },
+            ),
+            DropdownMenuItem(
+              value: _dateAired,
+              child: CoryatElement.text(_dateAiredLabel),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _showDatePicker(context, true);
+              },
+            ),
+            DropdownMenuItem(
+              value: _datePlayed,
+              child: CoryatElement.text(_datePlayedLabel),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _showDatePicker(context, false);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

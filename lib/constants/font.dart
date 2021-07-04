@@ -5,6 +5,7 @@ class Font {
   static const double size_regular_button = size_default;
   static const double size_large_button = 30;
   static const double size_small_text = 12;
+  static const double size_legend_text = 15;
   static const double size_regular_text = size_default;
   static const double size_large_text = 30;
 }

@@ -27,6 +27,11 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
   final int _jeopardyStats = 0;
   final int _doubleJeopardyStats = 1;
   int _currentCategory = 0;
+  final List<String> _presetFormats = ["Totals", "Per Game", "Percents"];
+  final int _totals = 0;
+  final int _perGame = 1;
+  final int _percents = 2;
+  int _currentFormat = 0;
 
   List<Game> _games = [];
 
@@ -45,81 +50,116 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-                _rangeDropdown(),
-                Material(
-                  child: DropdownButton(
-                    value: _currentCategory,
-                    dropdownColor: CustomColor.backgroundColor,
-                    onChanged: (int newValue) {
-                      setState(() {
-                        _currentCategory = newValue;
-                      });
-                    },
-                    items: [
-                      DropdownMenuItem(
-                        value: _jeopardyStats,
-                        child: Text(_presetCategories[_jeopardyStats]),
+          children: _games.length > 0
+              ? [
+                    _rangeDropdown(),
+                    Material(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: CustomColor.backgroundColor,
+                        ),
+                        child: DropdownButton(
+                          value: _currentCategory,
+                          dropdownColor: CustomColor.backgroundColor,
+                          underline: SizedBox(),
+                          onChanged: (int newValue) {
+                            setState(() {
+                              _currentCategory = newValue;
+                            });
+                          },
+                          items: [
+                            DropdownMenuItem(
+                              value: _jeopardyStats,
+                              child: CoryatElement.text(
+                                  _presetCategories[_jeopardyStats]),
+                            ),
+                            DropdownMenuItem(
+                              value: _doubleJeopardyStats,
+                              child: CoryatElement.text(
+                                  _presetCategories[_doubleJeopardyStats]),
+                            ),
+                          ],
+                        ),
                       ),
-                      DropdownMenuItem(
-                        value: _doubleJeopardyStats,
-                        child: Text(_presetCategories[_doubleJeopardyStats]),
-                      ),
-                    ],
-                  ),
-                ),
-              ] +
-              (_currentCategory == _jeopardyStats
-                  ? [
-                      CoryatElement.text("Best Coryat: " +
-                          _getExtremeCoryatString(Round.jeopardy, true)),
-                      CoryatElement.text("Worst Coryat: " +
-                          _getExtremeCoryatString(Round.jeopardy, false)),
-                      getPerformanceRichText(Round.jeopardy, 200),
-                      getPerformanceRichText(Round.jeopardy, 400),
-                      getPerformanceRichText(Round.jeopardy, 600),
-                      getPerformanceRichText(Round.jeopardy, 800),
-                      getPerformanceRichText(Round.jeopardy, 1000),
-                    ]
-                  : [
-                      CoryatElement.text("Best Coryat: " +
-                          _getExtremeCoryatString(Round.double_jeopardy, true)),
-                      CoryatElement.text("Worst Coryat: " +
-                          _getExtremeCoryatString(
-                              Round.double_jeopardy, false)),
-                      getPerformanceRichText(Round.double_jeopardy, 400),
-                      getPerformanceRichText(Round.double_jeopardy, 800),
-                      getPerformanceRichText(Round.double_jeopardy, 1200),
-                      getPerformanceRichText(Round.double_jeopardy, 1600),
-                      getPerformanceRichText(Round.double_jeopardy, 2000),
-                    ]),
+                    ),
+                    CoryatElement.gameDivider(),
+                  ] +
+                  (_currentCategory == _jeopardyStats
+                      ? [
+                          _formatPicker(),
+                          CoryatElement.text("Best Coryat: " +
+                              _getExtremeCoryatString(Round.jeopardy, true)),
+                          CoryatElement.text("Worst Coryat: " +
+                              _getExtremeCoryatString(Round.jeopardy, false)),
+                          _getPerformanceRichText(Round.jeopardy, 200),
+                          _getPerformanceRichText(Round.jeopardy, 400),
+                          _getPerformanceRichText(Round.jeopardy, 600),
+                          _getPerformanceRichText(Round.jeopardy, 800),
+                          _getPerformanceRichText(Round.jeopardy, 1000),
+                        ]
+                      : [
+                          _formatPicker(),
+                          CoryatElement.text("Best Coryat: " +
+                              _getExtremeCoryatString(
+                                  Round.double_jeopardy, true)),
+                          CoryatElement.text("Worst Coryat: " +
+                              _getExtremeCoryatString(
+                                  Round.double_jeopardy, false)),
+                          _getPerformanceRichText(Round.double_jeopardy, 400),
+                          _getPerformanceRichText(Round.double_jeopardy, 800),
+                          _getPerformanceRichText(Round.double_jeopardy, 1200),
+                          _getPerformanceRichText(Round.double_jeopardy, 1600),
+                          _getPerformanceRichText(Round.double_jeopardy, 2000),
+                        ])
+              : [
+                  CoryatElement.text("No Data", size: Font.size_large_text),
+                ],
         ),
       ),
     );
   }
 
-  RichText getPerformanceRichText(int round, int value) {
+  RichText _getPerformanceRichText(int rd, int value) {
     List<int> performance = [0, 0, 0];
     for (Game game in _games) {
       List<int> g = game.getCustomPerformance(
-          (Clue c) => c.question.round == round && c.question.value == value);
+          (Clue c) => c.question.round == rd && c.question.value == value);
       performance[0] += g[0];
       performance[1] += g[1];
       performance[2] += g[2];
     }
+    int total = performance[0] + performance[1] + performance[2];
+    String p0String = _currentFormat == _totals
+        ? performance[0].toString()
+        : _currentFormat == _perGame
+            ? (round(performance[0] / total * 6, 2)).toString()
+            : (round(performance[0] / total * 100, 1)).toString() + "%";
+    String p1String = _currentFormat == _totals
+        ? performance[1].toString()
+        : _currentFormat == _perGame
+            ? (round(performance[1] / total * 6, 2)).toString()
+            : (round(performance[1] / total * 100, 1)).toString() + "%";
+    String p2String = _currentFormat == _totals
+        ? performance[2].toString()
+        : _currentFormat == _perGame
+            ? (round(performance[2] / total * 6, 2)).toString()
+            : (round(performance[2] / total * 100, 1)).toString() + "%";
     return new RichText(
       text: new TextSpan(
         style: TextStyle(
-            color: CupertinoColors.black, fontSize: Font.size_regular_text),
+          color: CupertinoColors.black,
+          fontSize: Font.size_regular_text,
+          fontFamily: Font.family,
+        ),
         children: <TextSpan>[
           new TextSpan(text: "\$" + value.toString() + " Clues: "),
           new TextSpan(
-              text: performance[0].toString() + " ",
+              text: p0String + " ",
               style: new TextStyle(color: CustomColor.correctGreen)),
           new TextSpan(
-              text: "−" + performance[1].toString() + " ",
+              text: "−" + p1String + " ",
               style: new TextStyle(color: CustomColor.incorrectRed)),
-          new TextSpan(text: "(" + performance[2].toString() + ")"),
+          new TextSpan(text: "(" + p2String + ")"),
         ],
       ),
     );
@@ -154,6 +194,38 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
     return double.parse((number).toStringAsFixed(places));
   }
 
+  Widget _formatPicker() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CoryatElement.cupertinoButton(_presetFormats[0], () {
+          setState(() {
+            _currentFormat = 0;
+          });
+        },
+            color: _currentFormat == 0
+                ? CustomColor.selectedButton
+                : CustomColor.primaryColor),
+        CoryatElement.cupertinoButton(_presetFormats[1], () {
+          setState(() {
+            _currentFormat = 1;
+          });
+        },
+            color: _currentFormat == 1
+                ? CustomColor.selectedButton
+                : CustomColor.primaryColor),
+        CoryatElement.cupertinoButton(_presetFormats[2], () {
+          setState(() {
+            _currentFormat = 2;
+          });
+        },
+            color: _currentFormat == 2
+                ? CustomColor.selectedButton
+                : CustomColor.primaryColor),
+      ],
+    );
+  }
+
   // Range dropdown
 
   final List<String> _presetRanges = [
@@ -185,73 +257,79 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
 
   Widget _rangeDropdown() {
     return Material(
-      child: DropdownButton(
-        value: _currentRange,
-        dropdownColor: CustomColor.backgroundColor,
-        onChanged: (int newValue) {
-          setState(() {
-            _currentRange = newValue;
-          });
-        },
-        items: [
-          DropdownMenuItem(
-            value: _allTime,
-            child: Text(_presetRanges[_allTime]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              setState(() {});
-            },
-          ),
-          DropdownMenuItem(
-            value: _lastGame,
-            child: Text(_presetRanges[_lastGame]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
-              setState(() {
-                _games = _games.sublist(0, min(_games.length, 1));
-              });
-            },
-          ),
-          DropdownMenuItem(
-            value: _last5Games,
-            child: Text(_presetRanges[_last5Games]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
-              setState(() {
-                _games = _games.sublist(0, min(_games.length, 5));
-              });
-            },
-          ),
-          DropdownMenuItem(
-            value: _last10Games,
-            child: Text(_presetRanges[_last10Games]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
-              setState(() {
-                _games = _games.sublist(0, min(_games.length, 10));
-              });
-            },
-          ),
-          DropdownMenuItem(
-            value: _dateAired,
-            child: Text(_dateAiredLabel),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _showDatePicker(context, true);
-            },
-          ),
-          DropdownMenuItem(
-            value: _datePlayed,
-            child: Text(_datePlayedLabel),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _showDatePicker(context, false);
-            },
-          ),
-        ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: CustomColor.backgroundColor,
+        ),
+        child: DropdownButton(
+          value: _currentRange,
+          dropdownColor: CustomColor.backgroundColor,
+          underline: SizedBox(),
+          onChanged: (int newValue) {
+            setState(() {
+              _currentRange = newValue;
+            });
+          },
+          items: [
+            DropdownMenuItem(
+              value: _allTime,
+              child: CoryatElement.text(_presetRanges[_allTime]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                setState(() {});
+              },
+            ),
+            DropdownMenuItem(
+              value: _lastGame,
+              child: CoryatElement.text(_presetRanges[_lastGame]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
+                setState(() {
+                  _games = _games.sublist(0, min(_games.length, 1));
+                });
+              },
+            ),
+            DropdownMenuItem(
+              value: _last5Games,
+              child: CoryatElement.text(_presetRanges[_last5Games]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
+                setState(() {
+                  _games = _games.sublist(0, min(_games.length, 5));
+                });
+              },
+            ),
+            DropdownMenuItem(
+              value: _last10Games,
+              child: CoryatElement.text(_presetRanges[_last10Games]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
+                setState(() {
+                  _games = _games.sublist(0, min(_games.length, 10));
+                });
+              },
+            ),
+            DropdownMenuItem(
+              value: _dateAired,
+              child: CoryatElement.text(_dateAiredLabel),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _showDatePicker(context, true);
+              },
+            ),
+            DropdownMenuItem(
+              value: _datePlayed,
+              child: CoryatElement.text(_datePlayedLabel),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _showDatePicker(context, false);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

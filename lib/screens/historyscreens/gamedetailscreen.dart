@@ -10,6 +10,7 @@ import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class GameDetailScreen extends StatefulWidget {
@@ -25,104 +26,117 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   Widget _buildEventRow(Event event) {
     return new ListTile(
       key: ValueKey(event),
-      title: Row(
+      tileColor: CustomColor.backgroundColor,
+      title: Column(
         children: [
-          CoryatElement.text(event.order),
-          CoryatElement.text(event.getValueString()),
-          CoryatElement.text(event.primaryText()),
-          CoryatElement.cupertinoButton(
-            event.type == EventType.marker ? "" : "Edit",
-            event.type == EventType.marker
-                ? null
-                : () {
-                    Clue clue = event as Clue;
-                    if (clue.question.round == Round.final_jeopardy) {
-                      editResponse(clue);
-                    } else {
-                      CupertinoButton valueButton(int number) {
-                        return CupertinoButton(
-                          child: Text(
-                            clue.question.round == Round.jeopardy
-                                ? "\$" + (number * 200).toString()
-                                : "\$" + (number * 400).toString(),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              clue.question.value =
-                                  clue.question.round == Round.jeopardy
-                                      ? number * 200
-                                      : number * 400;
-                              SqlitePersistence.updateGame(widget.game);
-                              Navigator.pop(context);
+          CoryatElement.tableDivider(indent: 0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  _eventDescriptionRichText(event),
+                ],
+              ),
+              Row(
+                children: [
+                  CoryatElement.cupertinoButton(
+                    event.type == EventType.marker ? "" : "Edit",
+                    event.type == EventType.marker
+                        ? null
+                        : () {
+                            Clue clue = event as Clue;
+                            if (clue.question.round == Round.final_jeopardy) {
                               editResponse(clue);
-                            });
+                            } else {
+                              CupertinoButton valueButton(int number) {
+                                return CupertinoButton(
+                                  child: Text(
+                                    clue.question.round == Round.jeopardy
+                                        ? "\$" + (number * 200).toString()
+                                        : "\$" + (number * 400).toString(),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      clue.question.value =
+                                          clue.question.round == Round.jeopardy
+                                              ? number * 200
+                                              : number * 400;
+                                      SqlitePersistence.updateGame(widget.game);
+                                      Navigator.pop(context);
+                                      editResponse(clue);
+                                    });
+                                  },
+                                );
+                              }
+
+                              CupertinoAlertDialog alert = CupertinoAlertDialog(
+                                title: Text("Select Clue Value"),
+                                actions: [
+                                  valueButton(1),
+                                  valueButton(2),
+                                  valueButton(3),
+                                  valueButton(4),
+                                  valueButton(5),
+                                  CoryatElement.cupertinoButton(
+                                      "Done", () => Navigator.pop(context))
+                                ],
+                              );
+
+                              showCupertinoDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return alert;
+                                },
+                              );
+                            }
                           },
-                        );
-                      }
+                  ),
+                  CoryatElement.cupertinoButton(
+                    event.type == EventType.marker ? "" : "Delete",
+                    event.type == EventType.marker
+                        ? null
+                        : () {
+                            Widget noButton = CoryatElement.cupertinoButton(
+                              "No",
+                              () {
+                                Navigator.pop(context);
+                              },
+                              color: CupertinoColors.destructiveRed,
+                            );
+                            Widget yesButton = CoryatElement.cupertinoButton(
+                              "Yes",
+                              () {
+                                widget.game.removeEvent(event);
+                                SqlitePersistence.updateGame(
+                                    widget.game); //todo: this doesn't update
+                                setState(() {});
+                                Navigator.pop(context);
+                              },
+                            );
 
-                      CupertinoAlertDialog alert = CupertinoAlertDialog(
-                        title: Text("Select Clue Value"),
-                        actions: [
-                          valueButton(1),
-                          valueButton(2),
-                          valueButton(3),
-                          valueButton(4),
-                          valueButton(5),
-                          CoryatElement.cupertinoButton(
-                              "Done", () => Navigator.pop(context))
-                        ],
-                      );
+                            CupertinoAlertDialog alert = CupertinoAlertDialog(
+                              title: Text("Are you sure?"),
+                              content: Text(
+                                  "Once deleted, this clue cannot be recovered"),
+                              actions: [
+                                noButton,
+                                yesButton,
+                              ],
+                            );
 
-                      showCupertinoDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return alert;
-                        },
-                      );
-                    }
-                  },
-          ),
-          CoryatElement.cupertinoButton(
-            event.type == EventType.marker ? "" : "Delete",
-            event.type == EventType.marker
-                ? null
-                : () {
-                    Widget noButton = CoryatElement.cupertinoButton(
-                      "No",
-                      () {
-                        Navigator.pop(context);
-                      },
-                      color: CupertinoColors.destructiveRed,
-                    );
-                    Widget yesButton = CoryatElement.cupertinoButton(
-                      "Yes",
-                      () {
-                        widget.game.removeEvent(event);
-                        SqlitePersistence.updateGame(
-                            widget.game); //todo: this doesn't update
-                        setState(() {});
-                        Navigator.pop(context);
-                      },
-                    );
-
-                    CupertinoAlertDialog alert = CupertinoAlertDialog(
-                      title: Text("Are you sure?"),
-                      content:
-                          Text("Once deleted, this clue cannot be recovered"),
-                      actions: [
-                        noButton,
-                        yesButton,
-                      ],
-                    );
-
-                    showCupertinoDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return alert;
-                      },
-                    );
-                  },
-            color: CupertinoColors.destructiveRed,
+                            showCupertinoDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return alert;
+                              },
+                            );
+                          },
+                    color: CupertinoColors.destructiveRed,
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
@@ -165,6 +179,45 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
         return alert;
       },
     );
+  }
+
+  Widget _eventDescriptionRichText(Event event) {
+    return RichText(
+        text: TextSpan(
+      style: TextStyle(
+          color: CupertinoColors.black, fontSize: Font.size_regular_text),
+      children: event.type == EventType.marker
+          ? [TextSpan(text: event.primaryText())]
+          : (event as Clue).question.round != Round.final_jeopardy
+              ? [
+                  TextSpan(text: event.order + ": "),
+                  (event as Clue).response == Response.correct
+                      ? TextSpan(
+                          text: (event as Clue).question.value.toString(),
+                          style: TextStyle(color: CustomColor.correctGreen))
+                      : (event as Clue).response == Response.incorrect
+                          ? TextSpan(
+                              text: "−" +
+                                  (event as Clue).question.value.toString(),
+                              style: TextStyle(color: CustomColor.incorrectRed))
+                          : TextSpan(
+                              text: "(" +
+                                  (event as Clue).question.value.toString() +
+                                  ")"),
+                ]
+              : [
+                  TextSpan(text: event.order + ": "),
+                  (event as Clue).response == Response.correct
+                      ? TextSpan(
+                          text: "Correct",
+                          style: TextStyle(color: CustomColor.correctGreen))
+                      : (event as Clue).response == Response.incorrect
+                          ? TextSpan(
+                              text: "Incorrect",
+                              style: TextStyle(color: CustomColor.incorrectRed))
+                          : TextSpan(text: "No Answer"),
+                ],
+    ));
   }
 
   Widget _addClueButton() {
@@ -338,6 +391,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   Widget _buildEvents() {
     return new ReorderableListView.builder(
       header: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _addClueButton(),
           CoryatElement.cupertinoButton("Reorder", () {
@@ -400,7 +454,9 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     return CupertinoPageScaffold(
       navigationBar:
           CoryatElement.cupertinoNavigationBar(widget.game.dateDescription()),
-      child: Material(child: _buildEvents()),
+      child: Material(
+          child: Container(
+              color: CustomColor.backgroundColor, child: _buildEvents())),
     );
   }
 }

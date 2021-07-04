@@ -23,7 +23,9 @@ class GraphsScreen extends StatefulWidget {
 
 class _GraphsScreenState extends State<GraphsScreen> {
   List<Game> _games = [];
-  final double _chartHeight = 200;
+  final double _chartHeight = 300;
+  final double _horizontalPadding = 10;
+  final bool _animateGraphs = true;
 
   final List<String> _presetCategories = [
     "Coryat",
@@ -47,145 +49,166 @@ class _GraphsScreenState extends State<GraphsScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CoryatElement.cupertinoNavigationBar("Graphs"),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: _games.length > 0
-              ? [
-                    _rangeDropdown(),
-                    Material(
-                      child: DropdownButton(
-                        value: _currentTypeCategory,
-                        dropdownColor: CustomColor.backgroundColor,
-                        onChanged: (int newValue) {
-                          setState(() {
-                            _currentTypeCategory = newValue;
-                          });
-                        },
-                        items: [
-                          DropdownMenuItem(
-                            value: _coryat,
-                            child: Text(_presetCategories[_coryat]),
+      child: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _games.length > 0
+                ? [
+                      _rangeDropdown(),
+                      Material(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: CustomColor.backgroundColor,
                           ),
-                          DropdownMenuItem(
-                            value: _averageGame,
-                            child: Text(_presetCategories[_averageGame]),
+                          child: DropdownButton(
+                            value: _currentTypeCategory,
+                            dropdownColor: CustomColor.backgroundColor,
+                            underline: SizedBox(),
+                            onChanged: (int newValue) {
+                              setState(() {
+                                _currentTypeCategory = newValue;
+                              });
+                            },
+                            items: [
+                              DropdownMenuItem(
+                                value: _coryat,
+                                child: CoryatElement.text(
+                                    _presetCategories[_coryat]),
+                              ),
+                              DropdownMenuItem(
+                                value: _averageGame,
+                                child: CoryatElement.text(
+                                    _presetCategories[_averageGame]),
+                              ),
+                              DropdownMenuItem(
+                                value: _clueValuePerformance,
+                                child: CoryatElement.text(
+                                    _presetCategories[_clueValuePerformance]),
+                              ),
+                            ],
                           ),
-                          DropdownMenuItem(
-                            value: _clueValuePerformance,
-                            child:
-                                Text(_presetCategories[_clueValuePerformance]),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ] +
-                  (_currentTypeCategory == _coryat
-                      ? [
-                          Container(
-                            height: _chartHeight,
-                            child: charts.TimeSeriesChart(
-                              _createCoryatStackedData(),
-                              defaultRenderer: charts.LineRendererConfig(
+                      CoryatElement.gameDivider(),
+                    ] +
+                    (_currentTypeCategory == _coryat
+                        ? [
+                            Container(
+                              height: _chartHeight,
+                              child: charts.TimeSeriesChart(
+                                _createCoryatStackedData(),
+                                defaultRenderer: charts.LineRendererConfig(
+                                    includeArea: true,
+                                    stacked: true,
+                                    includePoints: true),
+                                animate: _animateGraphs,
+                                behaviors: [
+                                  _chartLegend(),
+                                  _chartTitle("Coryat"),
+                                ],
+                              ),
+                              padding: EdgeInsets.only(
+                                  left: _horizontalPadding,
+                                  right: _horizontalPadding),
+                            ),
+                            CoryatElement.gameDivider(),
+                            Container(
+                              height: _chartHeight,
+                              child: charts.TimeSeriesChart(
+                                _createCoryatStackedData(rollingDays: 5),
+                                animate: _animateGraphs,
+                                defaultRenderer: charts.LineRendererConfig(
                                   includeArea: true,
                                   stacked: true,
-                                  includePoints: true),
-                              animate: false,
-                              behaviors: [
-                                charts.SeriesLegend(
-                                  position: charts.BehaviorPosition.bottom,
+                                  includePoints: true,
                                 ),
-                                charts.ChartTitle(
-                                  'Coryat',
-                                  behaviorPosition: charts.BehaviorPosition.top,
-                                ),
-                              ],
+                                behaviors: [
+                                  _chartLegend(),
+                                  _chartTitle("5-Game Rolling Coryat"),
+                                ],
+                              ),
+                              padding: EdgeInsets.only(
+                                  left: _horizontalPadding,
+                                  right: _horizontalPadding),
                             ),
-                          ),
-                          Container(
-                            height: _chartHeight,
-                            child: charts.TimeSeriesChart(
-                              _createCoryatStackedData(rollingDays: 5),
-                              defaultRenderer: charts.LineRendererConfig(
-                                  includeArea: true,
-                                  stacked: true,
-                                  includePoints: true),
-                              behaviors: [
-                                charts.SeriesLegend(
-                                  position: charts.BehaviorPosition.bottom,
+                          ]
+                        : _currentTypeCategory == _averageGame
+                            ? [
+                                Container(
+                                  height: _chartHeight,
+                                  child: charts.LineChart(
+                                    _createAverageGameData(Round.jeopardy),
+                                    defaultRenderer: charts.LineRendererConfig(
+                                        includePoints: true),
+                                    animate: _animateGraphs,
+                                    behaviors: [
+                                      _chartTitle("Jeopardy Round"),
+                                      _chartTitle("Clue Number",
+                                          position:
+                                              charts.BehaviorPosition.bottom,
+                                          size: Font.size_legend_text),
+                                    ],
+                                  ),
+                                  padding: EdgeInsets.only(
+                                      left: _horizontalPadding,
+                                      right: _horizontalPadding),
                                 ),
-                                charts.ChartTitle(
-                                  "5-Day Rolling Coryat",
-                                  behaviorPosition: charts.BehaviorPosition.top,
+                                CoryatElement.gameDivider(),
+                                Container(
+                                  height: _chartHeight,
+                                  child: charts.LineChart(
+                                    _createAverageGameData(
+                                        Round.double_jeopardy),
+                                    defaultRenderer: charts.LineRendererConfig(
+                                        includePoints: true),
+                                    animate: _animateGraphs,
+                                    behaviors: [
+                                      _chartTitle("Double Jeopardy Round"),
+                                      _chartTitle("Clue Number",
+                                          position:
+                                              charts.BehaviorPosition.bottom,
+                                          size: Font.size_legend_text),
+                                    ],
+                                  ),
+                                  padding: EdgeInsets.only(
+                                      left: _horizontalPadding,
+                                      right: _horizontalPadding),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ]
-                      : _currentTypeCategory == _averageGame
-                          ? [
-                              Container(
-                                height: _chartHeight,
-                                child: charts.LineChart(
-                                  _createAverageGameData(Round.jeopardy),
-                                  defaultRenderer: charts.LineRendererConfig(
-                                      includePoints: true),
-                                  animate: false,
-                                  behaviors: [
-                                    charts.ChartTitle(
-                                      "Jeopardy Round",
-                                      behaviorPosition:
-                                          charts.BehaviorPosition.top,
-                                    ),
-                                    charts.ChartTitle("Clue Number",
-                                        behaviorPosition:
-                                            charts.BehaviorPosition.bottom),
-                                  ],
+                              ]
+                            : [
+                                Container(
+                                  height: _chartHeight,
+                                  child: charts.BarChart(
+                                    _createClueValuePerformanceData(
+                                        Round.jeopardy),
+                                    animate: _animateGraphs,
+                                    behaviors: [
+                                      _chartTitle("Jeopardy Round"),
+                                    ],
+                                  ),
+                                  padding: EdgeInsets.only(
+                                      left: _horizontalPadding,
+                                      right: _horizontalPadding),
                                 ),
-                              ),
-                              Container(
-                                height: _chartHeight,
-                                child: charts.LineChart(
-                                  _createAverageGameData(Round.double_jeopardy),
-                                  defaultRenderer: charts.LineRendererConfig(
-                                      includePoints: true),
-                                  animate: false,
-                                  behaviors: [
-                                    charts.ChartTitle(
-                                      "Double Jeopardy Round",
-                                      behaviorPosition:
-                                          charts.BehaviorPosition.top,
-                                    ),
-                                    charts.ChartTitle("Clue Number",
-                                        behaviorPosition:
-                                            charts.BehaviorPosition.bottom),
-                                  ],
+                                CoryatElement.gameDivider(),
+                                Container(
+                                  height: _chartHeight,
+                                  child: charts.BarChart(
+                                    _createClueValuePerformanceData(
+                                        Round.double_jeopardy),
+                                    animate: _animateGraphs,
+                                    behaviors: [
+                                      _chartTitle("Double Jeopardy Round"),
+                                    ],
+                                  ),
+                                  padding: EdgeInsets.only(
+                                      left: _horizontalPadding,
+                                      right: _horizontalPadding),
                                 ),
-                              ),
-                            ]
-                          : [
-                              Container(
-                                height: _chartHeight,
-                                child: charts.BarChart(
-                                  _createClueValuePerformanceData(
-                                      Round.jeopardy),
-                                  behaviors: [
-                                    charts.ChartTitle("Jeopardy Round")
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                height: _chartHeight,
-                                child: charts.BarChart(
-                                  _createClueValuePerformanceData(
-                                      Round.double_jeopardy),
-                                  behaviors: [
-                                    charts.ChartTitle("Double Jeopardy Round")
-                                  ],
-                                ),
-                              ),
-                            ])
-              : [CoryatElement.text("No Data", size: Font.size_large_text)],
+                              ])
+                : [CoryatElement.text("No Data", size: Font.size_large_text)],
+          ),
         ),
       ),
     );
@@ -195,6 +218,29 @@ class _GraphsScreenState extends State<GraphsScreen> {
 
   var color1 = charts.MaterialPalette.blue.shadeDefault;
   var color2 = charts.MaterialPalette.purple.shadeDefault;
+
+  charts.ChartTitle _chartTitle(String text,
+      {position = charts.BehaviorPosition.top,
+      double size = Font.size_regular_text}) {
+    return charts.ChartTitle(
+      text,
+      innerPadding: 20,
+      titleStyleSpec: charts.TextStyleSpec(
+          fontFamily: Font.family,
+          color: charts.Color.black,
+          fontSize: size.toInt()),
+      behaviorPosition: position,
+    );
+  }
+
+  charts.SeriesLegend _chartLegend() {
+    return charts.SeriesLegend(
+        position: charts.BehaviorPosition.bottom,
+        entryTextStyle: charts.TextStyleSpec(
+            fontFamily: Font.family,
+            color: charts.Color.black,
+            fontSize: Font.size_legend_text.toInt()));
+  }
 
   List<charts.Series<MapEntry<DateTime, double>, DateTime>>
       _createCoryatStackedData({rollingDays = 1}) {
@@ -213,7 +259,6 @@ class _GraphsScreenState extends State<GraphsScreen> {
     for (int i = 0; i < _games.length; i++) {
       // go rollingDays days or to end of games
       for (int j = i; j < i + rollingDays && j < _games.length; j++) {
-        print(i.toString() + " " + j.toString());
         // add coryat
         if (_currentRange == _datePlayed) {
           singleData[sorted[j].datePlayed] =
@@ -383,73 +428,79 @@ class _GraphsScreenState extends State<GraphsScreen> {
 
   Widget _rangeDropdown() {
     return Material(
-      child: DropdownButton(
-        value: _currentRange,
-        dropdownColor: CustomColor.backgroundColor,
-        onChanged: (int newValue) {
-          setState(() {
-            _currentRange = newValue;
-          });
-        },
-        items: [
-          DropdownMenuItem(
-            value: _allTime,
-            child: Text(_presetRanges[_allTime]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              setState(() {});
-            },
-          ),
-          DropdownMenuItem(
-            value: _lastGame,
-            child: Text(_presetRanges[_lastGame]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
-              setState(() {
-                _games = _games.sublist(0, min(_games.length, 1));
-              });
-            },
-          ),
-          DropdownMenuItem(
-            value: _last5Games,
-            child: Text(_presetRanges[_last5Games]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
-              setState(() {
-                _games = _games.sublist(0, min(_games.length, 5));
-              });
-            },
-          ),
-          DropdownMenuItem(
-            value: _last10Games,
-            child: Text(_presetRanges[_last10Games]),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
-              setState(() {
-                _games = _games.sublist(0, min(_games.length, 10));
-              });
-            },
-          ),
-          DropdownMenuItem(
-            value: _dateAired,
-            child: Text(_dateAiredLabel),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _showDatePicker(context, true);
-            },
-          ),
-          DropdownMenuItem(
-            value: _datePlayed,
-            child: Text(_datePlayedLabel),
-            onTap: () async {
-              _games = await SqlitePersistence.getGames();
-              _showDatePicker(context, false);
-            },
-          ),
-        ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: CustomColor.backgroundColor,
+        ),
+        child: DropdownButton(
+          value: _currentRange,
+          dropdownColor: CustomColor.backgroundColor,
+          underline: SizedBox(),
+          onChanged: (int newValue) {
+            setState(() {
+              _currentRange = newValue;
+            });
+          },
+          items: [
+            DropdownMenuItem(
+              value: _allTime,
+              child: CoryatElement.text(_presetRanges[_allTime]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                setState(() {});
+              },
+            ),
+            DropdownMenuItem(
+              value: _lastGame,
+              child: CoryatElement.text(_presetRanges[_lastGame]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
+                setState(() {
+                  _games = _games.sublist(0, min(_games.length, 1));
+                });
+              },
+            ),
+            DropdownMenuItem(
+              value: _last5Games,
+              child: CoryatElement.text(_presetRanges[_last5Games]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
+                setState(() {
+                  _games = _games.sublist(0, min(_games.length, 5));
+                });
+              },
+            ),
+            DropdownMenuItem(
+              value: _last10Games,
+              child: CoryatElement.text(_presetRanges[_last10Games]),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
+                setState(() {
+                  _games = _games.sublist(0, min(_games.length, 10));
+                });
+              },
+            ),
+            DropdownMenuItem(
+              value: _dateAired,
+              child: CoryatElement.text(_dateAiredLabel),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _showDatePicker(context, true);
+              },
+            ),
+            DropdownMenuItem(
+              value: _datePlayed,
+              child: CoryatElement.text(_datePlayedLabel),
+              onTap: () async {
+                _games = await SqlitePersistence.getGames();
+                _showDatePicker(context, false);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

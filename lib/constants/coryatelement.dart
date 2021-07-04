@@ -26,7 +26,8 @@ class CoryatElement {
           text,
           style: TextStyle(
               fontSize: size,
-              color: color == null ? CustomColor.primaryColor : color),
+              color: color == null ? CustomColor.primaryColor : color,
+              fontFamily: Font.family),
         ),
         onPressed: onPressed);
   }
@@ -35,15 +36,23 @@ class CoryatElement {
       {double size = Font.size_regular_text, Color color = Colors.black}) {
     return Text(
       text,
-      style: TextStyle(fontSize: size, color: color),
+      style: TextStyle(fontSize: size, color: color, fontFamily: Font.family),
     );
   }
 
-  static divider() {
+  static Widget gameDivider({indent = Design.divider_indent}) {
     return Divider(
-      indent: Design.divider_indent,
-      endIndent: Design.divider_indent,
+      indent: indent,
+      endIndent: indent,
       thickness: Design.divider_thickness,
+    );
+  }
+
+  static Widget tableDivider({double indent = 20}) {
+    return Divider(
+      indent: indent,
+      endIndent: indent,
+      thickness: 2,
     );
   }
 

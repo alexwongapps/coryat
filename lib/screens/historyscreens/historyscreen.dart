@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
+import 'package:coryat/constants/design.dart';
 import 'package:coryat/constants/font.dart';
 import 'package:coryat/constants/sharedpreferenceskey.dart';
 import 'package:coryat/data/firebase.dart';
@@ -50,6 +51,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget _buildGameRow(Game game) {
     return new ListTile(
       title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CoryatElement.text(game.dateDescription()),
           CoryatElement.cupertinoButton(
@@ -73,8 +75,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
               );
 
               CupertinoAlertDialog alert = CupertinoAlertDialog(
-                title: Text("Are you sure?"),
-                content: Text("Once deleted, this game cannot be recovered"),
+                title: CoryatElement.text("Are you sure?"),
+                content: CoryatElement.text(
+                    "Once deleted, this game cannot be recovered"),
                 actions: [
                   noButton,
                   yesButton,
@@ -101,69 +104,84 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildGames() {
-    return new ListView.builder(itemBuilder: (context, i) {
-      if (i == 0) {
-        return Row(
-          children: [
-            Text("Sort By:"),
-            CoryatElement.cupertinoButton(
-              "Date Aired",
-              () {
-                setState(() {
-                  _sortMethod = _dateAired;
-                  SharedPreferences.getInstance().then((prefs) => prefs.setInt(
-                      SharedPreferencesKey.HISTORY_SCREEN_SORT, _dateAired));
-                });
-              },
-              color: _sortMethod == _dateAired
-                  ? CustomColor.selectedButton
-                  : CustomColor.primaryColor,
-            ),
-            CoryatElement.cupertinoButton(
-              "Date Played",
-              () {
-                setState(() {
-                  _sortMethod = _datePlayed;
-                  SharedPreferences.getInstance().then((prefs) => prefs.setInt(
-                      SharedPreferencesKey.HISTORY_SCREEN_SORT, _datePlayed));
-                });
-              },
-              color: _sortMethod == _datePlayed
-                  ? CustomColor.selectedButton
-                  : CustomColor.primaryColor,
-            ),
-          ],
-        );
-      }
-      List<Game> sorted = List.from(_games);
-      if (_sortMethod == _dateAired) {
-        sorted.sort((a, b) => b.dateAired.compareTo(a.dateAired));
-      } else {
-        sorted.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
-      }
-      if (i < sorted.length + 1) {
-        return _buildGameRow(sorted[i - 1]);
-      }
-      return null;
-    });
+    return new ListView.separated(
+        itemCount: 1 + _games.length,
+        separatorBuilder: (context, i) {
+          return CoryatElement.tableDivider();
+        },
+        itemBuilder: (context, i) {
+          if (i == 0) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CoryatElement.text("Sort By:", size: Font.size_regular_text),
+                CoryatElement.cupertinoButton(
+                  "Date Aired",
+                  () {
+                    setState(() {
+                      _sortMethod = _dateAired;
+                      SharedPreferences.getInstance().then((prefs) =>
+                          prefs.setInt(SharedPreferencesKey.HISTORY_SCREEN_SORT,
+                              _dateAired));
+                    });
+                  },
+                  color: _sortMethod == _dateAired
+                      ? CustomColor.selectedButton
+                      : CustomColor.primaryColor,
+                ),
+                CoryatElement.cupertinoButton(
+                  "Date Played",
+                  () {
+                    setState(() {
+                      _sortMethod = _datePlayed;
+                      SharedPreferences.getInstance().then((prefs) =>
+                          prefs.setInt(SharedPreferencesKey.HISTORY_SCREEN_SORT,
+                              _datePlayed));
+                    });
+                  },
+                  color: _sortMethod == _datePlayed
+                      ? CustomColor.selectedButton
+                      : CustomColor.primaryColor,
+                ),
+              ],
+            );
+          }
+          List<Game> sorted = List.from(_games);
+          if (_sortMethod == _dateAired) {
+            sorted.sort((a, b) => b.dateAired.compareTo(a.dateAired));
+          } else {
+            sorted.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
+          }
+          if (i < sorted.length + 1) {
+            return _buildGameRow(sorted[i - 1]);
+          }
+          return null;
+        });
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         navigationBar: CoryatElement.cupertinoNavigationBar("Games Played",
-            trailing: CoryatElement.cupertinoButton("Export", () async {
-              String data = ListToCsvConverter().convert(_getCSV());
-              final dir = await getApplicationSupportDirectory();
-              final String directory = dir.path;
-              final path =
-                  "$directory/coryat-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.csv";
-              final File file = File(path);
-              await file.writeAsString(data);
-              Share.shareFiles([path]);
-            })),
+            trailing: CupertinoButton(
+                child: FittedBox(
+                  child: CoryatElement.text("Export",
+                      color: CustomColor.primaryColor),
+                  fit: BoxFit.scaleDown,
+                ),
+                onPressed: () async {
+                  String data = ListToCsvConverter().convert(_getCSV());
+                  final dir = await getApplicationSupportDirectory();
+                  final String directory = dir.path;
+                  final path =
+                      "$directory/coryat-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.csv";
+                  final File file = File(path);
+                  await file.writeAsString(data);
+                  Share.shareFiles([path]);
+                })),
         child: Material(
-          child: _buildGames(),
+          child: Container(
+              color: CustomColor.backgroundColor, child: _buildGames()),
         ));
   }
 
