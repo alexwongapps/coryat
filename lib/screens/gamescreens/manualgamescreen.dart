@@ -242,7 +242,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                 Text("Current Coryat: \$" +
                     widget.game.getStat(Stat.CORYAT).toString()),
                 Text("Maximum Possible Coryat: \$" +
-                    widget.game.getStat(Stat.MAX_CORYAT).toString()),
+                    widget.game.getStat(Stat.REACHABLE_CORYAT).toString()),
                 CupertinoButton(
                     child: Text(
                       "Finish Game",
@@ -273,7 +273,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   void addResponse(int response) {
     if (_selectedValue != 0 || _currentRound == Round.final_jeopardy) {
       widget.game.addManualResponse(response, _currentRound, _selectedValue,
-          _isDailyDouble ? [Tags.DAILY_DOUBLE] : []);
+          _isDailyDouble ? Set.from([Tags.DAILY_DOUBLE]) : Set());
+
       resetClue();
       if (widget.game.getEvents().last.order.endsWith("30")) {
         nextRound();

@@ -38,7 +38,7 @@ class Game {
     _updateOrders();
   }
 
-  void addManualResponse(int response, int round, int value, List<String> tags,
+  void addManualResponse(int response, int round, int value, Set<String> tags,
       {int index}) {
     Clue clue = Clue(response);
     clue.question.value = value;
@@ -182,7 +182,7 @@ class Game {
               }
             }
             break;
-          case Stat.MAX_CORYAT:
+          case Stat.REACHABLE_CORYAT:
             total += c.question.value;
             break;
           case Stat.CORRECT_TOTAL_VALUE:
@@ -200,13 +200,26 @@ class Game {
               total += c.question.value;
             }
             break;
+          case Stat.MAX_POSSIBLE_CORYAT:
+            total += c.question.value;
+            break;
+          case Stat.MAX_POSSIBLE_JEOPARDY_CORYAT:
+            if (c.question.round == Round.jeopardy) {
+              total += c.question.value;
+            }
+            break;
+          case Stat.MAX_POSSIBLE_DOUBLE_JEOPARDY_CORYAT:
+            if (c.question.round == Round.double_jeopardy) {
+              total += c.question.value;
+            }
+            break;
         }
       } else if (event.type == EventType.marker) {
         Marker m = event as Marker;
 
         // 2) process markers
         switch (stat) {
-          case Stat.MAX_CORYAT:
+          case Stat.REACHABLE_CORYAT:
             if (m.primaryText() == Marker.NEXT_ROUND) {
               total = 0;
               currentRound = Round.nextRound(currentRound);
@@ -224,9 +237,12 @@ class Game {
       case Stat.CORRECT_TOTAL_VALUE:
       case Stat.INCORRECT_TOTAL_VALUE:
       case Stat.NO_ANSWER_TOTAL_VALUE:
+      case Stat.MAX_POSSIBLE_CORYAT:
+      case Stat.MAX_POSSIBLE_JEOPARDY_CORYAT:
+      case Stat.MAX_POSSIBLE_DOUBLE_JEOPARDY_CORYAT:
         return total;
         break;
-      case Stat.MAX_CORYAT:
+      case Stat.REACHABLE_CORYAT:
         if (currentRound == Round.jeopardy) {
           return getStat(Stat.CORYAT) + (18000 - total) + 36000;
         } else if (currentRound == Round.double_jeopardy) {
@@ -252,8 +268,9 @@ class Game {
     return performance;
   }
 
-  String dateDescription() {
-    final df = new DateFormat('M/d/yyyy (EEEE)');
+  String dateDescription({bool dayOfWeek = true}) {
+    final df =
+        dayOfWeek ? DateFormat('M/d/yyyy (EEEE)') : DateFormat('M/d/yyyy');
     return df.format(dateAired);
   }
 

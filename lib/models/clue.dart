@@ -11,13 +11,13 @@ class Clue implements Event {
   int type;
   int response;
   Question question;
-  List<String> tags;
+  Set<String> tags;
 
   Clue(this.response) {
     this.order = "";
     this.type = EventType.clue;
     this.question = Question.none();
-    this.tags = [];
+    this.tags = Set();
   }
 
   String primaryText() {
@@ -62,7 +62,7 @@ class Clue implements Event {
     c.order = dec[0];
     c.type = int.parse(dec[1]);
     c.question = Question.decode(dec[3]);
-    c.tags = dec.sublist(4);
+    c.tags = dec.sublist(4).toSet();
     return c;
   }
 }

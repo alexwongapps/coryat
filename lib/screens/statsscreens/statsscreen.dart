@@ -25,6 +25,11 @@ class _StatsScreenState extends State<StatsScreen> {
 
   int _roundPlaces = 1;
 
+  List<String> _presetCategories = ["Totals", "Percentages"];
+  int _totals = 0;
+  int _percents = 1;
+  int _currentCategory = 0;
+
   @override
   void initState() {
     refresh();
@@ -42,61 +47,118 @@ class _StatsScreenState extends State<StatsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _rangeDropdown(),
-            CoryatElement.gameDivider(),
-            Text("Games Played: " + _games.length.toString()),
-            Text("Best Coryat: " + _getExtremeCoryatString(true)),
-            Text("Worst Coryat: " + _getExtremeCoryatString(false)),
-            CoryatElement.gameDivider(),
-            Text(
-              "Average Game",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CoryatElement.text(
-                    "\$" + _getAverageStat(Stat.CORRECT_TOTAL_VALUE).toString(),
-                    color: CustomColor.correctGreen),
-                Text(" "),
-                CoryatElement.text(
-                    "−\$" +
-                        _getAverageStat(Stat.INCORRECT_TOTAL_VALUE).toString(),
-                    color: CustomColor.incorrectRed),
-                Text(" (\$"),
-                CoryatElement.text(
-                    _getAverageStat(Stat.NO_ANSWER_TOTAL_VALUE).toString()),
-                Text(")")
-              ],
-            ),
-            Text("Coryat: \$" + _getAverageStat(Stat.CORYAT).toString()),
-            Text("Jeopardy Coryat: \$" +
-                _getAverageStat(Stat.JEOPARDY_CORYAT).toString()),
-            Text("Double Jeopardy Coryat: \$" +
-                _getAverageStat(Stat.DOUBLE_JEOPARDY_CORYAT).toString()),
-            CoryatElement.gameDivider(),
-            Text("Daily Doubles: " + _getDailyDoubleString()),
-            Text("Final Jeopardy: " + _getFinalJeopardyString()),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CoryatElement.cupertinoButton("More Stats", () {
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(builder: (context) {
-                      return MoreStatsScreen();
+                _rangeDropdown(),
+                CoryatElement.gameDivider(),
+                Text("Games Played: " + _games.length.toString()),
+                Text("Best Coryat: " + _getExtremeCoryatString(true)),
+                Text("Worst Coryat: " + _getExtremeCoryatString(false)),
+                CoryatElement.gameDivider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CoryatElement.cupertinoButton(_presetCategories[_totals],
+                        () {
+                      setState(() {
+                        _currentCategory = _totals;
+                      });
+                    },
+                        color: _currentCategory == _totals
+                            ? CustomColor.selectedButton
+                            : CustomColor.primaryColor),
+                    CoryatElement.cupertinoButton(_presetCategories[_percents],
+                        () {
+                      setState(() {
+                        _currentCategory = _percents;
+                      });
+                    },
+                        color: _currentCategory == _percents
+                            ? CustomColor.selectedButton
+                            : CustomColor.primaryColor),
+                  ],
+                ),
+                Text(
+                  "Average Game",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ] +
+              (_currentCategory == _totals
+                  ? [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CoryatElement.text(
+                              "\$" +
+                                  _getAverageStat(Stat.CORRECT_TOTAL_VALUE)
+                                      .toString(),
+                              color: CustomColor.correctGreen),
+                          Text("   "),
+                          CoryatElement.text(
+                              "−\$" +
+                                  _getAverageStat(Stat.INCORRECT_TOTAL_VALUE)
+                                      .toString(),
+                              color: CustomColor.incorrectRed),
+                          Text("   (\$"),
+                          CoryatElement.text(
+                              _getAverageStat(Stat.NO_ANSWER_TOTAL_VALUE)
+                                  .toString()),
+                          Text(")")
+                        ],
+                      ),
+                      Text("Coryat: \$" +
+                          _getAverageStat(Stat.CORYAT).toString()),
+                      Text("Jeopardy Coryat: \$" +
+                          _getAverageStat(Stat.JEOPARDY_CORYAT).toString()),
+                      Text("Double Jeopardy Coryat: \$" +
+                          _getAverageStat(Stat.DOUBLE_JEOPARDY_CORYAT)
+                              .toString()),
+                    ]
+                  : [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CoryatElement.text(
+                              _getPercentStat(Stat.CORRECT_TOTAL_VALUE),
+                              color: CustomColor.correctGreen),
+                          Text("   "),
+                          CoryatElement.text(
+                              "−" + _getPercentStat(Stat.INCORRECT_TOTAL_VALUE),
+                              color: CustomColor.incorrectRed),
+                          Text("   ("),
+                          CoryatElement.text(
+                              _getPercentStat(Stat.NO_ANSWER_TOTAL_VALUE)),
+                          Text(")")
+                        ],
+                      ),
+                      Text("Coryat: " + _getPercentStat(Stat.CORYAT)),
+                      Text("Jeopardy Coryat: " +
+                          _getPercentStat(Stat.JEOPARDY_CORYAT)),
+                      Text("Double Jeopardy Coryat: " +
+                          _getPercentStat(Stat.DOUBLE_JEOPARDY_CORYAT)),
+                    ]) +
+              [
+                CoryatElement.gameDivider(),
+                Text("Daily Doubles: " + _getDailyDoubleString()),
+                Text("Final Jeopardy: " + _getFinalJeopardyString()),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CoryatElement.cupertinoButton("More Stats", () {
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (context) {
+                          return MoreStatsScreen();
+                        }),
+                      );
                     }),
-                  );
-                }),
-                CoryatElement.cupertinoButton("Graphs", () {
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(builder: (context) {
-                      return GraphsScreen();
+                    CoryatElement.cupertinoButton("Graphs", () {
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (context) {
+                          return GraphsScreen();
+                        }),
+                      );
                     }),
-                  );
-                }),
+                  ],
+                ),
               ],
-            ),
-          ],
         ),
       ),
     );
@@ -111,6 +173,43 @@ class _StatsScreenState extends State<StatsScreen> {
       total += game.getStat(stat);
     }
     return total ~/ _games.length;
+  }
+
+  String _getPercentStat(int stat) {
+    if (_games.length == 0) {
+      return "N/A";
+    }
+    int total = 0;
+    int possible = 0;
+    for (Game game in _games) {
+      switch (stat) {
+        case Stat.CORYAT:
+          total += game.getStat(Stat.CORYAT);
+          possible += game.getStat(Stat.MAX_POSSIBLE_CORYAT);
+          break;
+        case Stat.JEOPARDY_CORYAT:
+          total += game.getStat(Stat.JEOPARDY_CORYAT);
+          possible += game.getStat(Stat.MAX_POSSIBLE_JEOPARDY_CORYAT);
+          break;
+        case Stat.DOUBLE_JEOPARDY_CORYAT:
+          total += game.getStat(Stat.DOUBLE_JEOPARDY_CORYAT);
+          possible += game.getStat(Stat.MAX_POSSIBLE_DOUBLE_JEOPARDY_CORYAT);
+          break;
+        case Stat.CORRECT_TOTAL_VALUE:
+          total += game.getStat(Stat.CORRECT_TOTAL_VALUE);
+          possible += game.getStat(Stat.MAX_POSSIBLE_CORYAT);
+          break;
+        case Stat.INCORRECT_TOTAL_VALUE:
+          total += game.getStat(Stat.INCORRECT_TOTAL_VALUE);
+          possible += game.getStat(Stat.MAX_POSSIBLE_CORYAT);
+          break;
+        case Stat.NO_ANSWER_TOTAL_VALUE:
+          total += game.getStat(Stat.NO_ANSWER_TOTAL_VALUE);
+          possible += game.getStat(Stat.MAX_POSSIBLE_CORYAT);
+          break;
+      }
+    }
+    return _round(total / possible * 100, 1).toString() + "%";
   }
 
   String _getExtremeCoryatString(bool maximum) {
@@ -239,7 +338,10 @@ class _StatsScreenState extends State<StatsScreen> {
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
-                setState(() {});
+                setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
+                });
               },
             ),
             DropdownMenuItem(
@@ -251,6 +353,8 @@ class _StatsScreenState extends State<StatsScreen> {
                 _games = await SqlitePersistence.getGames();
                 _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
                 setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
                   _games = _games.sublist(0, min(_games.length, 1));
                 });
               },
@@ -265,6 +369,8 @@ class _StatsScreenState extends State<StatsScreen> {
                 _games = await SqlitePersistence.getGames();
                 _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
                 setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
                   _games = _games.sublist(0, min(_games.length, 5));
                 });
               },
@@ -279,6 +385,8 @@ class _StatsScreenState extends State<StatsScreen> {
                 _games = await SqlitePersistence.getGames();
                 _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
                 setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
                   _games = _games.sublist(0, min(_games.length, 10));
                 });
               },

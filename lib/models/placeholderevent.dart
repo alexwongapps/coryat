@@ -6,13 +6,13 @@ class PlaceholderEvent implements Event {
   String order;
   int type;
   String notes;
-  List<String> tags;
+  Set<String> tags;
 
   PlaceholderEvent() {
     this.order = "";
     this.type = EventType.marker;
     this.notes = "";
-    this.tags = [];
+    this.tags = Set();
   }
 
   String primaryText() {
@@ -37,7 +37,7 @@ class PlaceholderEvent implements Event {
     p.order = dec[0];
     p.type = int.parse(dec[1]);
     p.notes = dec[2];
-    p.tags = dec.sublist(3);
+    p.tags = dec.sublist(3).toSet();
     return p;
   }
 }

@@ -9,12 +9,12 @@ class Marker implements Event {
   String order;
   int type;
   String _name;
-  List<String> tags;
+  Set<String> tags;
 
   Marker(this._name) {
     this.order = "";
     this.type = EventType.marker;
-    this.tags = [];
+    this.tags = Set();
   }
 
   String primaryText() {
@@ -38,7 +38,7 @@ class Marker implements Event {
     Marker m = Marker(dec[2]);
     m.order = dec[0];
     m.type = int.parse(dec[1]);
-    m.tags = dec.sublist(3);
+    m.tags = dec.sublist(3).toSet();
     return m;
   }
 }

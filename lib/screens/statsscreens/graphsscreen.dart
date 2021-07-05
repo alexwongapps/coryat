@@ -503,7 +503,10 @@ class _GraphsScreenState extends State<GraphsScreen> {
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
-                setState(() {});
+                setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
+                });
               },
             ),
             DropdownMenuItem(
@@ -515,6 +518,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
                 _games = await SqlitePersistence.getGames();
                 _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
                 setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
                   _games = _games.sublist(0, min(_games.length, 1));
                 });
               },
@@ -529,6 +534,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
                 _games = await SqlitePersistence.getGames();
                 _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
                 setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
                   _games = _games.sublist(0, min(_games.length, 5));
                 });
               },
@@ -543,6 +550,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
                 _games = await SqlitePersistence.getGames();
                 _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
                 setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
                   _games = _games.sublist(0, min(_games.length, 10));
                 });
               },

@@ -7,7 +7,7 @@ import 'package:coryat/models/placeholderevent.dart';
 abstract class Event {
   String order;
   int type;
-  List<String> tags;
+  Set<String> tags;
 
   String primaryText();
 

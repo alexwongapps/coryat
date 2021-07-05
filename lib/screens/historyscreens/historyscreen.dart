@@ -53,7 +53,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CoryatElement.text(game.dateDescription()),
+          CoryatElement.text(game.dateDescription(dayOfWeek: false) +
+              "   (\$" +
+              game.getStat(Stat.CORYAT).toString() +
+              ")"),
           CoryatElement.cupertinoButton(
             "Delete",
             () {
@@ -237,10 +240,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
               roundOn = c.question.round;
             }
             thisGame.add((c.response == Response.correct
-                    ? c.question.value
+                    ? "+" + c.question.value.toString()
                     : c.response == Response.incorrect
-                        ? -c.question.value
-                        : 0)
+                        ? "-" + c.question.value.toString()
+                        : c.question.value.toString())
                 .toString());
             numberOn++;
           }

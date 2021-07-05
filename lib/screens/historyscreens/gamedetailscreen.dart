@@ -5,6 +5,7 @@ import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
+import 'package:coryat/enums/stat.dart';
 import 'package:coryat/enums/tags.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/event.dart';
@@ -47,7 +48,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                         : () {
                             Clue clue = event as Clue;
                             if (clue.question.round == Round.final_jeopardy) {
-                              editResponse(clue);
+                              _editResponse(clue);
                             } else {
                               CupertinoButton valueButton(int number) {
                                 return CupertinoButton(
@@ -64,7 +65,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                                               : number * 400;
                                       SqlitePersistence.updateGame(widget.game);
                                       Navigator.pop(context);
-                                      editResponse(clue);
+                                      _editResponse(clue);
                                     });
                                   },
                                 );
@@ -143,7 +144,44 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 
-  void editResponse(Clue c) {
+  void _editDD(Clue c) {
+    CupertinoButton ddButton(bool isDD) {
+      return CupertinoButton(
+        child: Text(isDD ? "Yes" : "No"),
+        onPressed: () {
+          setState(() {
+            if (isDD) {
+              c.tags.add(Tags.DAILY_DOUBLE);
+              print(c.tags);
+            } else {
+              c.tags.remove(Tags.DAILY_DOUBLE);
+              print(c.tags);
+            }
+            SqlitePersistence.updateGame(widget.game);
+            Navigator.pop(context);
+          });
+        },
+      );
+    }
+
+    CupertinoAlertDialog alert = CupertinoAlertDialog(
+      title: Text("Daily Double?"),
+      actions: [
+        ddButton(true),
+        ddButton(false),
+        CoryatElement.cupertinoButton("Done", () => Navigator.pop(context)),
+      ],
+    );
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void _editResponse(Clue c) {
     CupertinoButton responseButton(int response) {
       return CupertinoButton(
         child: Text(
@@ -158,6 +196,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             c.response = response;
             SqlitePersistence.updateGame(widget.game);
             Navigator.pop(context);
+            _editDD(c);
           });
         },
       );
@@ -193,17 +232,25 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                   TextSpan(text: event.order + ": "),
                   (event as Clue).response == Response.correct
                       ? TextSpan(
-                          text: (event as Clue).question.value.toString(),
+                          text: "\$" +
+                              (event as Clue).question.value.toString() +
+                              ((event as Clue).isDailyDouble() ? " (DD)" : ""),
                           style: TextStyle(color: CustomColor.correctGreen))
                       : (event as Clue).response == Response.incorrect
                           ? TextSpan(
-                              text: "−" +
-                                  (event as Clue).question.value.toString(),
+                              text: "−\$" +
+                                  (event as Clue).question.value.toString() +
+                                  ((event as Clue).isDailyDouble()
+                                      ? " (DD)"
+                                      : ""),
                               style: TextStyle(color: CustomColor.incorrectRed))
                           : TextSpan(
-                              text: "(" +
+                              text: "(\$" +
                                   (event as Clue).question.value.toString() +
-                                  ")"),
+                                  ")" +
+                                  ((event as Clue).isDailyDouble()
+                                      ? " (DD)"
+                                      : "")),
                 ]
               : [
                   TextSpan(text: event.order + ": "),
@@ -357,7 +404,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
         onPressed: () {
           setState(() {
             widget.game.addManualResponse(response, round, value,
-                isDailyDouble ? [Tags.DAILY_DOUBLE] : [],
+                isDailyDouble ? Set.from([Tags.DAILY_DOUBLE]) : Set(),
                 index: widget.game.endRoundMarkerIndex(round));
             SqlitePersistence.updateGame(widget.game);
             Navigator.pop(context);
@@ -452,8 +499,11 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar:
-          CoryatElement.cupertinoNavigationBar(widget.game.dateDescription()),
+      navigationBar: CoryatElement.cupertinoNavigationBar(
+          widget.game.dateDescription(dayOfWeek: false) +
+              "   (\$" +
+              widget.game.getStat(Stat.CORYAT).toString() +
+              ")"),
       child: Material(
           child: Container(
               color: CustomColor.backgroundColor, child: _buildEvents())),

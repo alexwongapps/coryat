@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomColor {
-  static final correctGreen = Colors.green[800];
+  static final correctGreen = Colors.green[900];
   static final incorrectRed = Colors.red[700];
   static final primaryColor = Colors.blue[900];
   static final backgroundColor = Colors.lightBlue[200];

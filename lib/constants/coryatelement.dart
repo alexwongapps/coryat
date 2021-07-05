@@ -15,7 +15,6 @@ class CoryatElement {
         ),
       ),
       trailing: trailing,
-      border: null,
     );
   }
 
