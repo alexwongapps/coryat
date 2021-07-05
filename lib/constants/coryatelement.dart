@@ -33,10 +33,16 @@ class CoryatElement {
   }
 
   static text(String text,
-      {double size = Font.size_regular_text, Color color = Colors.black}) {
+      {double size = Font.size_regular_text,
+      Color color = Colors.black,
+      bool bold = false}) {
     return Text(
       text,
-      style: TextStyle(fontSize: size, color: color, fontFamily: Font.family),
+      style: TextStyle(
+          fontSize: size,
+          color: color,
+          fontFamily: Font.family,
+          fontWeight: bold ? FontWeight.bold : FontWeight.normal),
     );
   }
 
