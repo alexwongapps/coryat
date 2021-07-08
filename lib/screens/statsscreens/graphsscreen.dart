@@ -56,61 +56,60 @@ class _GraphsScreenState extends State<GraphsScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: _games.length > 0
-                  ? [
-                        _rangeDropdown(),
-                        Material(
-                          child: Container(
-                            padding: EdgeInsets.only(
-                              left: Design.divider_indent,
-                              right: Design.divider_indent,
-                            ),
-                            decoration: BoxDecoration(
-                              color: CustomColor.backgroundColor,
-                            ),
-                            child: DropdownButton(
-                              value: _currentTypeCategory,
-                              dropdownColor: CustomColor.backgroundColor,
-                              underline: SizedBox(),
-                              isExpanded: true,
-                              onChanged: (int newValue) {
-                                setState(() {
-                                  _currentTypeCategory = newValue;
-                                });
-                              },
-                              items: [
-                                DropdownMenuItem(
-                                  value: _coryat,
-                                  child: Center(
-                                    child: CoryatElement.text(
-                                        _presetCategories[_coryat],
-                                        bold: true),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: _averageGame,
-                                  child: Center(
-                                    child: CoryatElement.text(
-                                        _presetCategories[_averageGame],
-                                        bold: true),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: _clueValuePerformance,
-                                  child: Center(
-                                    child: CoryatElement.text(
-                                        _presetCategories[
-                                            _clueValuePerformance],
-                                        bold: true),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+              children: [
+                    _rangeDropdown(),
+                    Material(
+                      child: Container(
+                        padding: EdgeInsets.only(
+                          left: Design.divider_indent,
+                          right: Design.divider_indent,
                         ),
-                        CoryatElement.gameDivider(),
-                      ] +
-                      (_currentTypeCategory == _coryat
+                        decoration: BoxDecoration(
+                          color: CustomColor.backgroundColor,
+                        ),
+                        child: DropdownButton(
+                          value: _currentTypeCategory,
+                          dropdownColor: CustomColor.backgroundColor,
+                          underline: SizedBox(),
+                          isExpanded: true,
+                          onChanged: (int newValue) {
+                            setState(() {
+                              _currentTypeCategory = newValue;
+                            });
+                          },
+                          items: [
+                            DropdownMenuItem(
+                              value: _coryat,
+                              child: Center(
+                                child: CoryatElement.text(
+                                    _presetCategories[_coryat],
+                                    bold: true),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: _averageGame,
+                              child: Center(
+                                child: CoryatElement.text(
+                                    _presetCategories[_averageGame],
+                                    bold: true),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: _clueValuePerformance,
+                              child: Center(
+                                child: CoryatElement.text(
+                                    _presetCategories[_clueValuePerformance],
+                                    bold: true),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    CoryatElement.gameDivider(),
+                  ] +
+                  (_games.length > 0
+                      ? (_currentTypeCategory == _coryat
                           ? [
                               Container(
                                 height: _chartHeight,
@@ -151,6 +150,33 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                   behaviors: [
                                     _chartLegend(),
                                     _chartTitle("5-Game Rolling Coryat"),
+                                    charts.LinePointHighlighter(
+                                        showHorizontalFollowLine: charts
+                                            .LinePointHighlighterFollowLineType
+                                            .nearest,
+                                        showVerticalFollowLine: charts
+                                            .LinePointHighlighterFollowLineType
+                                            .none),
+                                  ],
+                                ),
+                                padding: EdgeInsets.only(
+                                    left: _horizontalPadding,
+                                    right: _horizontalPadding),
+                              ),
+                              CoryatElement.gameDivider(),
+                              Container(
+                                height: _chartHeight,
+                                child: charts.TimeSeriesChart(
+                                  _createCoryatStackedData(rollingDays: 20),
+                                  animate: _animateGraphs,
+                                  defaultRenderer: charts.LineRendererConfig(
+                                    includeArea: true,
+                                    stacked: true,
+                                    includePoints: true,
+                                  ),
+                                  behaviors: [
+                                    _chartLegend(),
+                                    _chartTitle("20-Game Rolling Coryat"),
                                     charts.LinePointHighlighter(
                                         showHorizontalFollowLine: charts
                                             .LinePointHighlighterFollowLineType
@@ -255,7 +281,10 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                         right: _horizontalPadding),
                                   ),
                                 ])
-                  : [CoryatElement.text("No Data", size: Font.size_large_text)],
+                      : [
+                          CoryatElement.text("No Data",
+                              size: Font.size_large_text)
+                        ]),
             ),
           ),
         ),
@@ -335,10 +364,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
     List<MapEntry> singleEntries = singleData.entries.toList();
     List<MapEntry> doubleEntries = doubleData.entries.toList();
     if (_currentRange == _datePlayed) {
-      singleEntries
-          .sort((a, b) => a.key.datePlayed.compareTo(b.key.datePlayed));
-      doubleEntries
-          .sort((a, b) => a.key.datePlayed.compareTo(b.key.datePlayed));
+      singleEntries.sort((a, b) => a.key.compareTo(b.key));
+      doubleEntries.sort((a, b) => a.key.compareTo(b.key));
     } else {
       singleEntries.sort((a, b) => a.key.compareTo(b.key));
       doubleEntries.sort((a, b) => a.key.compareTo(b.key));
@@ -595,7 +622,10 @@ class _GraphsScreenState extends State<GraphsScreen> {
               color: Color.fromARGB(255, 255, 255, 255),
               child: Column(
                 children: [
-                  Text("Select Start Date"),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15.0),
+                    child: Text("Select Start Date"),
+                  ),
                   Container(
                     height: 400,
                     child: CupertinoDatePicker(
@@ -603,7 +633,6 @@ class _GraphsScreenState extends State<GraphsScreen> {
                         mode: CupertinoDatePickerMode.date,
                         onDateTimeChanged: (val) {
                           _chosenStartTime = val;
-                          _chosenEndTime = eod(val);
                         }),
                   ),
 
@@ -611,6 +640,7 @@ class _GraphsScreenState extends State<GraphsScreen> {
                   CoryatElement.cupertinoButton(
                     "OK",
                     () {
+                      _chosenEndTime = eod(_chosenStartTime);
                       Navigator.of(ctx).pop();
                       showCupertinoModalPopup(
                           context: ctx,
@@ -619,7 +649,10 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                 color: Color.fromARGB(255, 255, 255, 255),
                                 child: Column(
                                   children: [
-                                    Text("Select End Date"),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 15.0),
+                                      child: Text("Select End Date"),
+                                    ),
                                     Container(
                                       height: 400,
                                       child: CupertinoDatePicker(

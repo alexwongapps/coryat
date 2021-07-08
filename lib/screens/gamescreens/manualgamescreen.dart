@@ -192,7 +192,10 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                   ],
                 ),
                 CoryatElement.gameDivider(),
-                CoryatElement.text("Recent Clues", bold: true),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 5),
+                  child: CoryatElement.text("Recent Clues", bold: true),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(
                     left: Design.divider_indent,
@@ -215,32 +218,38 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                   ),
                 ),
                 CoryatElement.gameDivider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      "\$" +
+                Padding(
+                  padding: EdgeInsets.only(bottom: 5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        "\$" +
+                            widget.game
+                                .getStat(Stat.CORRECT_TOTAL_VALUE)
+                                .toString(),
+                        style: TextStyle(color: CustomColor.correctGreen),
+                      ),
+                      Text(
+                        "−\$" +
+                            widget.game
+                                .getStat(Stat.INCORRECT_TOTAL_VALUE)
+                                .toString(),
+                        style: TextStyle(color: CustomColor.incorrectRed),
+                      ),
+                      Text("(\$" +
                           widget.game
-                              .getStat(Stat.CORRECT_TOTAL_VALUE)
-                              .toString(),
-                      style: TextStyle(color: CustomColor.correctGreen),
-                    ),
-                    Text(
-                      "−\$" +
-                          widget.game
-                              .getStat(Stat.INCORRECT_TOTAL_VALUE)
-                              .toString(),
-                      style: TextStyle(color: CustomColor.incorrectRed),
-                    ),
-                    Text("(\$" +
-                        widget.game
-                            .getStat(Stat.NO_ANSWER_TOTAL_VALUE)
-                            .toString() +
-                        ")"),
-                  ],
+                              .getStat(Stat.NO_ANSWER_TOTAL_VALUE)
+                              .toString() +
+                          ")"),
+                    ],
+                  ),
                 ),
-                Text("Current Coryat: \$" +
-                    widget.game.getStat(Stat.CORYAT).toString()),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 5),
+                  child: Text("Current Coryat: \$" +
+                      widget.game.getStat(Stat.CORYAT).toString()),
+                ),
                 Text("Maximum Possible Coryat: \$" +
                     widget.game.getStat(Stat.REACHABLE_CORYAT).toString()),
                 CupertinoButton(
@@ -248,14 +257,11 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                       "Finish Game",
                       style: TextStyle(
                           fontSize: Font.size_large_button,
-                          color: widget.game.getEvents().length > 0 &&
-                                  widget.game.getEvents().last.type ==
-                                      EventType.clue &&
-                                  _currentRound == Round.final_jeopardy
+                          color: gameDone()
                               ? CustomColor.primaryColor
                               : CustomColor.disabledButton),
                     ),
-                    onPressed: _currentRound != Round.final_jeopardy
+                    onPressed: !gameDone()
                         ? null
                         : () {
                             SqlitePersistence.addGame(widget.game);
@@ -268,6 +274,12 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
         ),
       ),
     );
+  }
+
+  bool gameDone() {
+    return widget.game.getEvents().length > 0 &&
+        widget.game.getEvents().last.type == EventType.clue &&
+        _currentRound == Round.final_jeopardy;
   }
 
   void addResponse(int response) {

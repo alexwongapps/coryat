@@ -20,3 +20,8 @@
 - Graphs
 - Leaderboard (friends/global)
 - Challenges
+
+## IAP
+- Double Coryat: More stats, graphs (all non-Firebase)
+- Final Coryat: Account, leaderboards (all Firebase)
+- Both come with unlimited games

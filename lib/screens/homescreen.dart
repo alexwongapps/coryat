@@ -1,10 +1,13 @@
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/font.dart';
+import 'package:coryat/constants/sharedpreferenceskey.dart';
 import 'package:coryat/screens/gamescreens/datescreen.dart';
+import 'package:coryat/screens/helpscreens/helpscreen.dart';
 import 'package:coryat/screens/historyscreens/historyscreen.dart';
 import 'package:coryat/screens/leaderboardscreens/leaderboardscreen.dart';
 import 'package:coryat/screens/statsscreens/statsscreen.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key, this.title}) : super(key: key);
@@ -25,6 +28,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    SharedPreferences.getInstance().then((prefs) {
+      if (prefs.getBool(SharedPreferencesKey.FIRST_LAUNCH) ?? true) {
+        prefs.setBool(SharedPreferencesKey.FIRST_LAUNCH, false);
+        Navigator.of(context).push(
+          CupertinoPageRoute(builder: (context) {
+            return HelpScreen();
+          }),
+        );
+      }
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -67,8 +85,14 @@ class _HomeScreenState extends State<HomeScreen> {
               size: Font.size_large_button,
             ),
             CoryatElement.cupertinoButton(
-              "Settings",
-              () {},
+              "Help",
+              () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) {
+                    return HelpScreen();
+                  }),
+                );
+              },
               size: Font.size_large_button,
             ),
           ],

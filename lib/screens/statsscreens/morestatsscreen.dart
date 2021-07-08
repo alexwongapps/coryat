@@ -54,60 +54,60 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: _games.length > 0
-              ? [
-                    _rangeDropdown(),
-                    Material(
-                      child: Container(
-                        padding: EdgeInsets.only(
-                          left: Design.divider_indent,
-                          right: Design.divider_indent,
-                        ),
-                        decoration: BoxDecoration(
-                          color: CustomColor.backgroundColor,
-                        ),
-                        child: DropdownButton(
-                          value: _currentCategory,
-                          dropdownColor: CustomColor.backgroundColor,
-                          underline: SizedBox(),
-                          isExpanded: true,
-                          onChanged: (int newValue) {
-                            setState(() {
-                              _currentCategory = newValue;
-                            });
-                          },
-                          items: [
-                            DropdownMenuItem(
-                              value: _jeopardyStats,
-                              child: Center(
-                                child: CoryatElement.text(
-                                    _presetCategories[_jeopardyStats],
-                                    bold: true),
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: _doubleJeopardyStats,
-                              child: Center(
-                                child: CoryatElement.text(
-                                    _presetCategories[_doubleJeopardyStats],
-                                    bold: true),
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: _allStats,
-                              child: Center(
-                                child: CoryatElement.text(
-                                    _presetCategories[_allStats],
-                                    bold: true),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+          children: [
+                _rangeDropdown(),
+                Material(
+                  child: Container(
+                    padding: EdgeInsets.only(
+                      left: Design.divider_indent,
+                      right: Design.divider_indent,
                     ),
-                    CoryatElement.gameDivider(),
-                  ] +
-                  (_currentCategory == _allStats
+                    decoration: BoxDecoration(
+                      color: CustomColor.backgroundColor,
+                    ),
+                    child: DropdownButton(
+                      value: _currentCategory,
+                      dropdownColor: CustomColor.backgroundColor,
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      onChanged: (int newValue) {
+                        setState(() {
+                          _currentCategory = newValue;
+                        });
+                      },
+                      items: [
+                        DropdownMenuItem(
+                          value: _jeopardyStats,
+                          child: Center(
+                            child: CoryatElement.text(
+                                _presetCategories[_jeopardyStats],
+                                bold: true),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: _doubleJeopardyStats,
+                          child: Center(
+                            child: CoryatElement.text(
+                                _presetCategories[_doubleJeopardyStats],
+                                bold: true),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: _allStats,
+                          child: Center(
+                            child: CoryatElement.text(
+                                _presetCategories[_allStats],
+                                bold: true),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                CoryatElement.gameDivider(),
+              ] +
+              (_games.length > 0
+                  ? (_currentCategory == _allStats
                       ? [
                           CoryatElement.text(
                               "Best Coryat: " + _getExtremeCoryatString(true)),
@@ -171,9 +171,9 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                               _getPerformanceRichText(
                                   rd: Round.double_jeopardy, value: 2000),
                             ])
-              : [
-                  CoryatElement.text("No Data", size: Font.size_large_text),
-                ],
+                  : [
+                      CoryatElement.text("No Data", size: Font.size_large_text),
+                    ]),
         ),
       ),
     );
@@ -439,7 +439,10 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
               color: Color.fromARGB(255, 255, 255, 255),
               child: Column(
                 children: [
-                  Text("Select Start Date"),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15.0),
+                    child: Text("Select Start Date"),
+                  ),
                   Container(
                     height: 400,
                     child: CupertinoDatePicker(
@@ -463,7 +466,10 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                                 color: Color.fromARGB(255, 255, 255, 255),
                                 child: Column(
                                   children: [
-                                    Text("Select End Date"),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 15.0),
+                                      child: Text("Select End Date"),
+                                    ),
                                     Container(
                                       height: 400,
                                       child: CupertinoDatePicker(

@@ -430,7 +430,10 @@ class _StatsScreenState extends State<StatsScreen> {
               color: Color.fromARGB(255, 255, 255, 255),
               child: Column(
                 children: [
-                  Text("Select Start Date"),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15.0),
+                    child: Text("Select Start Date"),
+                  ),
                   Container(
                     height: 400,
                     child: CupertinoDatePicker(

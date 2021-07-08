@@ -31,6 +31,7 @@ dependencies:
   csv: ^5.0.0
   share_plus: ^2.1.4
   in_app_purchase: ^1.0.6
+  url_launcher: ^6.0.9
 
   # Add the dependency for the FlutterFire plugin for Google Analytics
   firebase_analytics: ^5.0.2
