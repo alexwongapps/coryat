@@ -1,4 +1,4 @@
-package com.example.coryat
+package com.alexwongapps.coryat
 
 import io.flutter.embedding.android.FlutterActivity
 

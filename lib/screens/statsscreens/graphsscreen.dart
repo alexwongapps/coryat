@@ -30,7 +30,7 @@ class _GraphsScreenState extends State<GraphsScreen> {
 
   final List<String> _presetCategories = [
     "Coryat",
-    "Average Game",
+    "Average Game Timeline",
     "Clue Value Performance (%)",
   ];
   final int _coryat = 0;

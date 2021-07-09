@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/design.dart';
+import 'package:coryat/constants/iap.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
@@ -142,12 +143,19 @@ class _StatsScreenState extends State<StatsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CoryatElement.cupertinoButton("More Stats", () {
-                      Navigator.of(context).push(
-                        CupertinoPageRoute(builder: (context) {
-                          return MoreStatsScreen();
-                        }),
-                      );
+                    CoryatElement.cupertinoButton("More Stats", () async {
+                      if (await IAP.doubleCoryatPurchased()) {
+                        Navigator.of(context).push(
+                          CupertinoPageRoute(builder: (context) {
+                            return MoreStatsScreen();
+                          }),
+                        );
+                      } else {
+                        CoryatElement.presentBasicAlertDialog(
+                            context,
+                            "Double Coryat Feature",
+                            "Purchase Double Coryat to see more stats, including round-specific stats and breakdowns by clue value!");
+                      }
                     }),
                     CoryatElement.cupertinoButton("Graphs", () {
                       Navigator.of(context).push(
@@ -457,7 +465,10 @@ class _StatsScreenState extends State<StatsScreen> {
                                 color: Color.fromARGB(255, 255, 255, 255),
                                 child: Column(
                                   children: [
-                                    Text("Select End Date"),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 15.0),
+                                      child: Text("Select End Date"),
+                                    ),
                                     Container(
                                       height: 400,
                                       child: CupertinoDatePicker(

@@ -4,8 +4,8 @@ import 'package:coryat/constants/sharedpreferenceskey.dart';
 import 'package:coryat/screens/gamescreens/datescreen.dart';
 import 'package:coryat/screens/helpscreens/helpscreen.dart';
 import 'package:coryat/screens/historyscreens/historyscreen.dart';
-import 'package:coryat/screens/leaderboardscreens/leaderboardscreen.dart';
 import 'package:coryat/screens/statsscreens/statsscreen.dart';
+import 'package:coryat/screens/upgradescreens/upgradescreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -90,6 +90,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.of(context).push(
                   CupertinoPageRoute(builder: (context) {
                     return HelpScreen();
+                  }),
+                );
+              },
+              size: Font.size_large_button,
+            ),
+            CoryatElement.cupertinoButton(
+              "Upgrade",
+              () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) {
+                    return UpgradeScreen();
                   }),
                 );
               },
