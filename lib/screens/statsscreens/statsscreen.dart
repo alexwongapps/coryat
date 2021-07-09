@@ -10,8 +10,10 @@ import 'package:coryat/enums/round.dart';
 import 'package:coryat/enums/stat.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/game.dart';
+import 'package:coryat/screens/helpscreens/helpscreen.dart';
 import 'package:coryat/screens/statsscreens/graphsscreen.dart';
 import 'package:coryat/screens/statsscreens/morestatsscreen.dart';
+import 'package:coryat/screens/upgradescreens/upgradescreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -144,25 +146,84 @@ class _StatsScreenState extends State<StatsScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CoryatElement.cupertinoButton("More Stats", () async {
-                      if (await IAP.doubleCoryatPurchased()) {
-                        Navigator.of(context).push(
-                          CupertinoPageRoute(builder: (context) {
-                            return MoreStatsScreen();
-                          }),
+                      // if (await IAP.doubleCoryatPurchased()) {
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (context) {
+                          return MoreStatsScreen();
+                        }),
+                      );
+                      /*   } else { // TODO: uncomment for IAP
+                        Widget backButton =
+                            CoryatElement.cupertinoButton("Back", () {
+                          Navigator.pop(context);
+                        }, color: CupertinoColors.destructiveRed);
+                        Widget upgradeButton =
+                            CoryatElement.cupertinoButton("View Upgrade", () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(builder: (context) {
+                              return UpgradeScreen();
+                            }),
+                          );
+                        });
+
+                        CupertinoAlertDialog alert = CupertinoAlertDialog(
+                          title: Text("Double Coryat Feature"),
+                          content: Text(
+                              "Purchase Double Coryat to see more stats, including round-specific stats and breakdowns by clue value!"),
+                          actions: [
+                            backButton,
+                            upgradeButton,
+                          ],
                         );
-                      } else {
-                        CoryatElement.presentBasicAlertDialog(
-                            context,
-                            "Double Coryat Feature",
-                            "Purchase Double Coryat to see more stats, including round-specific stats and breakdowns by clue value!");
-                      }
+
+                        showCupertinoDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return alert;
+                          },
+                        );
+                      }*/
                     }),
-                    CoryatElement.cupertinoButton("Graphs", () {
+                    CoryatElement.cupertinoButton("Graphs", () async {
+                      //if (await IAP.doubleCoryatPurchased()) {
                       Navigator.of(context).push(
                         CupertinoPageRoute(builder: (context) {
                           return GraphsScreen();
                         }),
                       );
+                      /*       } else { TODO: uncomment for IAP
+                        Widget backButton =
+                            CoryatElement.cupertinoButton("Back", () {
+                          Navigator.pop(context);
+                        }, color: CupertinoColors.destructiveRed);
+                        Widget upgradeButton =
+                            CoryatElement.cupertinoButton("View Upgrade", () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(builder: (context) {
+                              return UpgradeScreen();
+                            }),
+                          );
+                        });
+
+                        CupertinoAlertDialog alert = CupertinoAlertDialog(
+                          title: Text("Double Coryat Feature"),
+                          content: Text(
+                              "Purchase Double Coryat to see more stats, including round-specific stats and breakdowns by clue value!"),
+                          actions: [
+                            backButton,
+                            upgradeButton,
+                          ],
+                        );
+
+                        showCupertinoDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return alert;
+                          },
+                        );
+                      }*/
                     }),
                   ],
                 ),

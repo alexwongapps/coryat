@@ -1,6 +1,7 @@
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/design.dart';
+import 'package:coryat/constants/iap.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/constants/font.dart';
@@ -263,8 +264,18 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     ),
                     onPressed: !gameDone()
                         ? null
-                        : () {
+                        : () async {
                             SqlitePersistence.addGame(widget.game);
+                            List<Game> games =
+                                await SqlitePersistence.getGames();
+                            if (games.length >= IAP.FREE_NUMBER_OF_GAMES &&
+                                !(await IAP.doubleCoryatPurchased() ||
+                                    await IAP.finalCoryatPurchased())) {
+                              games.sort((a, b) =>
+                                  a.datePlayed.compareTo(b.datePlayed));
+                              SqlitePersistence.setGames(games.sublist(
+                                  games.length - IAP.FREE_NUMBER_OF_GAMES));
+                            }
                             int count = 0;
                             Navigator.of(context).popUntil((_) => count++ >= 2);
                           })

@@ -32,7 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     SharedPreferences.getInstance().then((prefs) {
       if (prefs.getBool(SharedPreferencesKey.FIRST_LAUNCH) ?? true) {
-        prefs.setBool(SharedPreferencesKey.FIRST_LAUNCH, false);
         Navigator.of(context).push(
           CupertinoPageRoute(builder: (context) {
             return HelpScreen();

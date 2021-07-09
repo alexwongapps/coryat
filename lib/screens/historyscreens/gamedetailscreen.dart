@@ -110,7 +110,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                               () {
                                 widget.game.removeEvent(event);
                                 SqlitePersistence.updateGame(
-                                    widget.game); //todo: this doesn't update
+                                    widget.game); 
                                 setState(() {});
                                 Navigator.pop(context);
                               },

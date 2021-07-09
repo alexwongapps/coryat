@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
+import 'package:coryat/constants/iap.dart';
 import 'package:coryat/constants/securestorage.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/screens/homescreen.dart';
@@ -107,8 +108,16 @@ class _MyAppState extends State<MyApp> {
 
   void _deliverProduct(PurchaseDetails purchaseDetails) async {
     final storage = new FlutterSecureStorage();
-    await storage.write(
-        key: SecureStorage.DOUBLE_CORYAT_KEY, value: SecureStorage.PURCHASED);
+    if (purchaseDetails.productID == IAP.DOUBLE_CORYAT_ID) {
+      print("purchasing double coryat");
+      await storage.write(
+          key: SecureStorage.DOUBLE_CORYAT_KEY, value: SecureStorage.PURCHASED);
+    }
+    if (purchaseDetails.productID == IAP.FINAL_CORYAT_ID) {
+      print("purchasing final coryat");
+      await storage.write(
+          key: SecureStorage.FINAL_CORYAT_KEY, value: SecureStorage.PURCHASED);
+    }
     CoryatElement.presentBasicAlertDialog(context, "Purchase successful",
         "Congratulations! Return to the home screen to use your new features.");
   }

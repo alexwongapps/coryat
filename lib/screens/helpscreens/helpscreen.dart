@@ -13,16 +13,19 @@ class HelpScreen extends StatefulWidget {
 }
 
 class _HelpScreenState extends State<HelpScreen> {
+  bool _firstLaunch = false;
+
   @override
   void initState() {
     SharedPreferences.getInstance().then((prefs) {
       if (prefs.getBool(SharedPreferencesKey.FIRST_LAUNCH) ?? true) {
+        _firstLaunch = true;
         prefs.setBool(SharedPreferencesKey.FIRST_LAUNCH, false);
         CoryatElement.presentBasicAlertDialog(context, "Welcome to Coryat!",
             "Learn about Coryat here, then press Start Coryat! to begin.");
-        super.initState();
       }
     });
+    super.initState();
   }
 
   @override
@@ -33,47 +36,51 @@ class _HelpScreenState extends State<HelpScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            CoryatElement.cupertinoButton(
-              "What is Coryat?",
-              () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) {
-                    return CoryatHelpScreen();
-                  }),
-                );
-              },
-              size: Font.size_large_button,
-            ),
-            CoryatElement.cupertinoButton(
-              "Play a Game",
-              () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) {
-                    return PlayHelpScreen();
-                  }),
-                );
-              },
-              size: Font.size_large_button,
-            ),
-            CoryatElement.cupertinoButton(
-              "View/Edit Games",
-              () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) {
-                    return HistoryHelpScreen();
-                  }),
-                );
-              },
-              size: Font.size_large_button,
-            ),
-            CoryatElement.cupertinoButton(
-              "Start Coryat!",
-              () {
-                Navigator.of(context).pop();
-              },
-              size: Font.size_large_button,
-            ),
-          ],
+                CoryatElement.cupertinoButton(
+                  "What is Coryat?",
+                  () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(builder: (context) {
+                        return CoryatHelpScreen();
+                      }),
+                    );
+                  },
+                  size: Font.size_large_button,
+                ),
+                CoryatElement.cupertinoButton(
+                  "Play a Game",
+                  () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(builder: (context) {
+                        return PlayHelpScreen();
+                      }),
+                    );
+                  },
+                  size: Font.size_large_button,
+                ),
+                CoryatElement.cupertinoButton(
+                  "View/Edit Games",
+                  () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(builder: (context) {
+                        return HistoryHelpScreen();
+                      }),
+                    );
+                  },
+                  size: Font.size_large_button,
+                ),
+              ] +
+              (_firstLaunch
+                  ? [
+                      CoryatElement.cupertinoButton(
+                        "Start Coryat!",
+                        () {
+                          Navigator.of(context).pop();
+                        },
+                        size: Font.size_large_button,
+                      ),
+                    ]
+                  : []),
         ),
       ),
     );

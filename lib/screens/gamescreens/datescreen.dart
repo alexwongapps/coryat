@@ -1,7 +1,11 @@
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/font.dart';
+import 'package:coryat/constants/iap.dart';
+import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/screens/gamescreens/manualgamescreen.dart';
+import 'package:coryat/screens/helpscreens/helpscreen.dart';
+import 'package:coryat/screens/upgradescreens/upgradescreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
@@ -32,7 +36,7 @@ class _DateScreenState extends State<DateScreen> {
             ),
             CoryatElement.cupertinoButton(
               "Start Game",
-              () {
+              () async {
                 if (!(DateTime(_chosenDateTime.year, _chosenDateTime.month,
                                 _chosenDateTime.day)
                             .weekday ==
@@ -41,13 +45,65 @@ class _DateScreenState extends State<DateScreen> {
                                 _chosenDateTime.day)
                             .weekday ==
                         DateTime.sunday)) {
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(builder: (context) {
-                      return ManualGameScreen(
-                          game: Game(_chosenDateTime.year,
-                              _chosenDateTime.month, _chosenDateTime.day));
-                    }),
-                  );
+                  List<Game> games = await SqlitePersistence.getGames();
+                  if (games.length >= IAP.FREE_NUMBER_OF_GAMES &&
+                      !(await IAP.doubleCoryatPurchased() ||
+                          await IAP.finalCoryatPurchased())) {
+                    Widget okButton = CoryatElement.cupertinoButton(
+                      "OK",
+                      () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          CupertinoPageRoute(builder: (context) {
+                            return ManualGameScreen(
+                                game: Game(
+                                    _chosenDateTime.year,
+                                    _chosenDateTime.month,
+                                    _chosenDateTime.day));
+                          }),
+                        );
+                      },
+                    );
+                    Widget backButton =
+                        CoryatElement.cupertinoButton("Back", () {
+                      Navigator.pop(context);
+                    }, color: CupertinoColors.destructiveRed);
+                    Widget upgradeButton =
+                        CoryatElement.cupertinoButton("View Upgrade", () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (context) {
+                          return UpgradeScreen();
+                        }),
+                      );
+                    });
+
+                    CupertinoAlertDialog alert = CupertinoAlertDialog(
+                      title: Text("Free Game Limit Reached"),
+                      content: Text(
+                          "When you finish this game, your oldest game will be deleted. To store unlimited games, upgrade Coryat."),
+                      actions: [
+                        backButton,
+                        upgradeButton,
+                        okButton,
+                      ],
+                    );
+
+                    showCupertinoDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return alert;
+                      },
+                    );
+                  } else {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(builder: (context) {
+                        return ManualGameScreen(
+                            game: Game(_chosenDateTime.year,
+                                _chosenDateTime.month, _chosenDateTime.day));
+                      }),
+                    );
+                  }
                 } else {
                   CoryatElement.presentBasicAlertDialog(
                       context, "Invalid date", "Please choose a weekday");

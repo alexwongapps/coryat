@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'design.dart';
 
 class CoryatElement {
-  static cupertinoNavigationBar(String text, {Widget trailing}) {
+  static CupertinoNavigationBar cupertinoNavigationBar(String text,
+      {Widget trailing}) {
     return CupertinoNavigationBar(
       middle: Text(
         text,
@@ -18,7 +19,7 @@ class CoryatElement {
     );
   }
 
-  static cupertinoButton(String text, Function onPressed,
+  static Widget cupertinoButton(String text, Function onPressed,
       {double size = Font.size_regular_button, Color color}) {
     return CupertinoButton(
         child: Text(
@@ -31,7 +32,7 @@ class CoryatElement {
         onPressed: onPressed);
   }
 
-  static text(String text,
+  static Widget text(String text,
       {double size = Font.size_regular_text,
       Color color = Colors.black,
       bool bold = false}) {
@@ -58,6 +59,13 @@ class CoryatElement {
       indent: indent,
       endIndent: indent,
       thickness: 2,
+    );
+  }
+
+  static Widget helpDivider() {
+    return Padding(
+      padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+      child: CoryatElement.gameDivider(indent: 5.0),
     );
   }
 

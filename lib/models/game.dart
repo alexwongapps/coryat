@@ -304,7 +304,6 @@ class Game {
   static String delimiter = "@";
 
   String encode({bool firebase = false}) {
-    // TODO: smart serialization (use firebase variable)
     List<String> data = [
       dateAired.year.toString(),
       dateAired.month.toString(),
