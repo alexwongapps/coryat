@@ -21,6 +21,7 @@ class Game {
   DateTime datePlayed;
   User user;
   bool synced;
+  List<String> _userCategories; // null if doesn't use categories
   List<Event> _events;
 
   Game(int year, int month, int day, [this.user, this._events]) {
@@ -39,11 +40,14 @@ class Game {
   }
 
   void addManualResponse(int response, int round, int value, Set<String> tags,
-      {int index}) {
+      {int categoryIndex, int index}) {
     Clue clue = Clue(response);
     clue.question.value = value;
     clue.question.round = round;
     clue.tags = tags;
+    if (categoryIndex != null && tracksCategories()) {
+      clue.categoryIndex = categoryIndex;
+    }
     if (index == null) {
       _events.add(clue);
     } else {
@@ -299,6 +303,39 @@ class Game {
     return index;
   }
 
+  // categories
+
+  bool tracksCategories() {
+    return _userCategories != null;
+  }
+
+  void setCategory(int round, int category, String name) {
+    if (_userCategories == null) {
+      _userCategories = ["", "", "", "", "", "", "", "", "", "", "", "", ""];
+    }
+    if (round == Round.final_jeopardy) {
+      _userCategories[12] = name;
+      return;
+    }
+    int offset = round == Round.jeopardy ? 0 : 6;
+    _userCategories[offset + category] = name;
+  }
+
+  String getCategory(int round, int category) {
+    if (_userCategories == null) {
+      return null;
+    }
+    if (round == Round.final_jeopardy) {
+      return _userCategories[12];
+    }
+    int offset = round == Round.jeopardy ? 0 : 6;
+    return _userCategories[offset + category];
+  }
+
+  List<String> allCategories() {
+    return _userCategories;
+  }
+
   // Serialize
 
   static String delimiter = "@";
@@ -311,6 +348,11 @@ class Game {
       datePlayed.millisecondsSinceEpoch.toString(),
       user.encode(firebase: firebase),
     ];
+    if (tracksCategories()) {
+      data.addAll(_userCategories);
+    } else {
+      data.addAll(["", "", "", "", "", "", "", "", "", "", "", "", ""]);
+    }
     for (Event event in _events) {
       data.add(event.encode(firebase: firebase));
     }
@@ -319,18 +361,26 @@ class Game {
 
   static Game decode(String encoded, {String id, bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, delimiter);
-    List<String> events = dec.sublist(5);
-    List<Event> ev = [];
-    for (String evs in events) {
-      ev.add(Event.decode(evs));
-    }
     Game g = Game(int.parse(dec[0]), int.parse(dec[1]), int.parse(dec[2]),
         User.decode(dec[4]));
-    g._events = ev;
     g.datePlayed = DateTime.fromMillisecondsSinceEpoch(int.parse(dec[3]));
     if (id != null) {
       g.id = id;
     }
+    g._userCategories = dec.sublist(5, 18);
+    // if all empty strings, doesn't use categories
+    if (g._userCategories
+            .map((e) => e.length)
+            .reduce((value, element) => value + element) ==
+        0) {
+      g._userCategories = null;
+    }
+    List<String> events = dec.sublist(18);
+    List<Event> ev = [];
+    for (String evs in events) {
+      ev.add(Event.decode(evs));
+    }
+    g._events = ev;
     return g;
   }
 }

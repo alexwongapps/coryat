@@ -29,14 +29,17 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
   final int _allStats = 2;
   final int _jeopardyStats = 0;
   final int _doubleJeopardyStats = 1;
-  int _currentCategory = 0;
+  int _currentRound = 0;
   final List<String> _presetFormats = ["Totals", "Per Game", "Percentages"];
   final int _totals = 0;
   final int _perGame = 1;
   final int _percents = 2;
   int _currentFormat = 0;
+  final int _allCategories = 0;
+  int _currentCategory = 0;
 
   List<Game> _games = [];
+  List<String> _categories = ["All Categories"];
 
   @override
   void initState() {
@@ -66,13 +69,13 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                       color: CustomColor.backgroundColor,
                     ),
                     child: DropdownButton(
-                      value: _currentCategory,
+                      value: _currentRound,
                       dropdownColor: CustomColor.backgroundColor,
                       underline: SizedBox(),
                       isExpanded: true,
                       onChanged: (int newValue) {
                         setState(() {
-                          _currentCategory = newValue;
+                          _currentRound = newValue;
                         });
                       },
                       items: [
@@ -104,71 +107,115 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                     ),
                   ),
                 ),
+                Material(
+                  child: Container(
+                    padding: EdgeInsets.only(
+                      left: Design.divider_indent,
+                      right: Design.divider_indent,
+                    ),
+                    decoration: BoxDecoration(
+                      color: CustomColor.backgroundColor,
+                    ),
+                    child: DropdownButton(
+                      value: _currentCategory,
+                      dropdownColor: CustomColor.backgroundColor,
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      onChanged: (int newValue) {
+                        setState(() {
+                          _currentCategory = newValue;
+                        });
+                      },
+                      items: List<int>.generate(_categories.length, (i) => i)
+                          .map((index) => DropdownMenuItem(
+                                value: index,
+                                child: Center(
+                                  child: CoryatElement.text(_categories[index],
+                                      bold: true),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                ),
                 CoryatElement.gameDivider(),
               ] +
               (_games.length > 0
-                  ? (_currentCategory == _allStats
+                  ? (_currentRound == _allStats
                       ? [
-                          CoryatElement.text(
-                              "Best Coryat: " + _getExtremeCoryatString(true)),
+                          CoryatElement.text("Best Coryat: " +
+                              (_currentCategory == _allCategories
+                                  ? _getExtremeCoryatString(true)
+                                  : "N/A")),
                           CoryatElement.text("Worst Coryat: " +
-                              _getExtremeCoryatString(false)),
+                              (_currentCategory == _allCategories
+                                  ? _getExtremeCoryatString(false)
+                                  : "N/A")),
                           CoryatElement.gameDivider(),
                           _formatPicker(),
                           CoryatElement.text("Clue Performance", bold: true),
-                          _getPerformanceRichText(),
-                          CoryatElement.text("— :   —   —   —"),
+                          _getNonFinalPerformanceRichText(),
+                          _getFinalPerformanceRichText(),
                           CoryatElement.text("— :   —   —   —"),
                           CoryatElement.text("— :   —   —   —"),
                           CoryatElement.text("— :   —   —   —"),
                           CoryatElement.text("— :   —   —   —"),
                         ]
-                      : _currentCategory == _jeopardyStats
+                      : _currentRound == _jeopardyStats
                           ? [
                               CoryatElement.text("Best Coryat: " +
-                                  _getExtremeCoryatString(true,
-                                      round: Round.jeopardy)),
+                                  (_currentCategory == _allCategories
+                                      ? _getExtremeCoryatString(true,
+                                          round: Round.jeopardy)
+                                      : "N/A")),
                               CoryatElement.text("Worst Coryat: " +
-                                  _getExtremeCoryatString(false,
-                                      round: Round.jeopardy)),
+                                  (_currentCategory == _allCategories
+                                      ? _getExtremeCoryatString(false,
+                                          round: Round.jeopardy)
+                                      : "N/A")),
                               CoryatElement.gameDivider(),
                               _formatPicker(),
                               CoryatElement.text("Clue Performance",
                                   bold: true),
-                              _getPerformanceRichText(rd: Round.jeopardy),
-                              _getPerformanceRichText(
+                              _getNonFinalPerformanceRichText(
+                                  rd: Round.jeopardy),
+                              _getNonFinalPerformanceRichText(
                                   rd: Round.jeopardy, value: 200),
-                              _getPerformanceRichText(
+                              _getNonFinalPerformanceRichText(
                                   rd: Round.jeopardy, value: 400),
-                              _getPerformanceRichText(
+                              _getNonFinalPerformanceRichText(
                                   rd: Round.jeopardy, value: 600),
-                              _getPerformanceRichText(
+                              _getNonFinalPerformanceRichText(
                                   rd: Round.jeopardy, value: 800),
-                              _getPerformanceRichText(
+                              _getNonFinalPerformanceRichText(
                                   rd: Round.jeopardy, value: 1000),
                             ]
                           : [
                               CoryatElement.text("Best Coryat: " +
-                                  _getExtremeCoryatString(true,
-                                      round: Round.double_jeopardy)),
+                                  (_currentCategory == _allCategories
+                                      ? _getExtremeCoryatString(true,
+                                          round: Round.double_jeopardy)
+                                      : "N/A")),
                               CoryatElement.text("Worst Coryat: " +
-                                  _getExtremeCoryatString(false,
-                                      round: Round.double_jeopardy)),
+                                  (_currentCategory == _allCategories
+                                      ? _getExtremeCoryatString(false,
+                                          round: Round.double_jeopardy)
+                                      : "N/A")),
                               CoryatElement.gameDivider(),
                               _formatPicker(),
                               CoryatElement.text("Clue Performance",
                                   bold: true),
-                              _getPerformanceRichText(
+                              _getNonFinalPerformanceRichText(
                                   rd: Round.double_jeopardy),
-                              _getPerformanceRichText(
+                              _getNonFinalPerformanceRichText(
                                   rd: Round.double_jeopardy, value: 400),
-                              _getPerformanceRichText(
+                              _getNonFinalPerformanceRichText(
                                   rd: Round.double_jeopardy, value: 800),
-                              _getPerformanceRichText(
+                              _getNonFinalPerformanceRichText(
                                   rd: Round.double_jeopardy, value: 1200),
-                              _getPerformanceRichText(
+                              _getNonFinalPerformanceRichText(
                                   rd: Round.double_jeopardy, value: 1600),
-                              _getPerformanceRichText(
+                              _getNonFinalPerformanceRichText(
                                   rd: Round.double_jeopardy, value: 2000),
                             ])
                   : [
@@ -179,15 +226,19 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
     );
   }
 
-  RichText _getPerformanceRichText({int rd, int value}) {
+  RichText _getNonFinalPerformanceRichText({int rd, int value}) {
     // rd == null means no final jeopardy
     List<int> performance = [0, 0, 0];
     for (Game game in _games) {
-      List<int> g = game.getCustomPerformance((Clue c) => (rd == null)
-          ? c.question.round != Round.final_jeopardy
-          : (value != null
-              ? (c.question.round == rd && c.question.value == value)
-              : (c.question.round == rd)));
+      List<int> g = game.getCustomPerformance((Clue c) =>
+          ((rd == null)
+              ? c.question.round != Round.final_jeopardy
+              : (value != null
+                  ? (c.question.round == rd && c.question.value == value)
+                  : (c.question.round == rd))) &&
+          (_currentCategory == _allCategories
+              ? true
+              : c.isCategory(_categories[_currentCategory], game)));
       performance[0] += g[0];
       performance[1] += g[1];
       performance[2] += g[2];
@@ -201,18 +252,30 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
     String p0String = _currentFormat == _totals
         ? performance[0].toString()
         : _currentFormat == _perGame
-            ? (round(performance[0] / total * cluesPerGame, 2)).toString()
-            : (round(performance[0] / total * 100, 1)).toString() + "%";
+            ? (_round(total == 0 ? 0 : (performance[0] / total * cluesPerGame),
+                    2))
+                .toString()
+            : (_round(total == 0 ? 0 : (performance[0] / total * 100), 1))
+                    .toString() +
+                "%";
     String p1String = _currentFormat == _totals
         ? performance[1].toString()
         : _currentFormat == _perGame
-            ? (round(performance[1] / total * cluesPerGame, 2)).toString()
-            : (round(performance[1] / total * 100, 1)).toString() + "%";
+            ? (_round(total == 0 ? 0 : (performance[1] / total * cluesPerGame),
+                    2))
+                .toString()
+            : (_round(total == 0 ? 0 : (performance[1] / total * 100), 1))
+                    .toString() +
+                "%";
     String p2String = _currentFormat == _totals
         ? performance[2].toString()
         : _currentFormat == _perGame
-            ? (round(performance[2] / total * cluesPerGame, 2)).toString()
-            : (round(performance[2] / total * 100, 1)).toString() + "%";
+            ? (_round(total == 0 ? 0 : (performance[2] / total * cluesPerGame),
+                    2))
+                .toString()
+            : (_round(total == 0 ? 0 : (performance[2] / total * 100), 1))
+                    .toString() +
+                "%";
     return new RichText(
       text: new TextSpan(
         style: TextStyle(
@@ -222,8 +285,73 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
         ),
         children: <TextSpan>[
           new TextSpan(
-              text:
-                  (value != null ? ("\$" + value.toString()) : "All") + ":   "),
+              text: rd == null
+                  ? "J/DJ:   "
+                  : (value != null ? ("\$" + value.toString()) : "All") +
+                      ":   "),
+          new TextSpan(
+              text: p0String + "   ",
+              style: new TextStyle(color: CustomColor.correctGreen)),
+          new TextSpan(
+              text: "−" + p1String + "   ",
+              style: new TextStyle(color: CustomColor.incorrectRed)),
+          new TextSpan(text: "(" + p2String + ")"),
+        ],
+      ),
+    );
+  }
+
+  RichText _getFinalPerformanceRichText() {
+    // rd == null means no final jeopardy
+    List<int> performance = [0, 0, 0];
+    for (Game game in _games) {
+      List<int> g = game.getCustomPerformance((Clue c) =>
+          c.question.round == Round.final_jeopardy &&
+          (_currentCategory == _allCategories
+              ? true
+              : c.isCategory(_categories[_currentCategory], game)));
+      performance[0] += g[0];
+      performance[1] += g[1];
+      performance[2] += g[2];
+    }
+    int total = performance[0] + performance[1] + performance[2];
+    int cluesPerGame = 1;
+    String p0String = _currentFormat == _totals
+        ? performance[0].toString()
+        : _currentFormat == _perGame
+            ? (_round(total == 0 ? 0 : (performance[0] / total * cluesPerGame),
+                    2))
+                .toString()
+            : (_round(total == 0 ? 0 : (performance[0] / total * 100), 1))
+                    .toString() +
+                "%";
+    String p1String = _currentFormat == _totals
+        ? performance[1].toString()
+        : _currentFormat == _perGame
+            ? (_round(total == 0 ? 0 : (performance[1] / total * cluesPerGame),
+                    2))
+                .toString()
+            : (_round(total == 0 ? 0 : (performance[1] / total * 100), 1))
+                    .toString() +
+                "%";
+    String p2String = _currentFormat == _totals
+        ? performance[2].toString()
+        : _currentFormat == _perGame
+            ? (_round(total == 0 ? 0 : (performance[2] / total * cluesPerGame),
+                    2))
+                .toString()
+            : (_round(total == 0 ? 0 : (performance[2] / total * 100), 1))
+                    .toString() +
+                "%";
+    return new RichText(
+      text: new TextSpan(
+        style: TextStyle(
+          color: CupertinoColors.black,
+          fontSize: Font.size_regular_text,
+          fontFamily: Font.family,
+        ),
+        children: <TextSpan>[
+          new TextSpan(text: "Final:   "),
           new TextSpan(
               text: p0String + "   ",
               style: new TextStyle(color: CustomColor.correctGreen)),
@@ -263,7 +391,7 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
     return "\$" + val.toString() + " (" + _dateString(date) + ")";
   }
 
-  double round(double number, int places) {
+  double _round(double number, int places) {
     return double.parse((number).toStringAsFixed(places));
   }
 
@@ -325,7 +453,17 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
 
   void refresh() async {
     _games = await SqlitePersistence.getGames();
-    setState(() {});
+    Set<String> cats = Set();
+    for (Game game in _games) {
+      if (game.tracksCategories()) {
+        cats.addAll(game.allCategories());
+      }
+    }
+    List<String> l = cats.toList();
+    l.sort((a, b) => a.compareTo(b));
+    setState(() {
+      _categories = ["All Categories"] + l;
+    });
   }
 
   Widget _rangeDropdown() {

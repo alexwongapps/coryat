@@ -53,10 +53,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CoryatElement.text(game.dateDescription(dayOfWeek: false) +
-              "   (\$" +
-              game.getStat(Stat.CORYAT).toString() +
-              ")"),
+          CoryatElement.text(game.dateDescription(dayOfWeek: true)),
           CoryatElement.cupertinoButton(
             "Delete",
             () {

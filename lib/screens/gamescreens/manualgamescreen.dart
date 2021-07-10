@@ -1,3 +1,4 @@
+import 'package:coryat/constants/category.dart';
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/design.dart';
@@ -18,8 +19,11 @@ import 'package:flutter/material.dart';
 
 class ManualGameScreen extends StatefulWidget {
   final Game game;
+  final bool trackCategories;
 
-  ManualGameScreen({Key key, @required this.game}) : super(key: key);
+  ManualGameScreen(
+      {Key key, @required this.game, @required this.trackCategories})
+      : super(key: key);
 
   @override
   _ManualGameScreenState createState() => _ManualGameScreenState();
@@ -29,10 +33,43 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   int _currentRound = Round.jeopardy;
   int _selectedValue = 0;
   int _selectedButton = 0;
+  int _selectedCategory = Category.NA;
   bool _isDailyDouble = false;
   ScrollController _scrollController = ScrollController();
+  List<TextEditingController> textEditingControllers = [
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+  ];
 
-  CupertinoButton valueButton(int number) {
+  Widget categoryButton(int number) {
+    return CupertinoButton(
+      child: Text(
+        _currentRound == Round.final_jeopardy
+            ? ""
+            : widget.game.getCategory(_currentRound, number) ?? "",
+        style: TextStyle(
+            color: _currentRound == Round.final_jeopardy
+                ? CustomColor.disabledButton
+                : _selectedCategory != number
+                    ? CustomColor.primaryColor
+                    : CustomColor.selectedButton,
+            fontSize: Font.size_regular_button),
+      ),
+      onPressed: _currentRound == Round.final_jeopardy
+          ? null
+          : () {
+              setState(() {
+                _selectedCategory = number;
+              });
+            },
+    );
+  }
+
+  Widget valueButton(int number) {
     return CupertinoButton(
       child: Text(
         _currentRound == Round.jeopardy
@@ -59,6 +96,95 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
     );
   }
 
+  void _showCategoryDialog(int round) {
+    int fields = round == Round.final_jeopardy ? 1 : 6;
+    Widget doneButton = CoryatElement.cupertinoButton(
+      "Done",
+      () {
+        for (int i = 0; i < fields; i++) {
+          setState(() {
+            widget.game.setCategory(
+                round,
+                i,
+                textEditingControllers[i].text == ""
+                    ? "Category " + (i + 1).toString()
+                    : textEditingControllers[i].text);
+            textEditingControllers[i].text = "";
+          });
+        }
+        Navigator.of(context).pop();
+      },
+    );
+
+    CupertinoAlertDialog alert = CupertinoAlertDialog(
+      title: CoryatElement.text(round == Round.jeopardy
+          ? "Enter Jeopardy Categories"
+          : round == Round.double_jeopardy
+              ? "Enter Double Jeopardy Categories"
+              : "Enter Final Jeopardy Category"),
+      content: Padding(
+        padding: EdgeInsets.only(top: 15),
+        child: Column(
+          children: round == Round.final_jeopardy
+              ? [
+                  CupertinoTextField(
+                    controller: textEditingControllers[0],
+                    placeholder: "Category 1",
+                  ),
+                ]
+              : [
+                  CupertinoTextField(
+                    controller: textEditingControllers[0],
+                    placeholder: "Category 1",
+                  ),
+                  CupertinoTextField(
+                    controller: textEditingControllers[1],
+                    placeholder: "Category 2",
+                  ),
+                  CupertinoTextField(
+                    controller: textEditingControllers[2],
+                    placeholder: "Category 3",
+                  ),
+                  CupertinoTextField(
+                    controller: textEditingControllers[3],
+                    placeholder: "Category 4",
+                  ),
+                  CupertinoTextField(
+                    controller: textEditingControllers[4],
+                    placeholder: "Category 5",
+                  ),
+                  CupertinoTextField(
+                    controller: textEditingControllers[5],
+                    placeholder: "Category 6",
+                  ),
+                ],
+        ),
+      ),
+      actions: [
+        doneButton,
+      ],
+    );
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => onload(context));
+  }
+
+  void onload(BuildContext context) {
+    if (widget.trackCategories) {
+      _showCategoryDialog(Round.jeopardy);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -75,6 +201,20 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Row(
+                  children: [
+                    categoryButton(0),
+                    categoryButton(1),
+                    categoryButton(2),
+                  ],
+                ),
+                Row(
+                  children: [
+                    categoryButton(3),
+                    categoryButton(4),
+                    categoryButton(5),
+                  ],
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -122,7 +262,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                       "Correct",
                       () {
                         setState(() {
-                          addResponse(Response.correct);
+                          _addResponse(Response.correct);
                         });
                       },
                     ),
@@ -130,7 +270,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                       "Incorrect",
                       () {
                         setState(() {
-                          addResponse(Response.incorrect);
+                          _addResponse(Response.incorrect);
                         });
                       },
                     ),
@@ -138,7 +278,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                       "No Answer",
                       () {
                         setState(() {
-                          addResponse(Response.none);
+                          _addResponse(Response.none);
                         });
                       },
                     ),
@@ -160,7 +300,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                           ? null
                           : () {
                               setState(() {
-                                nextRound();
+                                _nextRound();
                               });
                             },
                     ),
@@ -186,7 +326,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                         Round.previousRound(_currentRound);
                                   }
                                 }
-                                resetClue();
+                                _resetClue();
                               });
                             },
                     ),
@@ -258,11 +398,11 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                       "Finish Game",
                       style: TextStyle(
                           fontSize: Font.size_large_button,
-                          color: gameDone()
+                          color: _gameDone()
                               ? CustomColor.primaryColor
                               : CustomColor.disabledButton),
                     ),
-                    onPressed: !gameDone()
+                    onPressed: !_gameDone()
                         ? null
                         : () async {
                             SqlitePersistence.addGame(widget.game);
@@ -287,20 +427,27 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
     );
   }
 
-  bool gameDone() {
+  bool _gameDone() {
     return widget.game.getEvents().length > 0 &&
         widget.game.getEvents().last.type == EventType.clue &&
         _currentRound == Round.final_jeopardy;
   }
 
-  void addResponse(int response) {
-    if (_selectedValue != 0 || _currentRound == Round.final_jeopardy) {
-      widget.game.addManualResponse(response, _currentRound, _selectedValue,
-          _isDailyDouble ? Set.from([Tags.DAILY_DOUBLE]) : Set());
+  void _addResponse(int response) {
+    if (_canRespond()) {
+      if (!widget.trackCategories) {
+        widget.game.addManualResponse(response, _currentRound, _selectedValue,
+            _isDailyDouble ? Set.from([Tags.DAILY_DOUBLE]) : Set());
+      } else {
+        widget.game.addManualResponse(response, _currentRound, _selectedValue,
+            _isDailyDouble ? Set.from([Tags.DAILY_DOUBLE]) : Set(),
+            categoryIndex:
+                _currentRound == Round.final_jeopardy ? 0 : _selectedCategory);
+      }
 
-      resetClue();
+      _resetClue();
       if (widget.game.getEvents().last.order.endsWith("30")) {
-        nextRound();
+        _nextRound();
       }
     }
     if (_currentRound == Round.final_jeopardy) {
@@ -309,16 +456,30 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
     }
   }
 
-  void nextRound() {
-    widget.game.nextRound();
-    _currentRound = Round.nextRound(_currentRound);
-    resetClue();
+  bool _canRespond() {
+    return (!widget.trackCategories && _selectedValue != 0) ||
+        (widget.trackCategories &&
+            _selectedValue != 0 &&
+            _selectedCategory != Category.NA) ||
+        _currentRound == Round.final_jeopardy;
   }
 
-  void resetClue() {
+  void _nextRound() {
+    widget.game.nextRound();
+    _currentRound = Round.nextRound(_currentRound);
+    if (widget.trackCategories) {
+      if (_currentRound != Round.jeopardy) {
+        _showCategoryDialog(_currentRound);
+      }
+    }
+    _resetClue();
+  }
+
+  void _resetClue() {
     setState(() {
       _selectedValue = 0;
       _selectedButton = 0;
+      _selectedCategory = Category.NA;
       _isDailyDouble = false;
     });
   }

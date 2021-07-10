@@ -1,9 +1,11 @@
+import 'package:coryat/constants/category.dart';
 import 'package:coryat/data/serialize.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
 import 'package:coryat/enums/tags.dart';
 import 'package:coryat/models/event.dart';
+import 'package:coryat/models/game.dart';
 import 'package:coryat/models/question.dart';
 
 class Clue implements Event {
@@ -11,9 +13,10 @@ class Clue implements Event {
   int type;
   int response;
   Question question;
+  int categoryIndex;
   Set<String> tags;
 
-  Clue(this.response) {
+  Clue(this.response, {this.categoryIndex = Category.NA}) {
     this.order = "";
     this.type = EventType.clue;
     this.question = Question.none();
@@ -43,6 +46,11 @@ class Clue implements Event {
     return question.value.toString();
   }
 
+  bool isCategory(String category, Game game) {
+    return game.tracksCategories() &&
+        game.getCategory(question.round, categoryIndex) == category;
+  }
+
   // Serialize
 
   String encode({bool firebase = false}) {
@@ -51,6 +59,7 @@ class Clue implements Event {
       type.toString(),
       response.toString(),
       question.encode(firebase: firebase),
+      categoryIndex.toString(),
     ];
     data.addAll(tags);
     return Serialize.encode(data, Event.delimiter);
@@ -62,7 +71,8 @@ class Clue implements Event {
     c.order = dec[0];
     c.type = int.parse(dec[1]);
     c.question = Question.decode(dec[3]);
-    c.tags = dec.sublist(4).toSet();
+    c.categoryIndex = int.parse(dec[4]);
+    c.tags = dec.sublist(5).toSet();
     return c;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:coryat/constants/coryatelement.dart';
+import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/font.dart';
 import 'package:coryat/constants/iap.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
@@ -7,6 +8,7 @@ import 'package:coryat/screens/gamescreens/manualgamescreen.dart';
 import 'package:coryat/screens/helpscreens/helpscreen.dart';
 import 'package:coryat/screens/upgradescreens/upgradescreen.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DateScreen extends StatefulWidget {
@@ -16,6 +18,7 @@ class DateScreen extends StatefulWidget {
 
 class _DateScreenState extends State<DateScreen> {
   DateTime _chosenDateTime = DateTime.now();
+  bool _trackCategories = false;
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +28,18 @@ class _DateScreenState extends State<DateScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            CoryatElement.text(_dateString(_chosenDateTime),
-                size: Font.size_large_text),
-            CoryatElement.cupertinoButton(
-              "Select Other Date",
-              () {
-                _showDatePicker(context);
-              },
-              size: Font.size_large_button,
+            Column(
+              children: [
+                CoryatElement.text(_dateString(_chosenDateTime),
+                    size: Font.size_large_text),
+                CoryatElement.cupertinoButton(
+                  "Select Other Date",
+                  () {
+                    _showDatePicker(context);
+                  },
+                  size: Font.size_large_button,
+                ),
+              ],
             ),
             CoryatElement.cupertinoButton(
               "Start Game",
@@ -56,10 +63,10 @@ class _DateScreenState extends State<DateScreen> {
                         Navigator.of(context).push(
                           CupertinoPageRoute(builder: (context) {
                             return ManualGameScreen(
-                                game: Game(
-                                    _chosenDateTime.year,
-                                    _chosenDateTime.month,
-                                    _chosenDateTime.day));
+                              game: Game(_chosenDateTime.year,
+                                  _chosenDateTime.month, _chosenDateTime.day),
+                              trackCategories: _trackCategories,
+                            );
                           }),
                         );
                       },
@@ -99,8 +106,10 @@ class _DateScreenState extends State<DateScreen> {
                     Navigator.of(context).push(
                       CupertinoPageRoute(builder: (context) {
                         return ManualGameScreen(
-                            game: Game(_chosenDateTime.year,
-                                _chosenDateTime.month, _chosenDateTime.day));
+                          game: Game(_chosenDateTime.year,
+                              _chosenDateTime.month, _chosenDateTime.day),
+                          trackCategories: _trackCategories,
+                        );
                       }),
                     );
                   }
@@ -110,6 +119,24 @@ class _DateScreenState extends State<DateScreen> {
                 }
               },
               size: Font.size_large_button,
+            ),
+            Row(
+              children: [
+                CoryatElement.text("Track Categories?"),
+                Material(
+                  color: CustomColor.backgroundColor,
+                  child: Checkbox(
+                    fillColor:
+                        MaterialStateProperty.all(CustomColor.primaryColor),
+                    value: _trackCategories,
+                    onChanged: (bool value) {
+                      setState(() {
+                        _trackCategories = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
             )
           ],
         ),

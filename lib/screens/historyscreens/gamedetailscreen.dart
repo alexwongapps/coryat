@@ -1,3 +1,4 @@
+import 'package:coryat/constants/category.dart';
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/font.dart';
@@ -24,6 +25,101 @@ class GameDetailScreen extends StatefulWidget {
 }
 
 class _GameDetailScreenState extends State<GameDetailScreen> {
+  List<TextEditingController> textEditingControllers = [
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+  ];
+
+  void _showEditCategoriesDialog(int round) {
+    int fields = round == Round.final_jeopardy ? 1 : 6;
+
+    for (int i = 0; i < fields; i++) {
+      textEditingControllers[i].text = widget.game.getCategory(round, i);
+    }
+
+    Widget doneButton = CoryatElement.cupertinoButton(
+      "Done",
+      () {
+        for (int i = 0; i < fields; i++) {
+          setState(() {
+            widget.game.setCategory(
+                round,
+                i,
+                textEditingControllers[i].text == ""
+                    ? "Category " + (i + 1).toString()
+                    : textEditingControllers[i].text);
+          });
+        }
+        Navigator.of(context).pop();
+        if (round == Round.jeopardy) {
+          _showEditCategoriesDialog(Round.double_jeopardy);
+        } else if (round == Round.double_jeopardy) {
+          _showEditCategoriesDialog(Round.final_jeopardy);
+        }
+      },
+    );
+
+    CupertinoAlertDialog alert = CupertinoAlertDialog(
+      title: CoryatElement.text(round == Round.jeopardy
+          ? "Edit Jeopardy Categories"
+          : round == Round.double_jeopardy
+              ? "Edit Double Jeopardy Categories"
+              : "Edit Final Jeopardy Category"),
+      content: Padding(
+        padding: EdgeInsets.only(top: 15),
+        child: Column(
+          children: round == Round.final_jeopardy
+              ? [
+                  CupertinoTextField(
+                    controller: textEditingControllers[0],
+                    placeholder: "Category 1",
+                  ),
+                ]
+              : [
+                  CupertinoTextField(
+                    controller: textEditingControllers[0],
+                    placeholder: "Category 1",
+                  ),
+                  CupertinoTextField(
+                    controller: textEditingControllers[1],
+                    placeholder: "Category 2",
+                  ),
+                  CupertinoTextField(
+                    controller: textEditingControllers[2],
+                    placeholder: "Category 3",
+                  ),
+                  CupertinoTextField(
+                    controller: textEditingControllers[3],
+                    placeholder: "Category 4",
+                  ),
+                  CupertinoTextField(
+                    controller: textEditingControllers[4],
+                    placeholder: "Category 5",
+                  ),
+                  CupertinoTextField(
+                    controller: textEditingControllers[5],
+                    placeholder: "Category 6",
+                  ),
+                ],
+        ),
+      ),
+      actions: [
+        doneButton,
+      ],
+    );
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   Widget _buildEventRow(Event event) {
     return new ListTile(
       key: ValueKey(event),
@@ -42,59 +138,22 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
               Row(
                 children: [
                   CoryatElement.cupertinoButton(
-                    event.type == EventType.marker ? "" : "Edit",
+                    event.type == EventType.marker ? "" : "E",
                     event.type == EventType.marker
                         ? null
                         : () {
                             Clue clue = event as Clue;
                             if (clue.question.round == Round.final_jeopardy) {
                               _editResponse(clue);
+                            } else if (clue.categoryIndex == Category.NA) {
+                              _editValue(clue);
                             } else {
-                              CupertinoButton valueButton(int number) {
-                                return CupertinoButton(
-                                  child: Text(
-                                    clue.question.round == Round.jeopardy
-                                        ? "\$" + (number * 200).toString()
-                                        : "\$" + (number * 400).toString(),
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      clue.question.value =
-                                          clue.question.round == Round.jeopardy
-                                              ? number * 200
-                                              : number * 400;
-                                      SqlitePersistence.updateGame(widget.game);
-                                      Navigator.pop(context);
-                                      _editResponse(clue);
-                                    });
-                                  },
-                                );
-                              }
-
-                              CupertinoAlertDialog alert = CupertinoAlertDialog(
-                                title: Text("Select Clue Value"),
-                                actions: [
-                                  valueButton(1),
-                                  valueButton(2),
-                                  valueButton(3),
-                                  valueButton(4),
-                                  valueButton(5),
-                                  CoryatElement.cupertinoButton(
-                                      "Done", () => Navigator.pop(context))
-                                ],
-                              );
-
-                              showCupertinoDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return alert;
-                                },
-                              );
+                              _editCategory(clue);
                             }
                           },
                   ),
                   CoryatElement.cupertinoButton(
-                    event.type == EventType.marker ? "" : "Delete",
+                    event.type == EventType.marker ? "" : "D",
                     event.type == EventType.marker
                         ? null
                         : () {
@@ -109,8 +168,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                               "Yes",
                               () {
                                 widget.game.removeEvent(event);
-                                SqlitePersistence.updateGame(
-                                    widget.game); 
+                                SqlitePersistence.updateGame(widget.game);
                                 setState(() {});
                                 Navigator.pop(context);
                               },
@@ -144,6 +202,83 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 
+  void _editCategory(Clue c) {
+    CupertinoButton categoryButton(int category) {
+      return CupertinoButton(
+        child: Text(widget.game.getCategory(c.question.round, category)),
+        onPressed: () {
+          setState(() {
+            c.categoryIndex = category;
+            SqlitePersistence.updateGame(widget.game);
+            Navigator.pop(context);
+            _editValue(c);
+          });
+        },
+      );
+    }
+
+    CupertinoAlertDialog alert = CupertinoAlertDialog(
+      title: Text("Select Clue Value"),
+      actions: [
+        categoryButton(0),
+        categoryButton(1),
+        categoryButton(2),
+        categoryButton(3),
+        categoryButton(4),
+        categoryButton(5),
+        CoryatElement.cupertinoButton("Done", () => Navigator.pop(context))
+      ],
+    );
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void _editValue(Clue c) {
+    CupertinoButton valueButton(int number) {
+      return CupertinoButton(
+        child: Text(
+          c.question.round == Round.jeopardy
+              ? "\$" + (number * 200).toString()
+              : "\$" + (number * 400).toString(),
+        ),
+        onPressed: () {
+          setState(() {
+            c.question.value = c.question.round == Round.jeopardy
+                ? number * 200
+                : number * 400;
+            SqlitePersistence.updateGame(widget.game);
+            Navigator.pop(context);
+            _editDD(c);
+          });
+        },
+      );
+    }
+
+    CupertinoAlertDialog alert = CupertinoAlertDialog(
+      title: Text("Select Clue Value"),
+      actions: [
+        valueButton(1),
+        valueButton(2),
+        valueButton(3),
+        valueButton(4),
+        valueButton(5),
+        CoryatElement.cupertinoButton("Done", () => Navigator.pop(context))
+      ],
+    );
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   void _editDD(Clue c) {
     CupertinoButton ddButton(bool isDD) {
       return CupertinoButton(
@@ -152,13 +287,12 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
           setState(() {
             if (isDD) {
               c.tags.add(Tags.DAILY_DOUBLE);
-              print(c.tags);
             } else {
               c.tags.remove(Tags.DAILY_DOUBLE);
-              print(c.tags);
             }
             SqlitePersistence.updateGame(widget.game);
             Navigator.pop(context);
+            _editResponse(c);
           });
         },
       );
@@ -196,7 +330,6 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             c.response = response;
             SqlitePersistence.updateGame(widget.game);
             Navigator.pop(context);
-            _editDD(c);
           });
         },
       );
@@ -232,20 +365,40 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                   TextSpan(text: event.order + ": "),
                   (event as Clue).response == Response.correct
                       ? TextSpan(
-                          text: "\$" +
+                          text: ((event as Clue).categoryIndex == Category.NA
+                                  ? ""
+                                  : "C" +
+                                      ((event as Clue).categoryIndex + 1)
+                                          .toString() +
+                                      " ") +
+                              "\$" +
                               (event as Clue).question.value.toString() +
                               ((event as Clue).isDailyDouble() ? " (DD)" : ""),
                           style: TextStyle(color: CustomColor.correctGreen))
                       : (event as Clue).response == Response.incorrect
                           ? TextSpan(
-                              text: "−\$" +
+                              text: ((event as Clue).categoryIndex ==
+                                          Category.NA
+                                      ? ""
+                                      : "C" +
+                                          ((event as Clue).categoryIndex + 1)
+                                              .toString() +
+                                          " ") +
+                                  "−\$" +
                                   (event as Clue).question.value.toString() +
                                   ((event as Clue).isDailyDouble()
                                       ? " (DD)"
                                       : ""),
                               style: TextStyle(color: CustomColor.incorrectRed))
                           : TextSpan(
-                              text: "(\$" +
+                              text: ((event as Clue).categoryIndex ==
+                                          Category.NA
+                                      ? ""
+                                      : "C" +
+                                          ((event as Clue).categoryIndex + 1)
+                                              .toString() +
+                                          " ") +
+                                  "(\$" +
                                   (event as Clue).question.value.toString() +
                                   ")" +
                                   ((event as Clue).isDailyDouble()
@@ -282,9 +435,11 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             setState(() {
               Navigator.pop(context);
               if (round == Round.final_jeopardy) {
-                _addSelectResponse(round, 0, false);
+                _addSelectResponse(round, 0, 0, false);
+              } else if (widget.game.tracksCategories()) {
+                _addSelectCategory(round);
               } else {
-                _addSelectValue(round);
+                _addSelectValue(round, 0);
               }
             });
           },
@@ -315,7 +470,47 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     });
   }
 
-  void _addSelectValue(int round) {
+  void _addSelectCategory(int round) {
+    CupertinoButton categoryButton(int category) {
+      return CupertinoButton(
+        child: Text(
+          widget.game.getCategory(round, category),
+        ),
+        onPressed: () {
+          setState(() {
+            Navigator.pop(context);
+            _addSelectValue(round, category);
+          });
+        },
+      );
+    }
+
+    CupertinoAlertDialog alert = CupertinoAlertDialog(
+      title: Text("Select Category"),
+      actions: [
+        categoryButton(0),
+        categoryButton(1),
+        categoryButton(2),
+        categoryButton(3),
+        categoryButton(4),
+        categoryButton(5),
+        CoryatElement.cupertinoButton(
+          "Cancel",
+          () => Navigator.pop(context),
+          color: CupertinoColors.destructiveRed,
+        ),
+      ],
+    );
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void _addSelectValue(int round, int category) {
     CupertinoButton valueButton(int number) {
       return CupertinoButton(
         child: Text(
@@ -327,7 +522,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
           setState(() {
             int value = round == Round.jeopardy ? number * 200 : number * 400;
             Navigator.pop(context);
-            _addSelectDailyDouble(round, value);
+            _addSelectDailyDouble(round, category, value);
           });
         },
       );
@@ -357,14 +552,14 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 
-  void _addSelectDailyDouble(int round, int value) {
+  void _addSelectDailyDouble(int round, int category, int value) {
     CupertinoButton ddButton(bool isDD) {
       return CupertinoButton(
         child: Text(isDD ? "Yes" : "No"),
         onPressed: () {
           setState(() {
             Navigator.pop(context);
-            _addSelectResponse(round, value, isDD);
+            _addSelectResponse(round, category, value, isDD);
           });
         },
       );
@@ -391,7 +586,8 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 
-  void _addSelectResponse(int round, int value, bool isDailyDouble) {
+  void _addSelectResponse(
+      int round, int category, int value, bool isDailyDouble) {
     CupertinoButton responseButton(int response) {
       return CupertinoButton(
         child: Text(
@@ -403,9 +599,16 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
         ),
         onPressed: () {
           setState(() {
-            widget.game.addManualResponse(response, round, value,
-                isDailyDouble ? Set.from([Tags.DAILY_DOUBLE]) : Set(),
-                index: widget.game.endRoundMarkerIndex(round));
+            if (widget.game.tracksCategories()) {
+              widget.game.addManualResponse(response, round, value,
+                  isDailyDouble ? Set.from([Tags.DAILY_DOUBLE]) : Set(),
+                  index: widget.game.endRoundMarkerIndex(round),
+                  categoryIndex: category);
+            } else {
+              widget.game.addManualResponse(response, round, value,
+                  isDailyDouble ? Set.from([Tags.DAILY_DOUBLE]) : Set(),
+                  index: widget.game.endRoundMarkerIndex(round));
+            }
             SqlitePersistence.updateGame(widget.game);
             Navigator.pop(context);
           });
@@ -440,12 +643,21 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       header: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _addClueButton(),
-          CoryatElement.cupertinoButton("Reorder", () {
-            CoryatElement.presentBasicAlertDialog(context, "How to Reorder",
-                "Tap and hold the clue you want to move until you see it pop out, then drag it to the appropriate spot");
-          }),
-        ],
+              _addClueButton(),
+            ] +
+            (widget.game.tracksCategories()
+                ? [
+                    CoryatElement.cupertinoButton("Categories", () {
+                      _showEditCategoriesDialog(Round.jeopardy);
+                    }),
+                  ]
+                : []) +
+            [
+              CoryatElement.cupertinoButton("Help", () {
+                CoryatElement.presentBasicAlertDialog(context, "Help",
+                    "\nEach clue is listed as [clue round/number]: C[category number] [value/response] [Daily Double (if nec.)]\n\nE: Edit clue\n\nD: Delete clue\n\nReorder: Tap and hold the clue you want to move until you see it pop out, then drag it to the appropriate spot");
+              }),
+            ],
       ),
       itemBuilder: (context, i) {
         if (i < widget.game.getEvents().length) {
