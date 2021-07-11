@@ -23,20 +23,26 @@ class Game {
   bool synced;
   List<String> _userCategories; // null if doesn't use categories
   List<Event> _events;
+  List<int> _stats;
 
-  Game(int year, int month, int day, [this.user, this._events]) {
+  Game(int year, int month, int day, {user, events}) {
     this.id = Uuid().v4();
     this.dateAired = new DateTime(year, month, day);
     this.datePlayed = DateTime.now();
-    this._events = [];
-    this.user = User();
+    this._events = events ?? [];
+    this.user = user ?? User();
     this.synced = false;
+    this._stats = [];
+    for (int i = 0; i < Stat.number_of_stats; i++) {
+      _stats.add(0);
+    }
+    _refresh();
   }
 
   void addAutomaticResponse(int response) {
     Event clue = Clue(response);
     _events.add(clue);
-    _updateOrders();
+    _refresh();
   }
 
   void addManualResponse(int response, int round, int value, Set<String> tags,
@@ -53,7 +59,7 @@ class Game {
     } else {
       _events.insert(index, clue);
     }
-    _updateOrders();
+    _refresh();
   }
 
   void addClue(int round, String category, int value, String clue,
@@ -68,17 +74,18 @@ class Game {
         c.question.value = value;
       }
     }
+    _refresh();
   }
 
   void addMarker(String name) {
     Event marker = Marker(name);
     _events.add(marker);
-    _updateOrders();
+    _refresh();
   }
 
   void nextRound() {
     _events.add(NextRoundMarker());
-    _updateOrders();
+    _refresh();
   }
 
   Event undo() {
@@ -86,7 +93,7 @@ class Game {
       return null;
     }
     Event last = _events.removeLast();
-    _updateOrders();
+    _refresh();
     return last;
   }
 
@@ -96,17 +103,17 @@ class Game {
 
   void insertEvent(int index, Event event) {
     _events.insert(index, event);
-    _updateOrders();
+    _refresh();
   }
 
   void removeEvent(Event event) {
     _events.remove(event);
-    _updateOrders();
+    _refresh();
   }
 
   Event removeEventAt(int index) {
     Event ev = _events.removeAt(index);
-    _updateOrders();
+    _refresh();
     return ev;
   }
 
@@ -121,11 +128,19 @@ class Game {
     return evs;
   }
 
-  void _updateOrders() {
+  void _refresh() {
+    // update orders/stats
     int number = 0;
     int round = Round.jeopardy;
+    int statsRound = Round.jeopardy;
+
+    List<int> totals = [];
+    for (int i = 0; i < Stat.number_of_stats; i++) {
+      totals.add(0);
+    }
 
     for (Event event in _events) {
+      // update order
       if (event.type == EventType.clue) {
         number++;
         event.order = Round.toAbbrev(round) + number.toString();
@@ -144,119 +159,86 @@ class Game {
             break;
         }
       }
+
+      // update stats
+      if (event.type == EventType.clue) {
+        Clue c = event as Clue;
+        // 1) process clues
+        if (c.response == Response.correct) {
+          totals[Stat.CORYAT] += c.question.value;
+        } else if (c.response == Response.incorrect) {
+          totals[Stat.CORYAT] -= c.question.value;
+        }
+        if (c.question.round == Round.jeopardy) {
+          if (c.response == Response.correct) {
+            totals[Stat.JEOPARDY_CORYAT] += c.question.value;
+          } else if (c.response == Response.incorrect) {
+            totals[Stat.JEOPARDY_CORYAT] -= c.question.value;
+          }
+        }
+        if (c.question.round == Round.double_jeopardy) {
+          if (c.response == Response.correct) {
+            totals[Stat.DOUBLE_JEOPARDY_CORYAT] += c.question.value;
+          } else if (c.response == Response.incorrect) {
+            totals[Stat.DOUBLE_JEOPARDY_CORYAT] -= c.question.value;
+          }
+        }
+        totals[Stat.REACHABLE_CORYAT] += c.question.value;
+        if (c.response == Response.correct) {
+          totals[Stat.CORRECT_TOTAL_VALUE] += c.question.value;
+        }
+        if (c.response == Response.incorrect) {
+          totals[Stat.INCORRECT_TOTAL_VALUE] += c.question.value;
+        }
+        if (c.response == Response.none) {
+          totals[Stat.NO_ANSWER_TOTAL_VALUE] += c.question.value;
+        }
+        totals[Stat.MAX_POSSIBLE_CORYAT] += c.question.value;
+        if (c.question.round == Round.jeopardy) {
+          totals[Stat.MAX_POSSIBLE_JEOPARDY_CORYAT] += c.question.value;
+        }
+        if (c.question.round == Round.double_jeopardy) {
+          totals[Stat.MAX_POSSIBLE_DOUBLE_JEOPARDY_CORYAT] += c.question.value;
+        }
+      } else if (event.type == EventType.marker) {
+        Marker m = event as Marker;
+
+        // 2) process markers
+        if (m.primaryText() == Marker.NEXT_ROUND) {
+          totals[Stat.REACHABLE_CORYAT] = 0;
+          statsRound = Round.nextRound(statsRound);
+        }
+      }
+    }
+
+    // 3) post-process/return
+    _stats[Stat.CORYAT] = totals[Stat.CORYAT];
+    _stats[Stat.JEOPARDY_CORYAT] = totals[Stat.JEOPARDY_CORYAT];
+    _stats[Stat.DOUBLE_JEOPARDY_CORYAT] = totals[Stat.DOUBLE_JEOPARDY_CORYAT];
+    _stats[Stat.CORRECT_TOTAL_VALUE] = totals[Stat.CORRECT_TOTAL_VALUE];
+    _stats[Stat.INCORRECT_TOTAL_VALUE] = totals[Stat.INCORRECT_TOTAL_VALUE];
+    _stats[Stat.NO_ANSWER_TOTAL_VALUE] = totals[Stat.NO_ANSWER_TOTAL_VALUE];
+    _stats[Stat.MAX_POSSIBLE_CORYAT] = totals[Stat.MAX_POSSIBLE_CORYAT];
+    _stats[Stat.MAX_POSSIBLE_JEOPARDY_CORYAT] =
+        totals[Stat.MAX_POSSIBLE_JEOPARDY_CORYAT];
+    _stats[Stat.MAX_POSSIBLE_DOUBLE_JEOPARDY_CORYAT] =
+        totals[Stat.MAX_POSSIBLE_DOUBLE_JEOPARDY_CORYAT];
+
+    if (statsRound == Round.jeopardy) {
+      _stats[Stat.REACHABLE_CORYAT] =
+          totals[Stat.CORYAT] + (18000 - totals[Stat.REACHABLE_CORYAT]) + 36000;
+    } else if (statsRound == Round.double_jeopardy) {
+      _stats[Stat.REACHABLE_CORYAT] =
+          totals[Stat.CORYAT] + (36000 - totals[Stat.REACHABLE_CORYAT]);
+    } else {
+      _stats[Stat.REACHABLE_CORYAT] = totals[Stat.CORYAT];
     }
   }
 
   // Stats
 
   int getStat(int stat) {
-    // variables you can use
-    int total = 0;
-    int currentRound = Round.jeopardy;
-
-    // process each event
-    for (Event event in _events) {
-      if (event.type == EventType.clue) {
-        Clue c = event as Clue;
-
-        // 1) process clues
-        switch (stat) {
-          case Stat.CORYAT:
-            if (c.response == Response.correct) {
-              total += c.question.value;
-            } else if (c.response == Response.incorrect) {
-              total -= c.question.value;
-            }
-            break;
-          case Stat.JEOPARDY_CORYAT:
-            if (c.question.round == Round.jeopardy) {
-              if (c.response == Response.correct) {
-                total += c.question.value;
-              } else if (c.response == Response.incorrect) {
-                total -= c.question.value;
-              }
-            }
-            break;
-          case Stat.DOUBLE_JEOPARDY_CORYAT:
-            if (c.question.round == Round.double_jeopardy) {
-              if (c.response == Response.correct) {
-                total += c.question.value;
-              } else if (c.response == Response.incorrect) {
-                total -= c.question.value;
-              }
-            }
-            break;
-          case Stat.REACHABLE_CORYAT:
-            total += c.question.value;
-            break;
-          case Stat.CORRECT_TOTAL_VALUE:
-            if (c.response == Response.correct) {
-              total += c.question.value;
-            }
-            break;
-          case Stat.INCORRECT_TOTAL_VALUE:
-            if (c.response == Response.incorrect) {
-              total += c.question.value;
-            }
-            break;
-          case Stat.NO_ANSWER_TOTAL_VALUE:
-            if (c.response == Response.none) {
-              total += c.question.value;
-            }
-            break;
-          case Stat.MAX_POSSIBLE_CORYAT:
-            total += c.question.value;
-            break;
-          case Stat.MAX_POSSIBLE_JEOPARDY_CORYAT:
-            if (c.question.round == Round.jeopardy) {
-              total += c.question.value;
-            }
-            break;
-          case Stat.MAX_POSSIBLE_DOUBLE_JEOPARDY_CORYAT:
-            if (c.question.round == Round.double_jeopardy) {
-              total += c.question.value;
-            }
-            break;
-        }
-      } else if (event.type == EventType.marker) {
-        Marker m = event as Marker;
-
-        // 2) process markers
-        switch (stat) {
-          case Stat.REACHABLE_CORYAT:
-            if (m.primaryText() == Marker.NEXT_ROUND) {
-              total = 0;
-              currentRound = Round.nextRound(currentRound);
-            }
-            break;
-        }
-      }
-    }
-
-    // 3) post-process/return
-    switch (stat) {
-      case Stat.CORYAT:
-      case Stat.JEOPARDY_CORYAT:
-      case Stat.DOUBLE_JEOPARDY_CORYAT:
-      case Stat.CORRECT_TOTAL_VALUE:
-      case Stat.INCORRECT_TOTAL_VALUE:
-      case Stat.NO_ANSWER_TOTAL_VALUE:
-      case Stat.MAX_POSSIBLE_CORYAT:
-      case Stat.MAX_POSSIBLE_JEOPARDY_CORYAT:
-      case Stat.MAX_POSSIBLE_DOUBLE_JEOPARDY_CORYAT:
-        return total;
-        break;
-      case Stat.REACHABLE_CORYAT:
-        if (currentRound == Round.jeopardy) {
-          return getStat(Stat.CORYAT) + (18000 - total) + 36000;
-        } else if (currentRound == Round.double_jeopardy) {
-          return getStat(Stat.CORYAT) + (36000 - total);
-        } else {
-          return getStat(Stat.CORYAT);
-        }
-        break;
-    }
-    return 0;
+    return _stats[stat];
   }
 
   List<int> getCustomPerformance(bool Function(Clue) filter) {
@@ -361,8 +343,14 @@ class Game {
 
   static Game decode(String encoded, {String id, bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, delimiter);
+
+    List<String> events = dec.sublist(18);
+    List<Event> ev = [];
+    for (String evs in events) {
+      ev.add(Event.decode(evs));
+    }
     Game g = Game(int.parse(dec[0]), int.parse(dec[1]), int.parse(dec[2]),
-        User.decode(dec[4]));
+        user: User.decode(dec[4]), events: ev);
     g.datePlayed = DateTime.fromMillisecondsSinceEpoch(int.parse(dec[3]));
     if (id != null) {
       g.id = id;
@@ -375,12 +363,6 @@ class Game {
         0) {
       g._userCategories = null;
     }
-    List<String> events = dec.sublist(18);
-    List<Event> ev = [];
-    for (String evs in events) {
-      ev.add(Event.decode(evs));
-    }
-    g._events = ev;
     return g;
   }
 }

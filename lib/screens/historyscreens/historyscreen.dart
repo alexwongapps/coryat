@@ -116,9 +116,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
             return Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                CoryatElement.cupertinoButton("Export", () async {
+                  String data = ListToCsvConverter().convert(_getCSV());
+                  final dir = await getApplicationSupportDirectory();
+                  final String directory = dir.path;
+                  final path =
+                      "$directory/coryat-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.csv";
+                  final File file = File(path);
+                  await file.writeAsString(data);
+                  Share.shareFiles([path]);
+                }),
                 CoryatElement.text("Sort By:", size: Font.size_regular_text),
                 CoryatElement.cupertinoButton(
-                  "Date Aired",
+                  "Aired",
                   () {
                     setState(() {
                       _sortMethod = _dateAired;
@@ -132,7 +142,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       : CustomColor.primaryColor,
                 ),
                 CoryatElement.cupertinoButton(
-                  "Date Played",
+                  "Played",
                   () {
                     setState(() {
                       _sortMethod = _datePlayed;
@@ -164,23 +174,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-        navigationBar: CoryatElement.cupertinoNavigationBar("Games Played",
-            trailing: CupertinoButton(
-                child: FittedBox(
-                  child: CoryatElement.text("Export",
-                      color: CustomColor.primaryColor),
-                  fit: BoxFit.scaleDown,
-                ),
-                onPressed: () async {
-                  String data = ListToCsvConverter().convert(_getCSV());
-                  final dir = await getApplicationSupportDirectory();
-                  final String directory = dir.path;
-                  final path =
-                      "$directory/coryat-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.csv";
-                  final File file = File(path);
-                  await file.writeAsString(data);
-                  Share.shareFiles([path]);
-                })),
+        navigationBar: CoryatElement.cupertinoNavigationBar(
+          "Games Played",
+        ),
         child: Material(
           child: Container(
               color: CustomColor.backgroundColor, child: _buildGames()),
@@ -188,69 +184,73 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   List<List<String>> _getCSV() {
+    List<List<String>> ret = [];
     List<String> headers = [
+      "Game Number",
       "Date Aired",
       "Date Played",
+      "Game Coryat",
+      "Round",
+      "Clue Number",
+      "Clue Category",
+      "Clue Value",
+      "Daily Double?",
+      "Response",
     ];
-    for (int i = 1; i <= 30; i++) {
-      headers.add("J" + i.toString());
-    }
-    for (int i = 1; i <= 30; i++) {
-      headers.add("DJ" + i.toString());
-    }
-    headers.add("FJ");
-    headers.addAll([
-      "DD1",
-      "DD2",
-      "DD3",
-      "Coryat",
-    ]);
-    List<List<String>> ret = [headers];
-    for (Game game in _games) {
-      List<String> dds = [];
-      List<String> thisGame = [
-        game.dateAired.toIso8601String(),
-        game.datePlayed.toIso8601String(),
-      ];
-      int numberOn = 1;
-      int roundOn = Round.jeopardy;
+    ret.add(headers);
+    int numberOn = 1;
+    int roundOn = Round.jeopardy;
+    for (int i = 0; i < _games.length; i++) {
+      Game game = _games[i];
       for (Event event in game.getEvents()) {
         if (event.type == EventType.clue) {
           Clue c = event as Clue;
-          if (c.isDailyDouble()) {
-            dds.add(c.order);
+          List<String> thisClue = [
+            (i + 1).toString(),
+            game.dateAired.toIso8601String(),
+            game.datePlayed.toIso8601String(),
+            game.getStat(Stat.CORYAT).toString(),
+          ];
+          if (c.question.round == Round.jeopardy) {
+            thisClue.add("Jeopardy");
+          } else if (c.question.round == Round.double_jeopardy) {
+            thisClue.add("Double Jeopardy");
+          } else {
+            thisClue.add("Final Jeopardy");
           }
           if (c.question.round != roundOn) {
-            for (int i = numberOn; i <= 30; i++) {
-              thisGame.add("");
-            }
+            numberOn = 1;
+            roundOn = c.question.round;
+          }
+          thisClue.add(numberOn.toString());
+          numberOn++;
+          if (game.tracksCategories()) {
+            thisClue.add(game.getCategory(c.question.round, c.categoryIndex));
+          } else {
+            thisClue.add("");
           }
           if (c.question.round == Round.final_jeopardy) {
-            if (c.response == Response.correct) {
-              thisGame.add("Correct");
-            } else if (c.response == Response.incorrect) {
-              thisGame.add("Incorrect");
-            } else {
-              thisGame.add("No Answer");
-            }
+            thisClue.add("");
           } else {
-            if (c.question.round != roundOn) {
-              numberOn = 1;
-              roundOn = c.question.round;
-            }
-            thisGame.add((c.response == Response.correct
-                    ? "+" + c.question.value.toString()
-                    : c.response == Response.incorrect
-                        ? "-" + c.question.value.toString()
-                        : c.question.value.toString())
-                .toString());
-            numberOn++;
+            thisClue.add(c.question.value.toString());
           }
+          if (c.question.round == Round.final_jeopardy) {
+            thisClue.add("");
+          } else if (c.isDailyDouble()) {
+            thisClue.add("Yes");
+          } else {
+            thisClue.add("No");
+          }
+          if (c.response == Response.correct) {
+            thisClue.add("Correct");
+          } else if (c.response == Response.incorrect) {
+            thisClue.add("Incorrect");
+          } else {
+            thisClue.add("No Answer");
+          }
+          ret.add(thisClue);
         }
       }
-      thisGame.addAll(dds);
-      thisGame.add(game.getStat(Stat.CORYAT).toString());
-      ret.add(thisGame);
     }
     return ret;
   }

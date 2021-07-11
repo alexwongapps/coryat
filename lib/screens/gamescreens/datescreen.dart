@@ -42,7 +42,7 @@ class _DateScreenState extends State<DateScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             CoryatElement.text("Pick Game Date",
-                size: Font.size_large_text, bold: true),
+                size: Font.size_title_text, bold: true),
             Column(
               children: [
                 CoryatElement.text(_dateString(_chosenDateTime),

@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             CoryatElement.text("Coryat",
-                size: Font.size_large_text, bold: true),
+                size: Font.size_title_text, bold: true),
             CoryatElement.cupertinoButton(
               "Start Game",
               () {

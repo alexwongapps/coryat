@@ -10,4 +10,5 @@ class Font {
   static const double size_regular_text = size_default;
   static const double size_medium_large_text = 25;
   static const double size_large_text = 30;
+  static const double size_title_text = 45;
 }
