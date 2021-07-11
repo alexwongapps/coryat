@@ -7,7 +7,18 @@ import 'design.dart';
 
 class CoryatElement {
   static CupertinoNavigationBar cupertinoNavigationBar(String text,
-      {Widget trailing}) {
+      {Widget trailing, bool border}) {
+    if (border == null || border) {
+      return CupertinoNavigationBar(
+        middle: Text(
+          text,
+          style: TextStyle(
+            fontFamily: Font.family,
+          ),
+        ),
+        trailing: trailing,
+      );
+    }
     return CupertinoNavigationBar(
       middle: Text(
         text,
@@ -16,6 +27,7 @@ class CoryatElement {
         ),
       ),
       trailing: trailing,
+      border: null,
     );
   }
 
@@ -30,6 +42,28 @@ class CoryatElement {
               fontFamily: Font.family),
         ),
         onPressed: onPressed);
+  }
+
+  static Widget fractionallySizedButton(
+      BuildContext context, double fraction, Text text, Function onPressed,
+      {double padding = 0.0}) {
+    return Container(
+      width: MediaQuery.of(context).size.width * fraction,
+      alignment: Alignment.center,
+      child: Padding(
+        padding: EdgeInsets.only(left: padding, right: 5),
+        child: CupertinoButton(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: 1, minHeight: 1),
+              child: text,
+            ),
+          ),
+          onPressed: onPressed,
+        ),
+      ),
+    );
   }
 
   static Widget text(String text,
@@ -71,9 +105,9 @@ class CoryatElement {
 
   static void presentBasicAlertDialog(
       BuildContext context, String title, String content) {
-    Widget okButton = CoryatElement.cupertinoButton(
-      "OK",
-      () {
+    Widget okButton = CupertinoButton(
+      child: Text("OK"),
+      onPressed: () {
         Navigator.pop(context);
       },
     );

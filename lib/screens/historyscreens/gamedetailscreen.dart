@@ -52,6 +52,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                 textEditingControllers[i].text == ""
                     ? "Category " + (i + 1).toString()
                     : textEditingControllers[i].text);
+            SqlitePersistence.updateGame(widget.game);
           });
         }
         Navigator.of(context).pop();
@@ -205,7 +206,8 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   void _editCategory(Clue c) {
     CupertinoButton categoryButton(int category) {
       return CupertinoButton(
-        child: Text(widget.game.getCategory(c.question.round, category)),
+        child: Text(widget.game.getCategory(c.question.round, category) +
+            (c.categoryIndex == category ? " (Current)" : "")),
         onPressed: () {
           setState(() {
             c.categoryIndex = category;
@@ -218,7 +220,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     }
 
     CupertinoAlertDialog alert = CupertinoAlertDialog(
-      title: Text("Select Clue Value"),
+      title: Text("Select Category"),
       actions: [
         categoryButton(0),
         categoryButton(1),
@@ -243,8 +245,12 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       return CupertinoButton(
         child: Text(
           c.question.round == Round.jeopardy
-              ? "\$" + (number * 200).toString()
-              : "\$" + (number * 400).toString(),
+              ? ("\$" +
+                  (number * 200).toString() +
+                  (c.question.value == number * 200 ? " (Current)" : ""))
+              : ("\$" +
+                  (number * 400).toString() +
+                  (c.question.value == number * 400 ? " (Current)" : "")),
         ),
         onPressed: () {
           setState(() {
@@ -282,7 +288,8 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   void _editDD(Clue c) {
     CupertinoButton ddButton(bool isDD) {
       return CupertinoButton(
-        child: Text(isDD ? "Yes" : "No"),
+        child: Text((isDD ? "Yes" : "No") +
+            (c.isDailyDouble() == isDD ? " (Current)" : "")),
         onPressed: () {
           setState(() {
             if (isDD) {
@@ -319,11 +326,12 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     CupertinoButton responseButton(int response) {
       return CupertinoButton(
         child: Text(
-          response == Response.correct
-              ? "Correct"
-              : response == Response.incorrect
-                  ? "Incorrect"
-                  : "No Answer",
+          (response == Response.correct
+                  ? "Correct"
+                  : response == Response.incorrect
+                      ? "Incorrect"
+                      : "No Answer") +
+              (c.response == response ? " (Current)" : ""),
         ),
         onPressed: () {
           setState(() {

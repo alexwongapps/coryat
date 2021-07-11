@@ -3,12 +3,15 @@ import 'dart:math';
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/design.dart';
+import 'package:coryat/constants/font.dart';
 import 'package:coryat/constants/iap.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
+import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
 import 'package:coryat/enums/stat.dart';
 import 'package:coryat/models/clue.dart';
+import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/screens/helpscreens/helpscreen.dart';
 import 'package:coryat/screens/statsscreens/graphsscreen.dart';
@@ -25,17 +28,21 @@ class StatsScreen extends StatefulWidget {
 
 class _StatsScreenState extends State<StatsScreen> {
   List<Game> _games = [];
+  List<String> _categories = ["All Categories"];
 
   int _roundPlaces = 1;
 
-  List<String> _presetCategories = ["Totals", "Percentages"];
+  List<String> _presetFormats = ["Totals", "Percentages"];
   int _totals = 0;
   int _percents = 1;
+  int _currentFormat = 0;
+
+  final int _allCategories = 0;
   int _currentCategory = 0;
 
   @override
   void initState() {
-    refresh();
+    _refresh();
     _dateAiredLabel = _presetRanges[_dateAired];
     _datePlayedLabel = _presetRanges[_datePlayed];
     super.initState();
@@ -51,97 +58,171 @@ class _StatsScreenState extends State<StatsScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
                 _rangeDropdown(),
+                Material(
+                  child: Container(
+                    padding: EdgeInsets.only(
+                      left: Design.divider_indent,
+                      right: Design.divider_indent,
+                    ),
+                    decoration: BoxDecoration(
+                      color: CustomColor.backgroundColor,
+                    ),
+                    child: DropdownButton(
+                      value: _currentCategory,
+                      dropdownColor: CustomColor.backgroundColor,
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      onChanged: (int newValue) {
+                        setState(() {
+                          _currentCategory = newValue;
+                        });
+                      },
+                      items: List<int>.generate(_categories.length, (i) => i)
+                          .map((index) => DropdownMenuItem(
+                                value: index,
+                                child: Center(
+                                  child: CoryatElement.text(_categories[index],
+                                      bold: true),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                ),
                 CoryatElement.gameDivider(),
                 Text("Games Played: " + _games.length.toString()),
-                Text("Best Coryat: " + _getExtremeCoryatString(true)),
-                Text("Worst Coryat: " + _getExtremeCoryatString(false)),
+                Text("Best Coryat: " +
+                    (_currentCategory != _allCategories
+                        ? "N/A"
+                        : _getExtremeCoryatString(true))),
+                Text("Worst Coryat: " +
+                    (_currentCategory != _allCategories
+                        ? "N/A"
+                        : _getExtremeCoryatString(false))),
                 CoryatElement.gameDivider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CoryatElement.cupertinoButton(_presetCategories[_totals],
-                        () {
+                    CoryatElement.cupertinoButton(_presetFormats[_totals], () {
                       setState(() {
-                        _currentCategory = _totals;
+                        _currentFormat = _totals;
                       });
                     },
-                        color: _currentCategory == _totals
+                        color: _currentFormat == _totals
                             ? CustomColor.selectedButton
                             : CustomColor.primaryColor),
-                    CoryatElement.cupertinoButton(_presetCategories[_percents],
+                    CoryatElement.cupertinoButton(_presetFormats[_percents],
                         () {
                       setState(() {
-                        _currentCategory = _percents;
+                        _currentFormat = _percents;
                       });
                     },
-                        color: _currentCategory == _percents
+                        color: _currentFormat == _percents
                             ? CustomColor.selectedButton
                             : CustomColor.primaryColor),
                   ],
                 ),
                 Text(
-                  "Average Game",
+                  _currentCategory != _allCategories
+                      ? "Average Jeopardy-Valued Round"
+                      : "Average Game",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ] +
-              (_currentCategory == _totals
+              (_currentFormat == _totals
                   ? [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CoryatElement.text(
-                              "\$" +
-                                  _getAverageStat(Stat.CORRECT_TOTAL_VALUE)
-                                      .toString(),
-                              color: CustomColor.correctGreen),
-                          Text("   "),
-                          CoryatElement.text(
-                              "−\$" +
-                                  _getAverageStat(Stat.INCORRECT_TOTAL_VALUE)
-                                      .toString(),
-                              color: CustomColor.incorrectRed),
-                          Text("   (\$"),
-                          CoryatElement.text(
-                              _getAverageStat(Stat.NO_ANSWER_TOTAL_VALUE)
-                                  .toString()),
-                          Text(")")
-                        ],
-                      ),
-                      Text("Coryat: \$" +
-                          _getAverageStat(Stat.CORYAT).toString()),
-                      Text("Jeopardy Coryat: \$" +
-                          _getAverageStat(Stat.JEOPARDY_CORYAT).toString()),
-                      Text("Double Jeopardy Coryat: \$" +
-                          _getAverageStat(Stat.DOUBLE_JEOPARDY_CORYAT)
-                              .toString()),
+                      _currentCategory == _allCategories
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CoryatElement.text(
+                                    "\$" +
+                                        _getAverageStat(
+                                                Stat.CORRECT_TOTAL_VALUE)
+                                            .toString(),
+                                    color: CustomColor.correctGreen),
+                                Text("   "),
+                                CoryatElement.text(
+                                    "−\$" +
+                                        _getAverageStat(
+                                                Stat.INCORRECT_TOTAL_VALUE)
+                                            .toString(),
+                                    color: CustomColor.incorrectRed),
+                                Text("   (\$"),
+                                CoryatElement.text(
+                                    _getAverageStat(Stat.NO_ANSWER_TOTAL_VALUE)
+                                        .toString()),
+                                Text(")")
+                              ],
+                            )
+                          : _getCategoryBreakdown(
+                              _categories[_currentCategory]),
+                      (_currentCategory == _allCategories
+                          ? Text("Coryat: \$" +
+                              _getAverageStat(Stat.CORYAT).toString())
+                          : _getCategoryCoryatString(
+                              _categories[_currentCategory])),
+                      Text("Jeopardy Coryat: " +
+                          (_currentCategory != _allCategories
+                              ? "N/A"
+                              : ("\$" +
+                                  _getAverageStat(Stat.JEOPARDY_CORYAT)
+                                      .toString()))),
+                      Text("Double Jeopardy Coryat: " +
+                          (_currentCategory != _allCategories
+                              ? "N/A"
+                              : ("\$" +
+                                  _getAverageStat(Stat.DOUBLE_JEOPARDY_CORYAT)
+                                      .toString()))),
                     ]
                   : [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CoryatElement.text(
-                              _getPercentStat(Stat.CORRECT_TOTAL_VALUE),
-                              color: CustomColor.correctGreen),
-                          Text("   "),
-                          CoryatElement.text(
-                              "−" + _getPercentStat(Stat.INCORRECT_TOTAL_VALUE),
-                              color: CustomColor.incorrectRed),
-                          Text("   ("),
-                          CoryatElement.text(
-                              _getPercentStat(Stat.NO_ANSWER_TOTAL_VALUE)),
-                          Text(")")
-                        ],
-                      ),
-                      Text("Coryat: " + _getPercentStat(Stat.CORYAT)),
+                      _currentCategory == _allCategories
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CoryatElement.text(
+                                    _getPercentStat(Stat.CORRECT_TOTAL_VALUE),
+                                    color: CustomColor.correctGreen),
+                                Text("   "),
+                                CoryatElement.text(
+                                    "−" +
+                                        _getPercentStat(
+                                            Stat.INCORRECT_TOTAL_VALUE),
+                                    color: CustomColor.incorrectRed),
+                                Text("   ("),
+                                CoryatElement.text(_getPercentStat(
+                                    Stat.NO_ANSWER_TOTAL_VALUE)),
+                                Text(")")
+                              ],
+                            )
+                          : _getCategoryBreakdown(
+                              _categories[_currentCategory]),
+                      (_currentCategory == _allCategories
+                          ? Text("Coryat: " +
+                              _getPercentStat(Stat.CORYAT).toString())
+                          : _getCategoryCoryatString(
+                              _categories[_currentCategory])),
                       Text("Jeopardy Coryat: " +
-                          _getPercentStat(Stat.JEOPARDY_CORYAT)),
+                          (_currentCategory != _allCategories
+                              ? "N/A"
+                              : _getPercentStat(Stat.JEOPARDY_CORYAT))),
                       Text("Double Jeopardy Coryat: " +
-                          _getPercentStat(Stat.DOUBLE_JEOPARDY_CORYAT)),
+                          (_currentCategory != _allCategories
+                              ? "N/A"
+                              : _getPercentStat(Stat.DOUBLE_JEOPARDY_CORYAT))),
                     ]) +
               [
                 CoryatElement.gameDivider(),
-                Text("Daily Doubles: " + _getDailyDoubleString()),
-                Text("Final Jeopardy: " + _getFinalJeopardyString()),
+                Text("Daily Doubles: " +
+                    (_currentCategory == _allCategories
+                        ? _getDailyDoubleString()
+                        : _getCategoryDailyDoubleString(
+                            _categories[_currentCategory]))),
+                Text("Final Jeopardy: " +
+                    (_currentCategory == _allCategories
+                        ? _getFinalJeopardyString()
+                        : _getCategoryFinalJeopardyString(
+                            _categories[_currentCategory]))),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -346,6 +427,151 @@ class _StatsScreenState extends State<StatsScreen> {
         "%)";
   }
 
+  RichText _getCategoryBreakdown(String category) {
+    List<int> performance = [0, 0, 0];
+    for (Game game in _games) {
+      for (Event event in game.getEvents()) {
+        if (event.type == EventType.clue &&
+            (event as Clue).question.round != Round.final_jeopardy) {
+          Clue c = event as Clue;
+          if (c.isCategory(category, game)) {
+            performance[c.response] += c.question.value;
+          }
+        }
+      }
+    }
+    int total = performance[0] + performance[1] + performance[2];
+    String p0String = _currentFormat == _totals
+        ? "\$" + (total == 0 ? 0 : (performance[0] * 3000 ~/ total)).toString()
+        : (_round(total == 0 ? 0 : (performance[0] / total * 100), 1))
+                .toString() +
+            "%";
+    String p1String = _currentFormat == _totals
+        ? "\$" + (total == 0 ? 0 : (performance[1] * 3000 ~/ total)).toString()
+        : (_round(total == 0 ? 0 : (performance[1] / total * 100), 1))
+                .toString() +
+            "%";
+    String p2String = _currentFormat == _totals
+        ? "\$" + (total == 0 ? 0 : (performance[2] * 3000 ~/ total)).toString()
+        : (_round(total == 0 ? 0 : (performance[2] / total * 100), 1))
+                .toString() +
+            "%";
+    return new RichText(
+      text: new TextSpan(
+        style: TextStyle(
+          color: CupertinoColors.black,
+          fontSize: Font.size_regular_text,
+          fontFamily: Font.family,
+        ),
+        children: <TextSpan>[
+          new TextSpan(
+              text: p0String + "   ",
+              style: new TextStyle(color: CustomColor.correctGreen)),
+          new TextSpan(
+              text: "−" + p1String + "   ",
+              style: new TextStyle(color: CustomColor.incorrectRed)),
+          new TextSpan(text: "(" + p2String + ")"),
+        ],
+      ),
+    );
+  }
+
+  Widget _getCategoryCoryatString(String category) {
+    List<int> performance = [0, 0, 0];
+    for (Game game in _games) {
+      for (Event event in game.getEvents()) {
+        if (event.type == EventType.clue &&
+            (event as Clue).question.round != Round.final_jeopardy) {
+          Clue c = event as Clue;
+          if (c.isCategory(category, game)) {
+            performance[c.response] += c.question.value;
+          }
+        }
+      }
+    }
+    int total = performance[0] + performance[1] + performance[2];
+    String p0String = _currentFormat == _totals
+        ? "\$" +
+            ((total == 0
+                    ? 0
+                    : (performance[0] - performance[1]) * 3000 ~/ total))
+                .toString()
+        : (_round(
+                    total == 0
+                        ? 0
+                        : ((performance[0] - performance[1]) / total * 100),
+                    1))
+                .toString() +
+            "%";
+    return new RichText(
+      text: new TextSpan(
+        style: TextStyle(
+          color: CupertinoColors.black,
+          fontSize: Font.size_regular_text,
+          fontFamily: Font.family,
+        ),
+        children: <TextSpan>[
+          new TextSpan(text: "Coryat: " + p0String),
+        ],
+      ),
+    );
+  }
+
+  String _getCategoryDailyDoubleString(String category) {
+    List<int> totals = [0, 0, 0];
+    for (Game game in _games) {
+      for (Event event in game.getEvents()) {
+        if (event.type == EventType.clue &&
+            (event as Clue).question.round != Round.final_jeopardy) {
+          Clue c = event as Clue;
+          if (c.isCategory(category, game) && c.isDailyDouble()) {
+            totals[c.response]++;
+          }
+        }
+      }
+    }
+
+    int c = totals[Response.correct];
+    int t = totals.reduce((a, b) => a + b);
+
+    if (t == 0) {
+      return "0-0 (N/A)";
+    }
+    return c.toString() +
+        "–" +
+        t.toString() +
+        " (" +
+        _round(c / t * 100, _roundPlaces).toString() +
+        "%)";
+  }
+
+  String _getCategoryFinalJeopardyString(String category) {
+    int right = 0;
+    int total = 0;
+    for (Game game in _games) {
+      for (Event event in game.getEvents()) {
+        if (event.type == EventType.clue &&
+            (event as Clue).question.round == Round.final_jeopardy &&
+            (event as Clue).isCategory(category, game)) {
+          Clue c = event as Clue;
+          if (c.response == Response.correct) {
+            right += 1;
+          }
+          total += 1;
+        }
+      }
+    }
+    if (total == 0) {
+      return "0-0 (N/A)";
+    }
+    return right.toString() +
+        "–" +
+        total.toString() +
+        " (" +
+        _round(right / total * 100, _roundPlaces).toString() +
+        "%)";
+  }
+
   double _round(double number, int places) {
     return double.parse((number).toStringAsFixed(places));
   }
@@ -374,9 +600,19 @@ class _StatsScreenState extends State<StatsScreen> {
   DateTime _chosenEndTime =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
-  void refresh() async {
+  void _refresh() async {
     _games = await SqlitePersistence.getGames();
-    setState(() {});
+    Set<String> cats = Set();
+    for (Game game in _games) {
+      if (game.tracksCategories()) {
+        cats.addAll(game.allCategories());
+      }
+    }
+    List<String> l = cats.toList();
+    l.sort((a, b) => a.compareTo(b));
+    setState(() {
+      _categories = ["All Categories"] + l;
+    });
   }
 
   Widget _rangeDropdown() {

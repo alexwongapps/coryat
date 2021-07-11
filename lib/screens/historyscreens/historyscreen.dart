@@ -41,9 +41,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     FirebaseAuth.instance.currentUser().then((user) => refresh(user));
-    setState(() {
-      SharedPreferences.getInstance().then((prefs) => _sortMethod =
-          prefs.getInt(SharedPreferencesKey.HISTORY_SCREEN_SORT) ?? _dateAired);
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        _sortMethod = prefs.getInt(SharedPreferencesKey.HISTORY_SCREEN_SORT) ??
+            _dateAired;
+      });
     });
     super.initState();
   }

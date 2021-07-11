@@ -2,6 +2,7 @@ import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/font.dart';
 import 'package:coryat/constants/iap.dart';
+import 'package:coryat/constants/sharedpreferenceskey.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/screens/gamescreens/manualgamescreen.dart';
@@ -10,6 +11,7 @@ import 'package:coryat/screens/upgradescreens/upgradescreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DateScreen extends StatefulWidget {
   @override
@@ -21,13 +23,26 @@ class _DateScreenState extends State<DateScreen> {
   bool _trackCategories = false;
 
   @override
+  void initState() {
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        _trackCategories =
+            prefs.getBool(SharedPreferencesKey.TRACKS_CATEGORIES) ?? false;
+      });
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CoryatElement.cupertinoNavigationBar("Pick Game Date"),
+      navigationBar: CoryatElement.cupertinoNavigationBar("", border: false),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            CoryatElement.text("Pick Game Date",
+                size: Font.size_large_text, bold: true),
             Column(
               children: [
                 CoryatElement.text(_dateString(_chosenDateTime),
@@ -37,7 +52,35 @@ class _DateScreenState extends State<DateScreen> {
                   () {
                     _showDatePicker(context);
                   },
-                  size: Font.size_large_button,
+                  size: Font.size_medium_large_button,
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(right: 15),
+                  child: CoryatElement.text(
+                    "Track Categories?",
+                    size: Font.size_medium_large_text,
+                  ),
+                ),
+                Material(
+                  color: CustomColor.backgroundColor,
+                  child: Checkbox(
+                    fillColor:
+                        MaterialStateProperty.all(CustomColor.primaryColor),
+                    value: _trackCategories,
+                    onChanged: (bool value) {
+                      setState(() {
+                        _trackCategories = value;
+                      });
+                      SharedPreferences.getInstance().then((prefs) =>
+                          prefs.setBool(SharedPreferencesKey.TRACKS_CATEGORIES,
+                              _trackCategories));
+                    },
+                  ),
                 ),
               ],
             ),
@@ -120,24 +163,6 @@ class _DateScreenState extends State<DateScreen> {
               },
               size: Font.size_large_button,
             ),
-            Row(
-              children: [
-                CoryatElement.text("Track Categories?"),
-                Material(
-                  color: CustomColor.backgroundColor,
-                  child: Checkbox(
-                    fillColor:
-                        MaterialStateProperty.all(CustomColor.primaryColor),
-                    value: _trackCategories,
-                    onChanged: (bool value) {
-                      setState(() {
-                        _trackCategories = value;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            )
           ],
         ),
       ),

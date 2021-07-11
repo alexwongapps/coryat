@@ -46,8 +46,10 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   ];
 
   Widget categoryButton(int number) {
-    return CupertinoButton(
-      child: Text(
+    return CoryatElement.fractionallySizedButton(
+      context,
+      0.333333,
+      Text(
         _currentRound == Round.final_jeopardy
             ? ""
             : widget.game.getCategory(_currentRound, number) ?? "",
@@ -59,13 +61,14 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     : CustomColor.selectedButton,
             fontSize: Font.size_regular_button),
       ),
-      onPressed: _currentRound == Round.final_jeopardy
+      _currentRound == Round.final_jeopardy
           ? null
           : () {
               setState(() {
                 _selectedCategory = number;
               });
             },
+      padding: 5.0,
     );
   }
 
@@ -345,15 +348,52 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                   child: Table(
                     children: (widget.game.lastEvents(5))
                         .map((event) => TableRow(children: [
-                              Text(event.order),
-                              Text(event.getValueString() +
-                                  (event.type == EventType.clue &&
-                                          (event as Clue).isDailyDouble()
-                                      ? " (DD)"
-                                      : "")),
                               Text(event.primaryText() == Marker.NEXT_ROUND
                                   ? "Next Rd"
-                                  : event.primaryText()),
+                                  : event.order),
+                              event.type != EventType.clue
+                                  ? Text("")
+                                  : ((event as Clue).question.round ==
+                                          Round.final_jeopardy
+                                      ? ((event as Clue).response ==
+                                              Response.correct
+                                          ? CoryatElement.text("Correct",
+                                              color: CustomColor.correctGreen)
+                                          : (event as Clue).response ==
+                                                  Response.incorrect
+                                              ? CoryatElement.text("Incorrect",
+                                                  color:
+                                                      CustomColor.incorrectRed)
+                                              : CoryatElement.text("No Answer"))
+                                      : (event as Clue).response ==
+                                              Response.correct
+                                          ? CoryatElement.text(
+                                              "\$" + event.getValueString(),
+                                              color: CustomColor.correctGreen)
+                                          : (event as Clue).response ==
+                                                  Response.incorrect
+                                              ? CoryatElement.text(
+                                                  "−\$" +
+                                                      event.getValueString(),
+                                                  color:
+                                                      CustomColor.incorrectRed)
+                                              : CoryatElement.text("(\$" +
+                                                  event.getValueString() +
+                                                  ")")),
+                              Text(event.type != EventType.clue ||
+                                      (event as Clue).question.round ==
+                                          Round.final_jeopardy
+                                  ? ""
+                                  : (widget.game.tracksCategories()
+                                      ? ("C" +
+                                          ((event as Clue).categoryIndex + 1)
+                                              .toString() +
+                                          ((event as Clue).isDailyDouble()
+                                              ? " (DD)"
+                                              : ""))
+                                      : ((event as Clue).isDailyDouble()
+                                          ? "(DD)"
+                                          : ""))),
                             ]))
                         .toList(),
                   ),

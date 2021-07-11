@@ -45,11 +45,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CoryatElement.cupertinoNavigationBar("Coryat"),
+      navigationBar: CoryatElement.cupertinoNavigationBar("", border: false),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            CoryatElement.text("Coryat",
+                size: Font.size_large_text, bold: true),
             CoryatElement.cupertinoButton(
               "Start Game",
               () {
@@ -61,49 +63,59 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               size: Font.size_large_button,
             ),
-            CoryatElement.cupertinoButton(
-              "History",
-              () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) {
-                    return HistoryScreen();
-                  }),
-                );
-              },
-              size: Font.size_large_button,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                CoryatElement.cupertinoButton(
+                  "History",
+                  () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(builder: (context) {
+                        return HistoryScreen();
+                      }),
+                    );
+                  },
+                  size: Font.size_large_button,
+                ),
+                CoryatElement.cupertinoButton(
+                  "Stats",
+                  () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(builder: (context) {
+                        return StatsScreen();
+                      }),
+                    );
+                  },
+                  size: Font.size_large_button,
+                ),
+              ],
             ),
-            CoryatElement.cupertinoButton(
-              "Stats",
-              () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) {
-                    return StatsScreen();
-                  }),
-                );
-              },
-              size: Font.size_large_button,
-            ),
-            CoryatElement.cupertinoButton(
-              "Help",
-              () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) {
-                    return HelpScreen();
-                  }),
-                );
-              },
-              size: Font.size_large_button,
-            ),
-            CoryatElement.cupertinoButton(
-              "Upgrade",
-              () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) {
-                    return UpgradeScreen();
-                  }),
-                );
-              },
-              size: Font.size_large_button,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                CoryatElement.cupertinoButton(
+                  "Upgrade",
+                  () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(builder: (context) {
+                        return UpgradeScreen();
+                      }),
+                    );
+                  },
+                  size: Font.size_large_button,
+                ),
+                CoryatElement.cupertinoButton(
+                  "Help",
+                  () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(builder: (context) {
+                        return HelpScreen();
+                      }),
+                    );
+                  },
+                  size: Font.size_large_button,
+                ),
+              ],
             ),
           ],
         ),
