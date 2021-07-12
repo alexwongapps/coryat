@@ -7,7 +7,6 @@ import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/screens/gamescreens/manualgamescreen.dart';
 import 'package:coryat/screens/helpscreens/helpscreen.dart';
-import 'package:coryat/screens/upgradescreens/upgradescreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -118,23 +117,13 @@ class _DateScreenState extends State<DateScreen> {
                         CoryatElement.cupertinoButton("Back", () {
                       Navigator.pop(context);
                     }, color: CupertinoColors.destructiveRed);
-                    Widget upgradeButton =
-                        CoryatElement.cupertinoButton("View Upgrade", () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).push(
-                        CupertinoPageRoute(builder: (context) {
-                          return UpgradeScreen();
-                        }),
-                      );
-                    });
 
                     CupertinoAlertDialog alert = CupertinoAlertDialog(
                       title: Text("Free Game Limit Reached"),
                       content: Text(
-                          "When you finish this game, your oldest game will be deleted. To store unlimited games, upgrade Coryat."),
+                          "When you finish this game, your oldest game will be deleted. To store unlimited games, purchase Double Coryat from the main menu."),
                       actions: [
                         backButton,
-                        upgradeButton,
                         okButton,
                       ],
                     );

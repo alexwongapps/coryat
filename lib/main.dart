@@ -34,6 +34,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   StreamSubscription<List<PurchaseDetails>> _subscription;
+  String doubleCoryatString = "";
 
   @override
   void initState() {
@@ -43,7 +44,7 @@ class _MyAppState extends State<MyApp> {
     }, onDone: () {
       _subscription.cancel();
     }, onError: (error) {
-      // handle error here.
+      doubleCoryatString = "Unable to find IAPs";
     });
     super.initState();
   }
@@ -74,7 +75,10 @@ class _MyAppState extends State<MyApp> {
         DefaultCupertinoLocalizations.delegate,
         DefaultWidgetsLocalizations.delegate,
       ],
-      home: HomeScreen(title: 'Coryat'),
+      home: HomeScreen(
+        title: "Coryat",
+        doubleCoryatString: doubleCoryatString,
+      ),
     );
   }
 
@@ -82,21 +86,37 @@ class _MyAppState extends State<MyApp> {
   void _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
     purchaseDetailsList.forEach((PurchaseDetails purchaseDetails) async {
       if (purchaseDetails.status == PurchaseStatus.pending) {
-        // TODO: pending UI
+        setState(() {
+          doubleCoryatString = "Pending...";
+        });
       } else {
         if (purchaseDetails.status == PurchaseStatus.error) {
-          CoryatElement.presentBasicAlertDialog(
-              context,
-              "Unable to complete purchase",
-              "There was an error with your purchase. Please try again.");
-        } else if (purchaseDetails.status == PurchaseStatus.purchased ||
-            purchaseDetails.status == PurchaseStatus.restored) {
+          setState(() {
+            doubleCoryatString = "Purchase Error";
+          });
+        } else if (purchaseDetails.status == PurchaseStatus.purchased) {
           bool valid = await _verifyPurchase(purchaseDetails);
           if (valid) {
             _deliverProduct(purchaseDetails);
+            setState(() {
+              doubleCoryatString = IAP.PURCHASE_SUCCESSFUL_MESSAGE;
+            });
           } else {
-            CoryatElement.presentBasicAlertDialog(context, "Invalid purchase",
-                "The purchase was unsuccessful. Please try again.");
+            setState(() {
+              doubleCoryatString = "Invalid Purchase";
+            });
+          }
+        } else if (purchaseDetails.status == PurchaseStatus.restored) {
+          bool valid = await _verifyPurchase(purchaseDetails);
+          if (valid) {
+            _deliverProduct(purchaseDetails);
+            setState(() {
+              doubleCoryatString = IAP.RESTORE_SUCCESSFUL_MESSAGE;
+            });
+          } else {
+            setState(() {
+              doubleCoryatString = "Invalid Purchase";
+            });
           }
         }
         if (purchaseDetails.pendingCompletePurchase) {
@@ -109,17 +129,14 @@ class _MyAppState extends State<MyApp> {
   void _deliverProduct(PurchaseDetails purchaseDetails) async {
     final storage = new FlutterSecureStorage();
     if (purchaseDetails.productID == IAP.DOUBLE_CORYAT_ID) {
-      print("purchasing double coryat");
+      doubleCoryatString = "Purchase Successful!";
       await storage.write(
           key: SecureStorage.DOUBLE_CORYAT_KEY, value: SecureStorage.PURCHASED);
     }
     if (purchaseDetails.productID == IAP.FINAL_CORYAT_ID) {
-      print("purchasing final coryat");
       await storage.write(
           key: SecureStorage.FINAL_CORYAT_KEY, value: SecureStorage.PURCHASED);
     }
-    CoryatElement.presentBasicAlertDialog(context, "Purchase successful",
-        "Congratulations! Return to the home screen to use your new features.");
   }
 
   Future<bool> _verifyPurchase(PurchaseDetails purchaseDetails) async {

@@ -1,5 +1,6 @@
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/font.dart';
+import 'package:coryat/constants/iap.dart';
 import 'package:coryat/constants/sharedpreferenceskey.dart';
 import 'package:coryat/screens/gamescreens/datescreen.dart';
 import 'package:coryat/screens/helpscreens/helpscreen.dart';
@@ -10,7 +11,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key key, this.title}) : super(key: key);
+  HomeScreen({Key key, this.title, this.doubleCoryatString = ""})
+      : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -22,12 +24,15 @@ class HomeScreen extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  final String doubleCoryatString;
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool doubleCoryatPurchased = false;
+
   @override
   void initState() {
     SharedPreferences.getInstance().then((prefs) {
@@ -39,7 +44,14 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     });
+    // TODO; make upgrade disappear on will appear?
+    WidgetsBinding.instance.addPostFrameCallback((_) => onload(context));
     super.initState();
+  }
+
+  Future<void> onload(BuildContext context) async {
+    doubleCoryatPurchased = await IAP.doubleCoryatPurchased();
+    setState(() {});
   }
 
   @override
@@ -67,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CoryatElement.cupertinoButton(
-                  "History",
+                  !doubleCoryatPurchased ? "  History" : "History",
                   () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(builder: (context) {
@@ -78,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   size: Font.size_large_button,
                 ),
                 CoryatElement.cupertinoButton(
-                  "Stats",
+                  !doubleCoryatPurchased ? " Stats" : "Stats",
                   () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(builder: (context) {
@@ -90,33 +102,47 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                CoryatElement.cupertinoButton(
-                  "Upgrade",
-                  () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (context) {
-                        return UpgradeScreen();
-                      }),
-                    );
-                  },
-                  size: Font.size_large_button,
-                ),
-                CoryatElement.cupertinoButton(
-                  "Help",
-                  () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (context) {
-                        return HelpScreen();
-                      }),
-                    );
-                  },
-                  size: Font.size_large_button,
-                ),
-              ],
-            ),
+            !doubleCoryatPurchased
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      CoryatElement.cupertinoButton(
+                        "Upgrade",
+                        () {
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(builder: (context) {
+                              return UpgradeScreen(
+                                doubleCoryatString: widget.doubleCoryatString,
+                              );
+                            }),
+                          );
+                        },
+                        size: Font.size_large_button,
+                      ),
+                      CoryatElement.cupertinoButton(
+                        "Help",
+                        () {
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(builder: (context) {
+                              return HelpScreen();
+                            }),
+                          );
+                        },
+                        size: Font.size_large_button,
+                      ),
+                    ],
+                  )
+                : CoryatElement.cupertinoButton(
+                    "Help",
+                    () {
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (context) {
+                          return HelpScreen();
+                        }),
+                      );
+                    },
+                    size: Font.size_large_button,
+                  ),
           ],
         ),
       ),

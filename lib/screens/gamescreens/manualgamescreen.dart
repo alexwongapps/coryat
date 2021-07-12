@@ -203,263 +203,277 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
             controller: _scrollController,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    categoryButton(0),
-                    categoryButton(1),
-                    categoryButton(2),
-                  ],
-                ),
-                Row(
-                  children: [
-                    categoryButton(3),
-                    categoryButton(4),
-                    categoryButton(5),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    valueButton(1),
-                    valueButton(2),
-                    valueButton(3),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    valueButton(4),
-                    valueButton(5),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CupertinoButton(
-                      child: Text(
-                        Tags.DAILY_DOUBLE,
-                        style: TextStyle(
-                            color: _currentRound == Round.final_jeopardy
-                                ? CustomColor.disabledButton
-                                : !_isDailyDouble
-                                    ? CustomColor.primaryColor
-                                    : CustomColor.selectedButton,
-                            fontSize: Font.size_large_button),
-                      ),
-                      onPressed: _currentRound == Round.final_jeopardy
-                          ? null
-                          : () {
-                              setState(() {
-                                _isDailyDouble = !_isDailyDouble;
-                              });
-                            },
+              children: (widget.game.tracksCategories()
+                      ? ([
+                          // ignore: unnecessary_cast
+                          Row(
+                            children: [
+                              categoryButton(0),
+                              categoryButton(1),
+                              categoryButton(2),
+                            ],
+                          ) as Widget,
+                          // ignore: unnecessary_cast
+                          Row(
+                            children: [
+                              categoryButton(3),
+                              categoryButton(4),
+                              categoryButton(5),
+                            ],
+                          ) as Widget,
+                        ])
+                      // ignore: deprecated_member_use
+                      : List<Widget>()) +
+                  [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        valueButton(1),
+                        valueButton(2),
+                        valueButton(3),
+                      ],
                     ),
-                  ],
-                ),
-                CoryatElement.gameDivider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    CoryatElement.cupertinoButton(
-                      "Correct",
-                      () {
-                        setState(() {
-                          _addResponse(Response.correct);
-                        });
-                      },
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        valueButton(4),
+                        valueButton(5),
+                      ],
                     ),
-                    CoryatElement.cupertinoButton(
-                      "Incorrect",
-                      () {
-                        setState(() {
-                          _addResponse(Response.incorrect);
-                        });
-                      },
-                    ),
-                    CoryatElement.cupertinoButton(
-                      "No Answer",
-                      () {
-                        setState(() {
-                          _addResponse(Response.none);
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    CupertinoButton(
-                      child: Text(
-                        "Next Round",
-                        style: TextStyle(
-                          color: _currentRound == Round.final_jeopardy
-                              ? CustomColor.disabledButton
-                              : CustomColor.primaryColor,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CupertinoButton(
+                          child: Text(
+                            Tags.DAILY_DOUBLE,
+                            style: TextStyle(
+                                color: _currentRound == Round.final_jeopardy
+                                    ? CustomColor.disabledButton
+                                    : !_isDailyDouble
+                                        ? CustomColor.primaryColor
+                                        : CustomColor.selectedButton,
+                                fontSize: Font.size_large_button),
+                          ),
+                          onPressed: _currentRound == Round.final_jeopardy
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _isDailyDouble = !_isDailyDouble;
+                                  });
+                                },
                         ),
-                      ),
-                      onPressed: _currentRound == Round.final_jeopardy
-                          ? null
-                          : () {
-                              setState(() {
-                                _nextRound();
-                              });
-                            },
+                      ],
                     ),
-                    CupertinoButton(
-                      child: Text(
-                        "Undo",
-                        style: TextStyle(
-                          color: widget.game.getEvents().length == 0
-                              ? CustomColor.disabledButton
-                              : CustomColor.primaryColor,
+                    CoryatElement.gameDivider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        CoryatElement.cupertinoButton(
+                          "Correct",
+                          () {
+                            setState(() {
+                              _addResponse(Response.correct);
+                            });
+                          },
                         ),
-                      ),
-                      onPressed: widget.game.getEvents().length == 0
-                          ? null
-                          : () {
-                              setState(() {
-                                Event last = widget.game.undo();
-                                if (last != null &&
-                                    last.type == EventType.marker) {
-                                  if ((last as Marker).primaryText() ==
-                                      Marker.NEXT_ROUND) {
-                                    _currentRound =
-                                        Round.previousRound(_currentRound);
-                                  }
-                                }
-                                _resetClue();
-                              });
-                            },
+                        CoryatElement.cupertinoButton(
+                          "Incorrect",
+                          () {
+                            setState(() {
+                              _addResponse(Response.incorrect);
+                            });
+                          },
+                        ),
+                        CoryatElement.cupertinoButton(
+                          "No Answer",
+                          () {
+                            setState(() {
+                              _addResponse(Response.none);
+                            });
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                CoryatElement.gameDivider(),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 5),
-                  child: CoryatElement.text("Recent Clues", bold: true),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: Design.divider_indent,
-                    right: Design.divider_indent,
-                  ),
-                  child: Table(
-                    children: (widget.game.lastEvents(5))
-                        .map((event) => TableRow(children: [
-                              Text(event.primaryText() == Marker.NEXT_ROUND
-                                  ? "Next Rd"
-                                  : event.order),
-                              event.type != EventType.clue
-                                  ? Text("")
-                                  : ((event as Clue).question.round ==
-                                          Round.final_jeopardy
-                                      ? ((event as Clue).response ==
-                                              Response.correct
-                                          ? CoryatElement.text("Correct",
-                                              color: CustomColor.correctGreen)
-                                          : (event as Clue).response ==
-                                                  Response.incorrect
-                                              ? CoryatElement.text("Incorrect",
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        CupertinoButton(
+                          child: Text(
+                            "Next Round",
+                            style: TextStyle(
+                              color: _currentRound == Round.final_jeopardy
+                                  ? CustomColor.disabledButton
+                                  : CustomColor.primaryColor,
+                            ),
+                          ),
+                          onPressed: _currentRound == Round.final_jeopardy
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _nextRound();
+                                  });
+                                },
+                        ),
+                        CupertinoButton(
+                          child: Text(
+                            "Undo",
+                            style: TextStyle(
+                              color: widget.game.getEvents().length == 0
+                                  ? CustomColor.disabledButton
+                                  : CustomColor.primaryColor,
+                            ),
+                          ),
+                          onPressed: widget.game.getEvents().length == 0
+                              ? null
+                              : () {
+                                  setState(() {
+                                    Event last = widget.game.undo();
+                                    if (last != null &&
+                                        last.type == EventType.marker) {
+                                      if ((last as Marker).primaryText() ==
+                                          Marker.NEXT_ROUND) {
+                                        _currentRound =
+                                            Round.previousRound(_currentRound);
+                                      }
+                                    }
+                                    _resetClue();
+                                  });
+                                },
+                        ),
+                      ],
+                    ),
+                    CoryatElement.gameDivider(),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 5),
+                      child: CoryatElement.text("Recent Clues", bold: true),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: Design.divider_indent,
+                        right: Design.divider_indent,
+                      ),
+                      child: Table(
+                        children: (widget.game.lastEvents(5))
+                            .map((event) => TableRow(children: [
+                                  Text(event.primaryText() == Marker.NEXT_ROUND
+                                      ? "Next Rd"
+                                      : event.order),
+                                  event.type != EventType.clue
+                                      ? Text("")
+                                      : ((event as Clue).question.round ==
+                                              Round.final_jeopardy
+                                          ? ((event as Clue).response ==
+                                                  Response.correct
+                                              ? CoryatElement.text("Correct",
                                                   color:
-                                                      CustomColor.incorrectRed)
-                                              : CoryatElement.text("No Answer"))
-                                      : (event as Clue).response ==
-                                              Response.correct
-                                          ? CoryatElement.text(
-                                              "\$" + event.getValueString(),
-                                              color: CustomColor.correctGreen)
+                                                      CustomColor.correctGreen)
+                                              : (event as Clue).response ==
+                                                      Response.incorrect
+                                                  ? CoryatElement.text(
+                                                      "Incorrect",
+                                                      color: CustomColor
+                                                          .incorrectRed)
+                                                  : CoryatElement.text(
+                                                      "No Answer"))
                                           : (event as Clue).response ==
-                                                  Response.incorrect
+                                                  Response.correct
                                               ? CoryatElement.text(
-                                                  "−\$" +
-                                                      event.getValueString(),
+                                                  "\$" + event.getValueString(),
                                                   color:
-                                                      CustomColor.incorrectRed)
-                                              : CoryatElement.text("(\$" +
-                                                  event.getValueString() +
-                                                  ")")),
-                              Text(event.type != EventType.clue ||
-                                      (event as Clue).question.round ==
-                                          Round.final_jeopardy
-                                  ? ""
-                                  : (widget.game.tracksCategories()
-                                      ? ("C" +
-                                          ((event as Clue).categoryIndex + 1)
-                                              .toString() +
-                                          ((event as Clue).isDailyDouble()
-                                              ? " (DD)"
-                                              : ""))
-                                      : ((event as Clue).isDailyDouble()
-                                          ? "(DD)"
-                                          : ""))),
-                            ]))
-                        .toList(),
-                  ),
-                ),
-                CoryatElement.gameDivider(),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        "\$" +
-                            widget.game
-                                .getStat(Stat.CORRECT_TOTAL_VALUE)
-                                .toString(),
-                        style: TextStyle(color: CustomColor.correctGreen),
+                                                      CustomColor.correctGreen)
+                                              : (event as Clue).response ==
+                                                      Response.incorrect
+                                                  ? CoryatElement.text(
+                                                      "−\$" +
+                                                          event
+                                                              .getValueString(),
+                                                      color: CustomColor
+                                                          .incorrectRed)
+                                                  : CoryatElement.text("(\$" +
+                                                      event.getValueString() +
+                                                      ")")),
+                                  Text(event.type != EventType.clue ||
+                                          (event as Clue).question.round ==
+                                              Round.final_jeopardy
+                                      ? ""
+                                      : (widget.game.tracksCategories()
+                                          ? ("C" +
+                                              ((event as Clue).categoryIndex +
+                                                      1)
+                                                  .toString() +
+                                              ((event as Clue).isDailyDouble()
+                                                  ? " (DD)"
+                                                  : ""))
+                                          : ((event as Clue).isDailyDouble()
+                                              ? "(DD)"
+                                              : ""))),
+                                ]))
+                            .toList(),
                       ),
-                      Text(
-                        "−\$" +
-                            widget.game
-                                .getStat(Stat.INCORRECT_TOTAL_VALUE)
-                                .toString(),
-                        style: TextStyle(color: CustomColor.incorrectRed),
-                      ),
-                      Text("(\$" +
-                          widget.game
-                              .getStat(Stat.NO_ANSWER_TOTAL_VALUE)
-                              .toString() +
-                          ")"),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 5),
-                  child: Text("Current Coryat: \$" +
-                      widget.game.getStat(Stat.CORYAT).toString()),
-                ),
-                Text("Maximum Possible Coryat: \$" +
-                    widget.game.getStat(Stat.REACHABLE_CORYAT).toString()),
-                CupertinoButton(
-                    child: Text(
-                      "Finish Game",
-                      style: TextStyle(
-                          fontSize: Font.size_large_button,
-                          color: _gameDone()
-                              ? CustomColor.primaryColor
-                              : CustomColor.disabledButton),
                     ),
-                    onPressed: !_gameDone()
-                        ? null
-                        : () async {
-                            SqlitePersistence.addGame(widget.game);
-                            List<Game> games =
-                                await SqlitePersistence.getGames();
-                            if (games.length >= IAP.FREE_NUMBER_OF_GAMES &&
-                                !(await IAP.doubleCoryatPurchased() ||
-                                    await IAP.finalCoryatPurchased())) {
-                              games.sort((a, b) =>
-                                  a.datePlayed.compareTo(b.datePlayed));
-                              SqlitePersistence.setGames(games.sublist(
-                                  games.length - IAP.FREE_NUMBER_OF_GAMES));
-                            }
-                            int count = 0;
-                            Navigator.of(context).popUntil((_) => count++ >= 2);
-                          })
-              ],
+                    CoryatElement.gameDivider(),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            "\$" +
+                                widget.game
+                                    .getStat(Stat.CORRECT_TOTAL_VALUE)
+                                    .toString(),
+                            style: TextStyle(color: CustomColor.correctGreen),
+                          ),
+                          Text(
+                            "−\$" +
+                                widget.game
+                                    .getStat(Stat.INCORRECT_TOTAL_VALUE)
+                                    .toString(),
+                            style: TextStyle(color: CustomColor.incorrectRed),
+                          ),
+                          Text("(\$" +
+                              widget.game
+                                  .getStat(Stat.NO_ANSWER_TOTAL_VALUE)
+                                  .toString() +
+                              ")"),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 5),
+                      child: Text("Current Coryat: \$" +
+                          widget.game.getStat(Stat.CORYAT).toString()),
+                    ),
+                    Text("Maximum Possible Coryat: \$" +
+                        widget.game.getStat(Stat.REACHABLE_CORYAT).toString()),
+                    CupertinoButton(
+                        child: Text(
+                          "Finish Game",
+                          style: TextStyle(
+                              fontSize: Font.size_large_button,
+                              color: _gameDone()
+                                  ? CustomColor.primaryColor
+                                  : CustomColor.disabledButton),
+                        ),
+                        onPressed: !_gameDone()
+                            ? null
+                            : () async {
+                                SqlitePersistence.addGame(widget.game);
+                                List<Game> games =
+                                    await SqlitePersistence.getGames();
+                                if (games.length >= IAP.FREE_NUMBER_OF_GAMES &&
+                                    !(await IAP.doubleCoryatPurchased() ||
+                                        await IAP.finalCoryatPurchased())) {
+                                  games.sort((a, b) =>
+                                      a.datePlayed.compareTo(b.datePlayed));
+                                  SqlitePersistence.setGames(games.sublist(
+                                      games.length - IAP.FREE_NUMBER_OF_GAMES));
+                                }
+                                int count = 0;
+                                Navigator.of(context)
+                                    .popUntil((_) => count++ >= 2);
+                              })
+                  ],
             ),
           ),
         ),

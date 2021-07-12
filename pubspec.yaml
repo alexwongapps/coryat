@@ -31,6 +31,7 @@ dependencies:
   csv: ^5.0.0
   share_plus: ^2.1.4
   in_app_purchase: ^1.0.6
+  in_app_purchase_ios: ^0.1.2+2
   url_launcher: ^6.0.9
   flutter_secure_storage: ^4.2.0
 
