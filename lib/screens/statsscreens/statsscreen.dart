@@ -271,7 +271,7 @@ class _StatsScreenState extends State<StatsScreen> {
                         CupertinoAlertDialog alert = CupertinoAlertDialog(
                           title: Text("Double Coryat Feature"),
                           content: Text(
-                              "Purchase Double Coryat from the main menu to see more stats, including round-specific stats and breakdowns by clue value!"),
+                              "Purchase Double Coryat from the main menu to see graphs of Coryat scores, performance by clue value, and more!"),
                           actions: [
                             backButton,
                           ],

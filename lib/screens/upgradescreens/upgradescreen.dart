@@ -2,6 +2,8 @@ import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/font.dart';
 import 'package:coryat/constants/iap.dart';
+import 'package:coryat/constants/securestorage.dart';
+import 'package:coryat/data/firebase.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
@@ -16,6 +18,9 @@ class UpgradeScreen extends StatefulWidget {
 
 class _UpgradeScreenState extends State<UpgradeScreen> {
   bool _restoring = false;
+  bool _doubleCoryatCoded = false;
+  bool _finalCoryatCoded = false;
+  TextEditingController _codeTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +37,8 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                     widget.doubleCoryatString ==
                                 IAP.PURCHASE_SUCCESSFUL_MESSAGE ||
                             widget.doubleCoryatString ==
-                                IAP.RESTORE_SUCCESSFUL_MESSAGE
+                                IAP.RESTORE_SUCCESSFUL_MESSAGE ||
+                            _doubleCoryatCoded
                         ? null
                         : () async {
                             final bool available =
@@ -67,7 +73,8 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                     color: widget.doubleCoryatString ==
                                 IAP.PURCHASE_SUCCESSFUL_MESSAGE ||
                             widget.doubleCoryatString ==
-                                IAP.RESTORE_SUCCESSFUL_MESSAGE
+                                IAP.RESTORE_SUCCESSFUL_MESSAGE ||
+                            _doubleCoryatCoded
                         ? CustomColor.disabledButton
                         : CustomColor.primaryColor,
                   ),
@@ -75,8 +82,9 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                 ],
               ),
               CoryatElement.text(
-                  "• Unlimited games\n\n• Stats for each\n    dollar value/category\n\n• Graphs of Coryat and more\n\n• Export data\n\n• Any future Double\n    Coryat features\n\n• All for \$0.99!"),
-              Column(
+                  "• Unlimited games\n\n• Stats for each\n    dollar value/category\n\n• Graphs of Coryat and more\n\n• Export games\n\n• Any future Double\n    Coryat features\n\n• All for \$0.99!"),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CoryatElement.cupertinoButton(
                     "Restore",
@@ -89,11 +97,79 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                             // TODO: validate? https://pub.dev/packages/in_app_purchase
                             await InAppPurchase.instance.restorePurchases();
                           },
-                    size: Font.size_large_button,
                     color: _restoring
                         ? CustomColor.disabledButton
                         : CustomColor.primaryColor,
                   ),
+                  CoryatElement.cupertinoButton("Code?", () {
+                    _codeTextController.text = "";
+                    Widget doneButton = CoryatElement.cupertinoButton(
+                      "Done",
+                      () async {
+                        if (_codeTextController.text == "") {
+                          return;
+                        }
+                        Navigator.of(context).pop();
+                        Map<String, bool> map =
+                            await Firebase.redeemCode(_codeTextController.text);
+                        setState(() {
+                          _doubleCoryatCoded =
+                              map[Firebase.DOUBLE_CORYAT_FIELD];
+                          _finalCoryatCoded = map[Firebase.FINAL_CORYAT_FIELD];
+                        });
+                        if (map[Firebase.DOUBLE_CORYAT_FIELD]) {
+                          await SecureStorage.writeIAPVariable(
+                              SecureStorage.DOUBLE_CORYAT_KEY, true);
+                        }
+                        if (map[Firebase.FINAL_CORYAT_FIELD]) {
+                          await SecureStorage.writeIAPVariable(
+                              SecureStorage.FINAL_CORYAT_KEY, true);
+                        }
+                        if (map[Firebase.DOUBLE_CORYAT_FIELD] ||
+                            map[Firebase.FINAL_CORYAT_FIELD]) {
+                          CoryatElement.presentBasicAlertDialog(
+                              context,
+                              "Code Redeemed!",
+                              "Redeemed:" +
+                                  (map[Firebase.DOUBLE_CORYAT_FIELD]
+                                      ? "\nDouble Coryat"
+                                      : "") +
+                                  (map[Firebase.FINAL_CORYAT_FIELD]
+                                      ? "\Final Coryat"
+                                      : ""));
+                        } else {
+                          CoryatElement.presentBasicAlertDialog(
+                              context,
+                              "Unable to redeem code",
+                              "Make sure you entered the code correctly.");
+                        }
+                      },
+                    );
+
+                    CupertinoAlertDialog alert = CupertinoAlertDialog(
+                      title: Text("Enter Code"),
+                      content: Padding(
+                        padding: EdgeInsets.only(top: 15),
+                        child: CupertinoTextField(
+                          controller: _codeTextController,
+                          placeholder: "Code",
+                        ),
+                      ),
+                      actions: [
+                        doneButton,
+                      ],
+                    );
+
+                    showCupertinoDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return alert;
+                      },
+                    );
+                  }),
+                  CoryatElement.cupertinoButton("Back", () {
+                    Navigator.of(context).pop();
+                  }),
                 ],
               ),
             ],

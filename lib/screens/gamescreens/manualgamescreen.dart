@@ -14,6 +14,7 @@ import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/models/marker.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -458,6 +459,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                         onPressed: !_gameDone()
                             ? null
                             : () async {
+                                FirebaseAnalytics()
+                                    .logEvent(name: "finish_game");
                                 SqlitePersistence.addGame(widget.game);
                                 List<Game> games =
                                     await SqlitePersistence.getGames();

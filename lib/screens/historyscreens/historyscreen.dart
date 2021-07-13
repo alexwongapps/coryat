@@ -4,6 +4,7 @@ import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/design.dart';
 import 'package:coryat/constants/font.dart';
+import 'package:coryat/constants/iap.dart';
 import 'package:coryat/constants/sharedpreferenceskey.dart';
 import 'package:coryat/data/firebase.dart';
 import 'package:coryat/data/jarchive.dart';
@@ -37,6 +38,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   final int _dateAired = 0;
   final int _datePlayed = 1;
   int _sortMethod = 0;
+  bool _doubleCoryatPurchased = false;
 
   @override
   void initState() {
@@ -47,7 +49,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
             _dateAired;
       });
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) => onload(context));
     super.initState();
+  }
+
+  Future<void> onload(BuildContext context) async {
+    _doubleCoryatPurchased = await IAP.doubleCoryatPurchased();
+    setState(() {});
   }
 
   Widget _buildGameRow(Game game) {
@@ -116,16 +124,42 @@ class _HistoryScreenState extends State<HistoryScreen> {
             return Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CoryatElement.cupertinoButton("Export", () async {
-                  String data = ListToCsvConverter().convert(_getCSV());
-                  final dir = await getApplicationSupportDirectory();
-                  final String directory = dir.path;
-                  final path =
-                      "$directory/coryat-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.csv";
-                  final File file = File(path);
-                  await file.writeAsString(data);
-                  Share.shareFiles([path]);
-                }),
+                CoryatElement.cupertinoButton(
+                    "Export",
+                    _doubleCoryatPurchased
+                        ? () async {
+                            String data =
+                                ListToCsvConverter().convert(_getCSV());
+                            final dir = await getApplicationSupportDirectory();
+                            final String directory = dir.path;
+                            final path =
+                                "$directory/coryat-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.csv";
+                            final File file = File(path);
+                            await file.writeAsString(data);
+                            Share.shareFiles([path]);
+                          }
+                        : () {
+                            Widget backButton =
+                                CoryatElement.cupertinoButton("Back", () {
+                              Navigator.pop(context);
+                            }, color: CupertinoColors.destructiveRed);
+
+                            CupertinoAlertDialog alert = CupertinoAlertDialog(
+                              title: Text("Double Coryat Feature"),
+                              content: Text(
+                                  "Purchase Double Coryat from the main menu to export your games and view clue-by-clue data!"),
+                              actions: [
+                                backButton,
+                              ],
+                            );
+
+                            showCupertinoDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return alert;
+                              },
+                            );
+                          }),
                 CoryatElement.text("Sort By:", size: Font.size_regular_text),
                 CoryatElement.cupertinoButton(
                   "Aired",

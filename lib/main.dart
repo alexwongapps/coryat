@@ -46,6 +46,11 @@ class _MyAppState extends State<MyApp> {
     }, onError: (error) {
       doubleCoryatString = "Unable to find IAPs";
     });
+    // TODO: delete this when ready to go
+    final storage = new FlutterSecureStorage();
+    storage.write(
+        key: SecureStorage.DOUBLE_CORYAT_KEY,
+        value: SecureStorage.NOT_PURCHASED);
     super.initState();
   }
 
@@ -127,15 +132,14 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _deliverProduct(PurchaseDetails purchaseDetails) async {
-    final storage = new FlutterSecureStorage();
     if (purchaseDetails.productID == IAP.DOUBLE_CORYAT_ID) {
       doubleCoryatString = "Purchase Successful!";
-      await storage.write(
-          key: SecureStorage.DOUBLE_CORYAT_KEY, value: SecureStorage.PURCHASED);
+      await SecureStorage.writeIAPVariable(
+          SecureStorage.DOUBLE_CORYAT_KEY, true);
     }
     if (purchaseDetails.productID == IAP.FINAL_CORYAT_ID) {
-      await storage.write(
-          key: SecureStorage.FINAL_CORYAT_KEY, value: SecureStorage.PURCHASED);
+      await SecureStorage.writeIAPVariable(
+          SecureStorage.FINAL_CORYAT_KEY, true);
     }
   }
 

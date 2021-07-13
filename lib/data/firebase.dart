@@ -6,6 +6,42 @@ import 'package:flutter/cupertino.dart';
 
 class Firebase {
   static const USERS_COLLECTION = "users";
+  static const CODES_COLLECTION = "codes";
+  static const REDEEMED_FIELD = "redeemed";
+  static const DOUBLE_CORYAT_FIELD = "doubleCoryat";
+  static const FINAL_CORYAT_FIELD = "finalCoryat";
+
+  static Future<Map<String, bool>> redeemCode(String code) async {
+    CollectionReference codes = Firestore.instance.collection(CODES_COLLECTION);
+    DocumentSnapshot snapshot = await codes.document(code).get();
+    if (!snapshot.exists) {
+      return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
+    }
+
+    if (snapshot.data == null) {
+      return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
+    }
+
+    Map<String, dynamic> data = snapshot.data;
+    if (!(data[REDEEMED_FIELD] ?? true)) {
+      codes.document(code).updateData({REDEEMED_FIELD: true});
+    } else {
+      return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
+    }
+    return {
+      DOUBLE_CORYAT_FIELD: data[DOUBLE_CORYAT_FIELD] ?? false,
+      FINAL_CORYAT_FIELD: data[FINAL_CORYAT_FIELD] ?? false
+    };
+  }
+
+  static void createCode(String code, bool doubleCoryat, bool finalCoryat) {
+    CollectionReference codes = Firestore.instance.collection(CODES_COLLECTION);
+    codes.document(code).setData({
+      REDEEMED_FIELD: false,
+      DOUBLE_CORYAT_FIELD: doubleCoryat,
+      FINAL_CORYAT_FIELD: finalCoryat
+    });
+  }
 
   static Future<List<Game>> loadGames(User user) async {
     CollectionReference users = Firestore.instance.collection(USERS_COLLECTION);

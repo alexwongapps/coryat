@@ -31,7 +31,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool doubleCoryatPurchased = false;
+  bool _doubleCoryatPurchased = false;
 
   @override
   void initState() {
@@ -44,13 +44,12 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     });
-    // TODO; make upgrade disappear on will appear?
     WidgetsBinding.instance.addPostFrameCallback((_) => onload(context));
     super.initState();
   }
 
   Future<void> onload(BuildContext context) async {
-    doubleCoryatPurchased = await IAP.doubleCoryatPurchased();
+    _doubleCoryatPurchased = await IAP.doubleCoryatPurchased();
     setState(() {});
   }
 
@@ -79,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CoryatElement.cupertinoButton(
-                  !doubleCoryatPurchased ? "  History" : "History",
+                  !_doubleCoryatPurchased ? "  History" : "History",
                   () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(builder: (context) {
@@ -90,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   size: Font.size_large_button,
                 ),
                 CoryatElement.cupertinoButton(
-                  !doubleCoryatPurchased ? " Stats" : "Stats",
+                  !_doubleCoryatPurchased ? " Stats" : "Stats",
                   () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(builder: (context) {
@@ -102,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            !doubleCoryatPurchased
+            !_doubleCoryatPurchased
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
