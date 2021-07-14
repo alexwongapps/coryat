@@ -343,7 +343,6 @@ class Game {
 
   static Game decode(String encoded, {String id, bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, delimiter);
-
     List<String> events = dec.sublist(18);
     List<Event> ev = [];
     for (String evs in events) {

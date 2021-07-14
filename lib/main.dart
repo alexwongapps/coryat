@@ -4,6 +4,7 @@ import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/iap.dart';
 import 'package:coryat/constants/securestorage.dart';
+import 'package:coryat/data/firebase.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/screens/homescreen.dart';
 import 'package:flutter/cupertino.dart';
@@ -144,7 +145,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<bool> _verifyPurchase(PurchaseDetails purchaseDetails) async {
-    // TODO
     return true;
   }
 }

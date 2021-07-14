@@ -36,6 +36,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   int _selectedButton = 0;
   int _selectedCategory = Category.NA;
   bool _isDailyDouble = false;
+  List<String> _categories = [];
   ScrollController _scrollController = ScrollController();
   List<TextEditingController> textEditingControllers = [
     TextEditingController(),
@@ -100,6 +101,38 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
     );
   }
 
+  Widget _categoryField(int index) {
+    return Padding(
+      padding: EdgeInsets.only(top: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(right: 10),
+              child: CupertinoTextField(
+                controller: textEditingControllers[index],
+                placeholder: "Category " + (index + 1).toString(),
+                textCapitalization: TextCapitalization.words,
+              ),
+            ),
+          ),
+          Material(
+            child: PopupMenuButton(
+              onSelected: (String cat) {
+                textEditingControllers[index].text = cat;
+              },
+              itemBuilder: (BuildContext context) {
+                return _categories.map<PopupMenuItem<String>>((String cat) {
+                  return PopupMenuItem(child: Text(cat), value: cat);
+                }).toList();
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showCategoryDialog(int round) {
     int fields = round == Round.final_jeopardy ? 1 : 6;
     Widget doneButton = CoryatElement.cupertinoButton(
@@ -127,40 +160,19 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
               ? "Enter Double Jeopardy Categories"
               : "Enter Final Jeopardy Category"),
       content: Padding(
-        padding: EdgeInsets.only(top: 15),
+        padding: EdgeInsets.only(top: 10),
         child: Column(
           children: round == Round.final_jeopardy
               ? [
-                  CupertinoTextField(
-                    controller: textEditingControllers[0],
-                    placeholder: "Category 1",
-                  ),
+                  _categoryField(0),
                 ]
               : [
-                  CupertinoTextField(
-                    controller: textEditingControllers[0],
-                    placeholder: "Category 1",
-                  ),
-                  CupertinoTextField(
-                    controller: textEditingControllers[1],
-                    placeholder: "Category 2",
-                  ),
-                  CupertinoTextField(
-                    controller: textEditingControllers[2],
-                    placeholder: "Category 3",
-                  ),
-                  CupertinoTextField(
-                    controller: textEditingControllers[3],
-                    placeholder: "Category 4",
-                  ),
-                  CupertinoTextField(
-                    controller: textEditingControllers[4],
-                    placeholder: "Category 5",
-                  ),
-                  CupertinoTextField(
-                    controller: textEditingControllers[5],
-                    placeholder: "Category 6",
-                  ),
+                  _categoryField(0),
+                  _categoryField(1),
+                  _categoryField(2),
+                  _categoryField(3),
+                  _categoryField(4),
+                  _categoryField(5),
                 ],
         ),
       ),
@@ -183,7 +195,19 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => onload(context));
   }
 
-  void onload(BuildContext context) {
+  Future<void> onload(BuildContext context) async {
+    List<Game> games = await SqlitePersistence.getGames();
+    Set<String> cats = Set();
+    for (Game game in games) {
+      if (game.tracksCategories()) {
+        cats.addAll(game.allCategories());
+      }
+    }
+    List<String> l = cats.toList();
+    l.sort((a, b) => a.compareTo(b));
+    setState(() {
+      _categories = l;
+    });
     if (widget.trackCategories) {
       _showCategoryDialog(Round.jeopardy);
     }
@@ -192,6 +216,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       navigationBar:
           CoryatElement.cupertinoNavigationBar(_currentRound == Round.jeopardy
               ? "Jeopardy Round"

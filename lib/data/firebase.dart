@@ -13,7 +13,13 @@ class Firebase {
 
   static Future<Map<String, bool>> redeemCode(String code) async {
     CollectionReference codes = Firestore.instance.collection(CODES_COLLECTION);
-    DocumentSnapshot snapshot = await codes.document(code).get();
+    DocumentSnapshot snapshot =
+        await codes.document(code).get().catchError((error) {});
+
+    if (snapshot == null) {
+      return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
+    }
+
     if (!snapshot.exists) {
       return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
     }

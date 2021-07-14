@@ -5,4 +5,5 @@ class Design {
   static const double divider_thickness = 5;
   static const help_padding =
       EdgeInsets.only(top: 20, left: 30, right: 30, bottom: 20);
+  static const double dropdown_icon_size = 40;
 }

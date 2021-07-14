@@ -12,6 +12,7 @@ class _HistoryHelpScreenState extends State<HistoryHelpScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       navigationBar: CoryatElement.cupertinoNavigationBar("View/Edit Games"),
       child: Scrollbar(
         child: SingleChildScrollView(

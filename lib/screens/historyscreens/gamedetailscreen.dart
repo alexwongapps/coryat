@@ -663,7 +663,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             [
               CoryatElement.cupertinoButton("Help", () {
                 CoryatElement.presentBasicAlertDialog(context, "Help",
-                    "\nEach clue is listed as [clue round/number]: C[category number] [value/response] [Daily Double (if nec.)]\n\nE: Edit clue\n\nD: Delete clue\n\nReorder: Tap and hold the clue you want to move until you see it pop out, then drag it to the appropriate spot");
+                    "Each clue is listed as [clue round/number]: [category number (if nec.)] [value/response] [Daily Double (if nec.)]\n\nE: Edit clue\n\nD: Delete clue\n\nReorder: Tap and hold the clue you want to move until you see it pop out, then drag it to the appropriate spot");
               }),
             ],
       ),
@@ -719,11 +719,9 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CoryatElement.cupertinoNavigationBar(
-          widget.game.dateDescription(dayOfWeek: false) +
-              "   (\$" +
-              widget.game.getStat(Stat.CORYAT).toString() +
-              ")"),
+      resizeToAvoidBottomInset: false,
+      navigationBar:
+          CoryatElement.cupertinoNavigationBar(widget.game.dateDescription()),
       child: Material(
           child: Container(
               color: CustomColor.backgroundColor, child: _buildEvents())),

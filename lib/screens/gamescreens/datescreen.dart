@@ -35,6 +35,7 @@ class _DateScreenState extends State<DateScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       navigationBar: CoryatElement.cupertinoNavigationBar("", border: false),
       child: Center(
         child: Column(
@@ -121,7 +122,7 @@ class _DateScreenState extends State<DateScreen> {
                     CupertinoAlertDialog alert = CupertinoAlertDialog(
                       title: Text("Free Game Limit Reached"),
                       content: Text(
-                          "When you finish this game, your oldest game will be deleted. To store unlimited games, purchase Double Coryat from the main menu."),
+                          "When you finish this game, your oldest played game will be deleted. To store unlimited games, purchase Double Coryat from the main menu."),
                       actions: [
                         backButton,
                         okButton,

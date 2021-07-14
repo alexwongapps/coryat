@@ -12,6 +12,7 @@ class _PlayHelpScreenState extends State<PlayHelpScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       navigationBar: CoryatElement.cupertinoNavigationBar("Play a Game"),
       child: Scrollbar(
         child: SingleChildScrollView(

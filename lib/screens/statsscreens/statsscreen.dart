@@ -50,6 +50,7 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       navigationBar: CoryatElement.cupertinoNavigationBar("Stats"),
       child: Center(
         child: Column(
@@ -71,6 +72,7 @@ class _StatsScreenState extends State<StatsScreen> {
                       dropdownColor: CustomColor.backgroundColor,
                       underline: SizedBox(),
                       isExpanded: true,
+                      iconSize: Design.dropdown_icon_size,
                       onChanged: (int newValue) {
                         setState(() {
                           _currentCategory = newValue;
@@ -609,6 +611,7 @@ class _StatsScreenState extends State<StatsScreen> {
           dropdownColor: CustomColor.backgroundColor,
           underline: SizedBox(),
           isExpanded: true,
+          iconSize: Design.dropdown_icon_size,
           onChanged: (int newValue) {
             setState(() {
               _currentRange = newValue;

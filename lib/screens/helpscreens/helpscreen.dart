@@ -6,6 +6,7 @@ import 'package:coryat/screens/helpscreens/historyhelpscreen.dart';
 import 'package:coryat/screens/helpscreens/playhelpscreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HelpScreen extends StatefulWidget {
   @override
@@ -31,6 +32,7 @@ class _HelpScreenState extends State<HelpScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       navigationBar: CoryatElement.cupertinoNavigationBar("Help"),
       child: Center(
         child: Column(
@@ -80,7 +82,21 @@ class _HelpScreenState extends State<HelpScreen> {
                         size: Font.size_large_button,
                       ),
                     ]
-                  : []),
+                  : [
+                      CoryatElement.cupertinoButton(
+                        "Questions?",
+                        () async {
+                          const url = 'mailto:alexwongapps@gmail.com';
+                          if (await canLaunch(url)) {
+                            await launch(url);
+                          } else {
+                            CoryatElement.presentBasicAlertDialog(
+                                context, "Error", "Unable to open email");
+                          }
+                        },
+                        size: Font.size_large_button,
+                      ),
+                    ]),
         ),
       ),
     );

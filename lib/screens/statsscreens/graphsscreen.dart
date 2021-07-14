@@ -49,6 +49,7 @@ class _GraphsScreenState extends State<GraphsScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       navigationBar: CoryatElement.cupertinoNavigationBar("Graphs"),
       child: Scrollbar(
         child: SingleChildScrollView(
@@ -72,6 +73,7 @@ class _GraphsScreenState extends State<GraphsScreen> {
                           dropdownColor: CustomColor.backgroundColor,
                           underline: SizedBox(),
                           isExpanded: true,
+                          iconSize: Design.dropdown_icon_size,
                           onChanged: (int newValue) {
                             setState(() {
                               _currentTypeCategory = newValue;
@@ -517,6 +519,7 @@ class _GraphsScreenState extends State<GraphsScreen> {
           dropdownColor: CustomColor.backgroundColor,
           underline: SizedBox(),
           isExpanded: true,
+          iconSize: Design.dropdown_icon_size,
           onChanged: (int newValue) {
             setState(() {
               _currentRange = newValue;

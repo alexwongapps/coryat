@@ -13,6 +13,7 @@ class _CoryatHelpScreenState extends State<CoryatHelpScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       navigationBar: CoryatElement.cupertinoNavigationBar("What is Coryat?"),
       child: Scrollbar(
         child: SingleChildScrollView(

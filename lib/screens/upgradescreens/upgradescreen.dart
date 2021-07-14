@@ -20,11 +20,18 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
   bool _restoring = false;
   bool _doubleCoryatCoded = false;
   bool _finalCoryatCoded = false;
+
   TextEditingController _codeTextController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+        resizeToAvoidBottomInset: false,
         navigationBar: CoryatElement.cupertinoNavigationBar("Upgrade"),
         child: Center(
           child: Column(
@@ -45,6 +52,10 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                                 await InAppPurchase.instance.isAvailable();
                             if (!available) {
                               // error
+                              setState(() {
+                                CoryatElement.presentBasicAlertDialog(
+                                    context, "Error", "Unable to access IAPs");
+                              });
                               return;
                             }
                             const Set<String> _kIds = <String>{
@@ -55,12 +66,20 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                                     .queryProductDetails(_kIds);
                             if (response.notFoundIDs.isNotEmpty) {
                               // error
+                              setState(() {
+                                CoryatElement.presentBasicAlertDialog(
+                                    context, "Error", "Unable to find IAPs");
+                              });
                               return;
                             }
                             List<ProductDetails> products =
                                 response.productDetails;
                             if (products.length < 1) {
                               // error
+                              setState(() {
+                                CoryatElement.presentBasicAlertDialog(
+                                    context, "Error", "Unable to find IAPs");
+                              });
                               return;
                             }
                             final ProductDetails productDetails = products[0];
@@ -94,8 +113,15 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                             setState(() {
                               _restoring = true;
                             });
-                            // TODO: validate? https://pub.dev/packages/in_app_purchase
-                            await InAppPurchase.instance.restorePurchases();
+                            await InAppPurchase.instance
+                                .restorePurchases()
+                                .catchError((error) {
+                              setState(() {
+                                _restoring = false;
+                                CoryatElement.presentBasicAlertDialog(
+                                    context, "Error", "Unable to access IAPs");
+                              });
+                            });
                           },
                     color: _restoring
                         ? CustomColor.disabledButton
@@ -103,6 +129,13 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                   ),
                   CoryatElement.cupertinoButton("Code?", () {
                     _codeTextController.text = "";
+                    Widget backButton = CoryatElement.cupertinoButton(
+                      "Cancel",
+                      () {
+                        Navigator.of(context).pop();
+                      },
+                      color: CupertinoColors.destructiveRed,
+                    );
                     Widget doneButton = CoryatElement.cupertinoButton(
                       "Done",
                       () async {
@@ -141,7 +174,7 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                           CoryatElement.presentBasicAlertDialog(
                               context,
                               "Unable to redeem code",
-                              "Make sure you entered the code correctly.");
+                              "Make sure you entered the code correctly");
                         }
                       },
                     );
@@ -153,9 +186,11 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                         child: CupertinoTextField(
                           controller: _codeTextController,
                           placeholder: "Code",
+                          autofocus: true,
                         ),
                       ),
                       actions: [
+                        backButton,
                         doneButton,
                       ],
                     );

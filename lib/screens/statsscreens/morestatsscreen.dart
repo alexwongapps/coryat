@@ -21,7 +21,7 @@ class MoreStatsScreen extends StatefulWidget {
 }
 
 class _MoreStatsScreenState extends State<MoreStatsScreen> {
-  final List<String> _presetCategories = [
+  final List<String> _presetRounds = [
     "Jeopardy Clues",
     "Double Jeopardy Clues",
     "All Clues",
@@ -52,6 +52,7 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       navigationBar: CoryatElement.cupertinoNavigationBar("More Stats"),
       child: Center(
         child: Column(
@@ -73,6 +74,7 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                       dropdownColor: CustomColor.backgroundColor,
                       underline: SizedBox(),
                       isExpanded: true,
+                      iconSize: Design.dropdown_icon_size,
                       onChanged: (int newValue) {
                         setState(() {
                           _currentRound = newValue;
@@ -83,7 +85,7 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                           value: _jeopardyStats,
                           child: Center(
                             child: CoryatElement.text(
-                                _presetCategories[_jeopardyStats],
+                                _presetRounds[_jeopardyStats],
                                 bold: true),
                           ),
                         ),
@@ -91,15 +93,14 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                           value: _doubleJeopardyStats,
                           child: Center(
                             child: CoryatElement.text(
-                                _presetCategories[_doubleJeopardyStats],
+                                _presetRounds[_doubleJeopardyStats],
                                 bold: true),
                           ),
                         ),
                         DropdownMenuItem(
                           value: _allStats,
                           child: Center(
-                            child: CoryatElement.text(
-                                _presetCategories[_allStats],
+                            child: CoryatElement.text(_presetRounds[_allStats],
                                 bold: true),
                           ),
                         ),
@@ -121,6 +122,7 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                       dropdownColor: CustomColor.backgroundColor,
                       underline: SizedBox(),
                       isExpanded: true,
+                      iconSize: Design.dropdown_icon_size,
                       onChanged: (int newValue) {
                         setState(() {
                           _currentCategory = newValue;
@@ -481,6 +483,7 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
           dropdownColor: CustomColor.backgroundColor,
           underline: SizedBox(),
           isExpanded: true,
+          iconSize: Design.dropdown_icon_size,
           onChanged: (int newValue) {
             setState(() {
               _currentRange = newValue;

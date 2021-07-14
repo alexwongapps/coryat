@@ -67,27 +67,26 @@ class _HistoryScreenState extends State<HistoryScreen> {
           CoryatElement.cupertinoButton(
             "Delete",
             () {
-              Widget noButton = CoryatElement.cupertinoButton(
-                "No",
-                () {
-                  Navigator.pop(context);
-                },
-                color: CupertinoColors.destructiveRed,
-              );
-              Widget yesButton = CoryatElement.cupertinoButton(
-                "Yes",
-                () {
-                  SqlitePersistence.deleteGame(game);
-                  _games.remove(game);
-                  setState(() {});
-                  Navigator.pop(context);
-                },
-              );
+              Widget noButton = CupertinoButton(
+                  child: Text(
+                    "No",
+                    style: TextStyle(color: CupertinoColors.destructiveRed),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  });
+              Widget yesButton = CupertinoButton(
+                  child: Text("Yes"),
+                  onPressed: () {
+                    SqlitePersistence.deleteGame(game);
+                    _games.remove(game);
+                    setState(() {});
+                    Navigator.pop(context);
+                  });
 
               CupertinoAlertDialog alert = CupertinoAlertDialog(
-                title: CoryatElement.text("Are you sure?"),
-                content: CoryatElement.text(
-                    "Once deleted, this game cannot be recovered"),
+                title: Text("Are you sure?"),
+                content: Text("Once deleted, this game cannot be recovered"),
                 actions: [
                   noButton,
                   yesButton,
@@ -208,6 +207,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+        resizeToAvoidBottomInset: false,
         navigationBar: CoryatElement.cupertinoNavigationBar(
           "Games Played",
         ),

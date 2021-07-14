@@ -31,8 +31,12 @@ class CoryatElement {
     );
   }
 
-  static Widget cupertinoButton(String text, Function onPressed,
-      {double size = Font.size_regular_button, Color color}) {
+  static Widget cupertinoButton(
+    String text,
+    Function onPressed, {
+    double size = Font.size_regular_button,
+    Color color,
+  }) {
     return CupertinoButton(
         child: Text(
           text,
@@ -101,6 +105,18 @@ class CoryatElement {
       padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
       child: CoryatElement.gameDivider(indent: 5.0),
     );
+  }
+
+  static ShapeDecoration dropdownShapeDecoration() {
+    return ShapeDecoration(
+        color: CustomColor.backgroundColor,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+              width: 1.0,
+              style: BorderStyle.solid,
+              color: CustomColor.backgroundColor),
+          borderRadius: BorderRadius.circular(0.0),
+        ));
   }
 
   static void presentBasicAlertDialog(

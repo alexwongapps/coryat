@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class IAP {
   static const String DOUBLE_CORYAT_ID = "com.alexwongapps.Coryat.doublecoryat";
   static const String FINAL_CORYAT_ID = "com.alexwongapps.Coryat.finalcoryat";
-  static const int FREE_NUMBER_OF_GAMES = 10; // TODO: change
+  static const int FREE_NUMBER_OF_GAMES = 3; // TODO: change
   static const String PURCHASE_SUCCESSFUL_MESSAGE = "Purchase Successful!";
   static const String RESTORE_SUCCESSFUL_MESSAGE = "Restore Successful!";
 
