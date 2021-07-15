@@ -8,9 +8,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 class UpgradeScreen extends StatefulWidget {
-  UpgradeScreen({Key key, this.doubleCoryatString = ""}) : super(key: key);
+  UpgradeScreen({Key key, this.doubleCoryatString = "", this.onUpgradeSelected})
+      : super(key: key);
 
   final String doubleCoryatString;
+  final VoidCallback onUpgradeSelected;
 
   @override
   _UpgradeScreenState createState() => _UpgradeScreenState();
@@ -26,6 +28,17 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => onload(context));
+    super.initState();
+  }
+
+  Future<void> onload(BuildContext context) async {
+    bool dc = await IAP.doubleCoryatPurchased();
+    if (_successfulPurchase() || dc) {
+      Navigator.of(context).pop();
+      widget.onUpgradeSelected();
+    }
   }
 
   @override
@@ -41,11 +54,7 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                 children: [
                   CoryatElement.cupertinoButton(
                     "Buy Double Coryat",
-                    widget.doubleCoryatString ==
-                                IAP.PURCHASE_SUCCESSFUL_MESSAGE ||
-                            widget.doubleCoryatString ==
-                                IAP.RESTORE_SUCCESSFUL_MESSAGE ||
-                            _doubleCoryatCoded
+                    _successfulPurchase()
                         ? null
                         : () async {
                             final bool available =
@@ -89,19 +98,16 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                                 .buyNonConsumable(purchaseParam: purchaseParam);
                           },
                     size: Font.size_large_button,
-                    color: widget.doubleCoryatString ==
-                                IAP.PURCHASE_SUCCESSFUL_MESSAGE ||
-                            widget.doubleCoryatString ==
-                                IAP.RESTORE_SUCCESSFUL_MESSAGE ||
-                            _doubleCoryatCoded
+                    color: _successfulPurchase()
                         ? CustomColor.disabledButton
                         : CustomColor.primaryColor,
                   ),
                   Text(widget.doubleCoryatString),
                 ],
               ),
-              CoryatElement.text(
-                  "• Unlimited games\n\n• Stats for each\n    dollar value/category\n\n• Graphs of Coryat and more\n\n• Export games\n\n• Any future Double\n    Coryat features\n\n• All for \$0.99!"),
+              CoryatElement.text("• Store unlimited games\n    (currently: " +
+                  IAP.FREE_NUMBER_OF_GAMES.toString() +
+                  " games)\n\n• Stats for each\n    dollar value/category\n\n• Graphs of Coryat and more\n\n• Export games\n\n• Any future Double\n    Coryat features\n\n• All for \$0.99!"),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -169,7 +175,10 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                                       : "") +
                                   (map[Firebase.FINAL_CORYAT_FIELD]
                                       ? "\Final Coryat"
-                                      : ""));
+                                      : ""), onPressed: () {
+                            Navigator.of(context).pop();
+                            widget.onUpgradeSelected();
+                          });
                         } else {
                           CoryatElement.presentBasicAlertDialog(
                               context,
@@ -210,5 +219,11 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
             ],
           ),
         ));
+  }
+
+  bool _successfulPurchase() {
+    return widget.doubleCoryatString == IAP.PURCHASE_SUCCESSFUL_MESSAGE ||
+        widget.doubleCoryatString == IAP.RESTORE_SUCCESSFUL_MESSAGE ||
+        _doubleCoryatCoded;
   }
 }

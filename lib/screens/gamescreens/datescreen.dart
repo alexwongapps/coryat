@@ -120,7 +120,7 @@ class _DateScreenState extends State<DateScreen> {
                     }, color: CupertinoColors.destructiveRed);
 
                     CupertinoAlertDialog alert = CupertinoAlertDialog(
-                      title: Text("Free Game Limit Reached"),
+                      title: Text("Warning: Free Game Limit Reached"),
                       content: Text(
                           "When you finish this game, your oldest played game will be deleted. To store unlimited games, purchase Double Coryat from the main menu."),
                       actions: [

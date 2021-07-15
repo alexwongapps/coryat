@@ -2,6 +2,7 @@ import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/font.dart';
 import 'package:coryat/constants/iap.dart';
 import 'package:coryat/constants/sharedpreferenceskey.dart';
+import 'package:coryat/data/firebase.dart';
 import 'package:coryat/screens/gamescreens/datescreen.dart';
 import 'package:coryat/screens/helpscreens/helpscreen.dart';
 import 'package:coryat/screens/historyscreens/historyscreen.dart';
@@ -113,6 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             CupertinoPageRoute(builder: (context) {
                               return UpgradeScreen(
                                 doubleCoryatString: widget.doubleCoryatString,
+                                onUpgradeSelected: _successfulPurchase,
                               );
                             }),
                           );
@@ -147,5 +149,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  void _successfulPurchase() {
+    setState(() {});
+    CoryatElement.presentBasicAlertDialog(context, "Successfully Purchased!",
+        "You can now use your new features!");
   }
 }

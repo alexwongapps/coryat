@@ -106,6 +106,10 @@ class Game {
     _refresh();
   }
 
+  void appendEvent(Event event) {
+    insertEvent(_events.length, event);
+  }
+
   void removeEvent(Event event) {
     _events.remove(event);
     _refresh();
@@ -256,7 +260,7 @@ class Game {
 
   String dateDescription({bool dayOfWeek = true}) {
     final df =
-        dayOfWeek ? DateFormat('M/d/yyyy (EEEE)') : DateFormat('M/d/yyyy');
+        dayOfWeek ? DateFormat('M/d/yyyy (EEE)') : DateFormat('M/d/yyyy');
     return df.format(dateAired);
   }
 

@@ -59,86 +59,93 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-                _rangeDropdown(),
-                Material(
-                  child: Container(
-                    padding: EdgeInsets.only(
-                      left: Design.divider_indent,
-                      right: Design.divider_indent,
-                    ),
-                    decoration: BoxDecoration(
-                      color: CustomColor.backgroundColor,
-                    ),
-                    child: DropdownButton(
-                      value: _currentRound,
-                      dropdownColor: CustomColor.backgroundColor,
-                      underline: SizedBox(),
-                      isExpanded: true,
-                      iconSize: Design.dropdown_icon_size,
-                      onChanged: (int newValue) {
-                        setState(() {
-                          _currentRound = newValue;
-                        });
-                      },
-                      items: [
-                        DropdownMenuItem(
-                          value: _jeopardyStats,
-                          child: Center(
-                            child: CoryatElement.text(
-                                _presetRounds[_jeopardyStats],
-                                bold: true),
-                          ),
+                Column(
+                  children: [
+                    _rangeDropdown(),
+                    Material(
+                      child: Container(
+                        padding: EdgeInsets.only(
+                          left: Design.divider_indent,
+                          right: Design.divider_indent,
                         ),
-                        DropdownMenuItem(
-                          value: _doubleJeopardyStats,
-                          child: Center(
-                            child: CoryatElement.text(
-                                _presetRounds[_doubleJeopardyStats],
-                                bold: true),
-                          ),
+                        decoration: BoxDecoration(
+                          color: CustomColor.backgroundColor,
                         ),
-                        DropdownMenuItem(
-                          value: _allStats,
-                          child: Center(
-                            child: CoryatElement.text(_presetRounds[_allStats],
-                                bold: true),
-                          ),
+                        child: DropdownButton(
+                          value: _currentRound,
+                          dropdownColor: CustomColor.backgroundColor,
+                          underline: SizedBox(),
+                          isExpanded: true,
+                          iconSize: Design.dropdown_icon_size,
+                          onChanged: (int newValue) {
+                            setState(() {
+                              _currentRound = newValue;
+                            });
+                          },
+                          items: [
+                            DropdownMenuItem(
+                              value: _jeopardyStats,
+                              child: Center(
+                                child: CoryatElement.text(
+                                    _presetRounds[_jeopardyStats],
+                                    bold: true),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: _doubleJeopardyStats,
+                              child: Center(
+                                child: CoryatElement.text(
+                                    _presetRounds[_doubleJeopardyStats],
+                                    bold: true),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: _allStats,
+                              child: Center(
+                                child: CoryatElement.text(
+                                    _presetRounds[_allStats],
+                                    bold: true),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-                Material(
-                  child: Container(
-                    padding: EdgeInsets.only(
-                      left: Design.divider_indent,
-                      right: Design.divider_indent,
+                    Material(
+                      child: Container(
+                        padding: EdgeInsets.only(
+                          left: Design.divider_indent,
+                          right: Design.divider_indent,
+                        ),
+                        decoration: BoxDecoration(
+                          color: CustomColor.backgroundColor,
+                        ),
+                        child: DropdownButton(
+                          value: _currentCategory,
+                          dropdownColor: CustomColor.backgroundColor,
+                          underline: SizedBox(),
+                          isExpanded: true,
+                          iconSize: Design.dropdown_icon_size,
+                          onChanged: (int newValue) {
+                            setState(() {
+                              _currentCategory = newValue;
+                            });
+                          },
+                          items:
+                              List<int>.generate(_categories.length, (i) => i)
+                                  .map((index) => DropdownMenuItem(
+                                        value: index,
+                                        child: Center(
+                                          child: CoryatElement.text(
+                                              _categories[index],
+                                              bold: true),
+                                        ),
+                                      ))
+                                  .toList(),
+                        ),
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: CustomColor.backgroundColor,
-                    ),
-                    child: DropdownButton(
-                      value: _currentCategory,
-                      dropdownColor: CustomColor.backgroundColor,
-                      underline: SizedBox(),
-                      isExpanded: true,
-                      iconSize: Design.dropdown_icon_size,
-                      onChanged: (int newValue) {
-                        setState(() {
-                          _currentCategory = newValue;
-                        });
-                      },
-                      items: List<int>.generate(_categories.length, (i) => i)
-                          .map((index) => DropdownMenuItem(
-                                value: index,
-                                child: Center(
-                                  child: CoryatElement.text(_categories[index],
-                                      bold: true),
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  ),
+                  ],
                 ),
                 CoryatElement.gameDivider(),
               ] +

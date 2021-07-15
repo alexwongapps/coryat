@@ -3,6 +3,7 @@ import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/design.dart';
 import 'package:coryat/constants/iap.dart';
+import 'package:coryat/constants/sharedpreferenceskey.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/constants/font.dart';
@@ -17,6 +18,8 @@ import 'package:coryat/models/marker.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:in_app_review/in_app_review.dart';
 
 class ManualGameScreen extends StatefulWidget {
   final Game game;
@@ -36,6 +39,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   int _selectedButton = 0;
   int _selectedCategory = Category.NA;
   bool _isDailyDouble = false;
+  Event _redoEvent;
   List<String> _categories = [];
   ScrollController _scrollController = ScrollController();
   List<TextEditingController> textEditingControllers = [
@@ -154,7 +158,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
     );
 
     CupertinoAlertDialog alert = CupertinoAlertDialog(
-      title: CoryatElement.text(round == Round.jeopardy
+      title: Text(round == Round.jeopardy
           ? "Enter Jeopardy Categories"
           : round == Round.double_jeopardy
               ? "Enter Double Jeopardy Categories"
@@ -299,6 +303,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                           () {
                             setState(() {
                               _addResponse(Response.correct);
+                              _redoEvent = null;
                             });
                           },
                         ),
@@ -307,6 +312,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                           () {
                             setState(() {
                               _addResponse(Response.incorrect);
+                              _redoEvent = null;
                             });
                           },
                         ),
@@ -315,6 +321,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                           () {
                             setState(() {
                               _addResponse(Response.none);
+                              _redoEvent = null;
                             });
                           },
                         ),
@@ -336,6 +343,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                               ? null
                               : () {
                                   setState(() {
+                                    _redoEvent = null;
                                     _nextRound();
                                   });
                                 },
@@ -362,10 +370,28 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                             Round.previousRound(_currentRound);
                                       }
                                     }
+                                    _redoEvent = last;
                                     _resetClue();
                                   });
                                 },
                         ),
+                        CoryatElement.cupertinoButton("Redo", () {
+                          if (_redoEvent != null) {
+                            setState(() {
+                              if (_redoEvent.type == EventType.marker &&
+                                  _redoEvent.primaryText() ==
+                                      Marker.NEXT_ROUND) {
+                                _nextRound();
+                              } else {
+                                widget.game.appendEvent(_redoEvent);
+                              }
+                              _redoEvent = null;
+                            });
+                          }
+                        },
+                            color: _redoEvent == null
+                                ? CustomColor.disabledButton
+                                : CustomColor.primaryColor),
                       ],
                     ),
                     CoryatElement.gameDivider(),
@@ -486,6 +512,20 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                             : () async {
                                 FirebaseAnalytics()
                                     .logEvent(name: "finish_game");
+                                FirebaseAnalytics()
+                                    .logEvent(name: "score", parameters: {
+                                  "coryat": widget.game.getStat(Stat.CORYAT),
+                                  "jeopardy_coryat":
+                                      widget.game.getStat(Stat.JEOPARDY_CORYAT),
+                                  "double_jeopardy_coryat": widget.game
+                                      .getStat(Stat.DOUBLE_JEOPARDY_CORYAT),
+                                  "final_jeopardy": widget.game
+                                              .getCustomPerformance((c) =>
+                                                  c.question.round ==
+                                                  Round.final_jeopardy)[
+                                          Response.correct] >
+                                      0
+                                });
                                 SqlitePersistence.addGame(widget.game);
                                 List<Game> games =
                                     await SqlitePersistence.getGames();
@@ -496,6 +536,23 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                       a.datePlayed.compareTo(b.datePlayed));
                                   SqlitePersistence.setGames(games.sublist(
                                       games.length - IAP.FREE_NUMBER_OF_GAMES));
+                                }
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                if (!(prefs.getBool(SharedPreferencesKey
+                                        .ASKED_FOR_REVIEW) ??
+                                    false)) {
+                                  if (games.length >= 10) {
+                                    final InAppReview inAppReview =
+                                        InAppReview.instance;
+
+                                    if (await inAppReview.isAvailable()) {
+                                      inAppReview.requestReview();
+                                      prefs.setBool(
+                                          SharedPreferencesKey.ASKED_FOR_REVIEW,
+                                          true);
+                                    }
+                                  }
                                 }
                                 int count = 0;
                                 Navigator.of(context)

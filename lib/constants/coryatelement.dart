@@ -120,11 +120,15 @@ class CoryatElement {
   }
 
   static void presentBasicAlertDialog(
-      BuildContext context, String title, String content) {
+      BuildContext context, String title, String content,
+      {Function onPressed}) {
     Widget okButton = CupertinoButton(
       child: Text("OK"),
       onPressed: () {
         Navigator.pop(context);
+        if (onPressed != null) {
+          onPressed();
+        }
       },
     );
 

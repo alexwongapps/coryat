@@ -58,55 +58,60 @@ class _GraphsScreenState extends State<GraphsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                    _rangeDropdown(),
-                    Material(
-                      child: Container(
-                        padding: EdgeInsets.only(
-                          left: Design.divider_indent,
-                          right: Design.divider_indent,
-                        ),
-                        decoration: BoxDecoration(
-                          color: CustomColor.backgroundColor,
-                        ),
-                        child: DropdownButton(
-                          value: _currentTypeCategory,
-                          dropdownColor: CustomColor.backgroundColor,
-                          underline: SizedBox(),
-                          isExpanded: true,
-                          iconSize: Design.dropdown_icon_size,
-                          onChanged: (int newValue) {
-                            setState(() {
-                              _currentTypeCategory = newValue;
-                            });
-                          },
-                          items: [
-                            DropdownMenuItem(
-                              value: _coryat,
-                              child: Center(
-                                child: CoryatElement.text(
-                                    _presetCategories[_coryat],
-                                    bold: true),
-                              ),
+                    Column(
+                      children: [
+                        _rangeDropdown(),
+                        Material(
+                          child: Container(
+                            padding: EdgeInsets.only(
+                              left: Design.divider_indent,
+                              right: Design.divider_indent,
                             ),
-                            DropdownMenuItem(
-                              value: _averageGame,
-                              child: Center(
-                                child: CoryatElement.text(
-                                    _presetCategories[_averageGame],
-                                    bold: true),
-                              ),
+                            decoration: BoxDecoration(
+                              color: CustomColor.backgroundColor,
                             ),
-                            DropdownMenuItem(
-                              value: _clueValuePerformance,
-                              child: Center(
-                                child: CoryatElement.text(
-                                    _presetCategories[_clueValuePerformance],
-                                    bold: true),
-                              ),
+                            child: DropdownButton(
+                              value: _currentTypeCategory,
+                              dropdownColor: CustomColor.backgroundColor,
+                              underline: SizedBox(),
+                              isExpanded: true,
+                              iconSize: Design.dropdown_icon_size,
+                              onChanged: (int newValue) {
+                                setState(() {
+                                  _currentTypeCategory = newValue;
+                                });
+                              },
+                              items: [
+                                DropdownMenuItem(
+                                  value: _coryat,
+                                  child: Center(
+                                    child: CoryatElement.text(
+                                        _presetCategories[_coryat],
+                                        bold: true),
+                                  ),
+                                ),
+                                DropdownMenuItem(
+                                  value: _averageGame,
+                                  child: Center(
+                                    child: CoryatElement.text(
+                                        _presetCategories[_averageGame],
+                                        bold: true),
+                                  ),
+                                ),
+                                DropdownMenuItem(
+                                  value: _clueValuePerformance,
+                                  child: Center(
+                                    child: CoryatElement.text(
+                                        _presetCategories[
+                                            _clueValuePerformance],
+                                        bold: true),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                     CoryatElement.gameDivider(),
                   ] +

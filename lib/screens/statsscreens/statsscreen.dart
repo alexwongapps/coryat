@@ -51,44 +51,51 @@ class _StatsScreenState extends State<StatsScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       resizeToAvoidBottomInset: false,
-      navigationBar: CoryatElement.cupertinoNavigationBar("Stats"),
+      navigationBar:
+          CoryatElement.cupertinoNavigationBar("Stats", border: false),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-                _rangeDropdown(),
-                Material(
-                  child: Container(
-                    padding: EdgeInsets.only(
-                      left: Design.divider_indent,
-                      right: Design.divider_indent,
+                Column(
+                  children: [
+                    _rangeDropdown(),
+                    Material(
+                      child: Container(
+                        padding: EdgeInsets.only(
+                          left: Design.divider_indent,
+                          right: Design.divider_indent,
+                        ),
+                        decoration: BoxDecoration(
+                          color: CustomColor.backgroundColor,
+                        ),
+                        child: DropdownButton(
+                          value: _currentCategory,
+                          dropdownColor: CustomColor.backgroundColor,
+                          underline: SizedBox(),
+                          isExpanded: true,
+                          iconSize: Design.dropdown_icon_size,
+                          onChanged: (int newValue) {
+                            setState(() {
+                              _currentCategory = newValue;
+                            });
+                          },
+                          items:
+                              List<int>.generate(_categories.length, (i) => i)
+                                  .map((index) => DropdownMenuItem(
+                                        value: index,
+                                        child: Center(
+                                          child: CoryatElement.text(
+                                              _categories[index],
+                                              bold: true),
+                                        ),
+                                      ))
+                                  .toList(),
+                        ),
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: CustomColor.backgroundColor,
-                    ),
-                    child: DropdownButton(
-                      value: _currentCategory,
-                      dropdownColor: CustomColor.backgroundColor,
-                      underline: SizedBox(),
-                      isExpanded: true,
-                      iconSize: Design.dropdown_icon_size,
-                      onChanged: (int newValue) {
-                        setState(() {
-                          _currentCategory = newValue;
-                        });
-                      },
-                      items: List<int>.generate(_categories.length, (i) => i)
-                          .map((index) => DropdownMenuItem(
-                                value: index,
-                                child: Center(
-                                  child: CoryatElement.text(_categories[index],
-                                      bold: true),
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  ),
+                  ],
                 ),
                 CoryatElement.gameDivider(),
                 Text("Games Played: " + _games.length.toString()),

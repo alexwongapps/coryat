@@ -64,6 +64,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CoryatElement.text(game.dateDescription(dayOfWeek: true)),
+          CoryatElement.cupertinoButton("Edit", () {
+            _showDatePicker(context, game);
+          }),
           CoryatElement.cupertinoButton(
             "Delete",
             () {
@@ -302,5 +305,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   bool _isLoggedIn() {
     return _user != null;
+  }
+
+  // Show the modal that contains the CupertinoDatePicker
+  void _showDatePicker(ctx, Game game) {
+    // showCupertinoModalPopup is a built-in function of the cupertino library
+    showCupertinoModalPopup(
+        context: ctx,
+        builder: (_) => Container(
+              height: 500,
+              color: Color.fromARGB(255, 255, 255, 255),
+              child: Column(
+                children: [
+                  Container(
+                    height: 400,
+                    child: CupertinoDatePicker(
+                        initialDateTime: game.dateAired,
+                        mode: CupertinoDatePickerMode.date,
+                        onDateTimeChanged: (val) {
+                          setState(() {
+                            game.dateAired = val;
+                            SqlitePersistence.updateGame(game);
+                          });
+                        }),
+                  ),
+
+                  // Close the modal
+                  CoryatElement.cupertinoButton(
+                    "OK",
+                    () => Navigator.of(ctx).pop(),
+                  )
+                ],
+              ),
+            ));
   }
 }
