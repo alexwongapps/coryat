@@ -85,6 +85,7 @@ class _MyAppState extends State<MyApp> {
         title: "Coryat",
         doubleCoryatString: doubleCoryatString,
       ),
+      debugShowCheckedModeBanner: false,
     );
   }
 

@@ -106,35 +106,43 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   }
 
   Widget _categoryField(int index) {
-    return Padding(
-      padding: EdgeInsets.only(top: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(right: 10),
-              child: CupertinoTextField(
-                controller: textEditingControllers[index],
-                placeholder: "Category " + (index + 1).toString(),
-                textCapitalization: TextCapitalization.words,
+    if (_categories.length > 0) {
+      return Padding(
+        padding: EdgeInsets.only(top: 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: 10),
+                child: CupertinoTextField(
+                  controller: textEditingControllers[index],
+                  placeholder: "Category " + (index + 1).toString(),
+                  textCapitalization: TextCapitalization.words,
+                ),
               ),
             ),
-          ),
-          Material(
-            child: PopupMenuButton(
-              onSelected: (String cat) {
-                textEditingControllers[index].text = cat;
-              },
-              itemBuilder: (BuildContext context) {
-                return _categories.map<PopupMenuItem<String>>((String cat) {
-                  return PopupMenuItem(child: Text(cat), value: cat);
-                }).toList();
-              },
+            Material(
+              child: PopupMenuButton(
+                onSelected: (String cat) {
+                  textEditingControllers[index].text = cat;
+                },
+                itemBuilder: (BuildContext context) {
+                  return _categories.map<PopupMenuItem<String>>((String cat) {
+                    return PopupMenuItem(child: Text(cat), value: cat);
+                  }).toList();
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    } else {
+      return CupertinoTextField(
+        controller: textEditingControllers[index],
+        placeholder: "Category " + (index + 1).toString(),
+        textCapitalization: TextCapitalization.words,
+      );
+    }
   }
 
   void _showCategoryDialog(int round) {
@@ -348,50 +356,57 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                   });
                                 },
                         ),
-                        CupertinoButton(
-                          child: Text(
-                            "Undo",
-                            style: TextStyle(
-                              color: widget.game.getEvents().length == 0
+                        Row(
+                          children: [
+                            CupertinoButton(
+                              child: Text(
+                                "Undo",
+                                style: TextStyle(
+                                  color: widget.game.getEvents().length == 0
+                                      ? CustomColor.disabledButton
+                                      : CustomColor.primaryColor,
+                                ),
+                              ),
+                              onPressed: widget.game.getEvents().length == 0
+                                  ? null
+                                  : () {
+                                      setState(() {
+                                        Event last = widget.game.undo();
+                                        if (last != null &&
+                                            last.type == EventType.marker) {
+                                          if ((last as Marker).primaryText() ==
+                                              Marker.NEXT_ROUND) {
+                                            _currentRound = Round.previousRound(
+                                                _currentRound);
+                                          }
+                                        }
+                                        _redoEvent = last;
+                                        _resetClue();
+                                      });
+                                    },
+                            ),
+                            CoryatElement.cupertinoButton(
+                              "Redo",
+                              () {
+                                if (_redoEvent != null) {
+                                  setState(() {
+                                    if (_redoEvent.type == EventType.marker &&
+                                        _redoEvent.primaryText() ==
+                                            Marker.NEXT_ROUND) {
+                                      _nextRound();
+                                    } else {
+                                      widget.game.appendEvent(_redoEvent);
+                                    }
+                                    _redoEvent = null;
+                                  });
+                                }
+                              },
+                              color: _redoEvent == null
                                   ? CustomColor.disabledButton
                                   : CustomColor.primaryColor,
                             ),
-                          ),
-                          onPressed: widget.game.getEvents().length == 0
-                              ? null
-                              : () {
-                                  setState(() {
-                                    Event last = widget.game.undo();
-                                    if (last != null &&
-                                        last.type == EventType.marker) {
-                                      if ((last as Marker).primaryText() ==
-                                          Marker.NEXT_ROUND) {
-                                        _currentRound =
-                                            Round.previousRound(_currentRound);
-                                      }
-                                    }
-                                    _redoEvent = last;
-                                    _resetClue();
-                                  });
-                                },
+                          ],
                         ),
-                        CoryatElement.cupertinoButton("Redo", () {
-                          if (_redoEvent != null) {
-                            setState(() {
-                              if (_redoEvent.type == EventType.marker &&
-                                  _redoEvent.primaryText() ==
-                                      Marker.NEXT_ROUND) {
-                                _nextRound();
-                              } else {
-                                widget.game.appendEvent(_redoEvent);
-                              }
-                              _redoEvent = null;
-                            });
-                          }
-                        },
-                            color: _redoEvent == null
-                                ? CustomColor.disabledButton
-                                : CustomColor.primaryColor),
                       ],
                     ),
                     CoryatElement.gameDivider(),
@@ -537,6 +552,9 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                   SqlitePersistence.setGames(games.sublist(
                                       games.length - IAP.FREE_NUMBER_OF_GAMES));
                                 }
+                                int count = 0;
+                                Navigator.of(context)
+                                    .popUntil((_) => count++ >= 2);
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 if (!(prefs.getBool(SharedPreferencesKey
@@ -545,7 +563,6 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                   if (games.length >= 10) {
                                     final InAppReview inAppReview =
                                         InAppReview.instance;
-
                                     if (await inAppReview.isAvailable()) {
                                       inAppReview.requestReview();
                                       prefs.setBool(
@@ -554,9 +571,6 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                     }
                                   }
                                 }
-                                int count = 0;
-                                Navigator.of(context)
-                                    .popUntil((_) => count++ >= 2);
                               })
                   ],
             ),

@@ -78,7 +78,8 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
               },
               itemBuilder: (BuildContext context) {
                 return _categories.map<PopupMenuItem<String>>((String cat) {
-                  return PopupMenuItem(child: Text(cat), value: cat);
+                  return PopupMenuItem(
+                      child: CoryatElement.text(cat), value: cat);
                 }).toList();
               },
             ),
@@ -119,7 +120,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
 
     CupertinoAlertDialog alert = CupertinoAlertDialog(
-      title: CoryatElement.text(round == Round.jeopardy
+      title: Text(round == Round.jeopardy
           ? "Edit Jeopardy Categories"
           : round == Round.double_jeopardy
               ? "Edit Double Jeopardy Categories"

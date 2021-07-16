@@ -1,4 +1,4 @@
-import 'package:coryat/constants/coryatelement.dart';
+/*import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/data/firebase.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/models/game.dart';
@@ -128,3 +128,4 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     return _user != null;
   }
 }
+*/

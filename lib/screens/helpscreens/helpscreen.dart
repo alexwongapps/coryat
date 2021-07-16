@@ -23,7 +23,7 @@ class _HelpScreenState extends State<HelpScreen> {
         _firstLaunch = true;
         prefs.setBool(SharedPreferencesKey.FIRST_LAUNCH, false);
         CoryatElement.presentBasicAlertDialog(context, "Welcome to Coryat!",
-            "Learn about Coryat here, then press Start Coryat! to begin.");
+            "Learn about Coryat here, then press Start Coryat! or the top-left back button to begin.");
       }
     });
     super.initState();

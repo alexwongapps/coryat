@@ -21,7 +21,6 @@ import 'package:coryat/screens/historyscreens/gamedetailscreen.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -42,7 +41,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   void initState() {
-    FirebaseAuth.instance.currentUser().then((user) => refresh(user));
+    //FirebaseAuth.instance.currentUser().then((user) => refresh(user));
+    refresh();
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         _sortMethod = prefs.getInt(SharedPreferencesKey.HISTORY_SCREEN_SORT) ??
@@ -64,46 +64,51 @@ class _HistoryScreenState extends State<HistoryScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CoryatElement.text(game.dateDescription(dayOfWeek: true)),
-          CoryatElement.cupertinoButton("Edit", () {
-            _showDatePicker(context, game);
-          }),
-          CoryatElement.cupertinoButton(
-            "Delete",
-            () {
-              Widget noButton = CupertinoButton(
-                  child: Text(
-                    "No",
-                    style: TextStyle(color: CupertinoColors.destructiveRed),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  });
-              Widget yesButton = CupertinoButton(
-                  child: Text("Yes"),
-                  onPressed: () {
-                    SqlitePersistence.deleteGame(game);
-                    _games.remove(game);
-                    setState(() {});
-                    Navigator.pop(context);
-                  });
+          Row(
+            children: [
+              CoryatElement.cupertinoButton("Edit", () {
+                _showDatePicker(context, game);
+              }),
+              CoryatElement.cupertinoButton(
+                "Delete",
+                () {
+                  Widget noButton = CupertinoButton(
+                      child: Text(
+                        "No",
+                        style: TextStyle(color: CupertinoColors.destructiveRed),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      });
+                  Widget yesButton = CupertinoButton(
+                      child: Text("Yes"),
+                      onPressed: () {
+                        SqlitePersistence.deleteGame(game);
+                        _games.remove(game);
+                        setState(() {});
+                        Navigator.pop(context);
+                      });
 
-              CupertinoAlertDialog alert = CupertinoAlertDialog(
-                title: Text("Are you sure?"),
-                content: Text("Once deleted, this game cannot be recovered"),
-                actions: [
-                  noButton,
-                  yesButton,
-                ],
-              );
+                  CupertinoAlertDialog alert = CupertinoAlertDialog(
+                    title: Text("Are you sure?"),
+                    content:
+                        Text("Once deleted, this game cannot be recovered"),
+                    actions: [
+                      noButton,
+                      yesButton,
+                    ],
+                  );
 
-              showCupertinoDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return alert;
+                  showCupertinoDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return alert;
+                    },
+                  );
                 },
-              );
-            },
-            color: CupertinoColors.destructiveRed,
+                color: CupertinoColors.destructiveRed,
+              ),
+            ],
           ),
         ],
       ),
@@ -124,7 +129,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         itemBuilder: (context, i) {
           if (i == 0) {
             return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 CoryatElement.cupertinoButton(
                     "Export",
@@ -162,34 +167,41 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               },
                             );
                           }),
-                CoryatElement.text("Sort By:", size: Font.size_regular_text),
-                CoryatElement.cupertinoButton(
-                  "Aired",
-                  () {
-                    setState(() {
-                      _sortMethod = _dateAired;
-                      SharedPreferences.getInstance().then((prefs) =>
-                          prefs.setInt(SharedPreferencesKey.HISTORY_SCREEN_SORT,
-                              _dateAired));
-                    });
-                  },
-                  color: _sortMethod == _dateAired
-                      ? CustomColor.selectedButton
-                      : CustomColor.primaryColor,
-                ),
-                CoryatElement.cupertinoButton(
-                  "Played",
-                  () {
-                    setState(() {
-                      _sortMethod = _datePlayed;
-                      SharedPreferences.getInstance().then((prefs) =>
-                          prefs.setInt(SharedPreferencesKey.HISTORY_SCREEN_SORT,
-                              _datePlayed));
-                    });
-                  },
-                  color: _sortMethod == _datePlayed
-                      ? CustomColor.selectedButton
-                      : CustomColor.primaryColor,
+                Row(
+                  children: [
+                    CoryatElement.text("Sort By:",
+                        size: Font.size_regular_text),
+                    CoryatElement.cupertinoButton(
+                      "Aired",
+                      () {
+                        setState(() {
+                          _sortMethod = _dateAired;
+                          SharedPreferences.getInstance().then((prefs) =>
+                              prefs.setInt(
+                                  SharedPreferencesKey.HISTORY_SCREEN_SORT,
+                                  _dateAired));
+                        });
+                      },
+                      color: _sortMethod == _dateAired
+                          ? CustomColor.selectedButton
+                          : CustomColor.primaryColor,
+                    ),
+                    CoryatElement.cupertinoButton(
+                      "Played",
+                      () {
+                        setState(() {
+                          _sortMethod = _datePlayed;
+                          SharedPreferences.getInstance().then((prefs) =>
+                              prefs.setInt(
+                                  SharedPreferencesKey.HISTORY_SCREEN_SORT,
+                                  _datePlayed));
+                        });
+                      },
+                      color: _sortMethod == _datePlayed
+                          ? CustomColor.selectedButton
+                          : CustomColor.primaryColor,
+                    ),
+                  ],
                 ),
               ],
             );
@@ -292,21 +304,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return ret;
   }
 
-  void refresh(FirebaseUser firebaseUser) async {
+  void refresh() async {
+    /*
     if (firebaseUser == null) {
-      _games = await SqlitePersistence.getGames();
-    } else {
+    */
+    _games = await SqlitePersistence.getGames();
+    /*} else {
       _user =
           User(firebaseUser.email, firebaseUser.displayName, firebaseUser.uid);
       _games = await Firebase.loadGames(_user);
-    }
+    }*/
     setState(() {});
   }
 
+/*
   bool _isLoggedIn() {
     return _user != null;
   }
-
+*/
   // Show the modal that contains the CupertinoDatePicker
   void _showDatePicker(ctx, Game game) {
     // showCupertinoModalPopup is a built-in function of the cupertino library

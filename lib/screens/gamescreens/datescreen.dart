@@ -7,6 +7,7 @@ import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/screens/gamescreens/manualgamescreen.dart';
 import 'package:coryat/screens/helpscreens/helpscreen.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -135,6 +136,7 @@ class _DateScreenState extends State<DateScreen> {
                         return alert;
                       },
                     );
+                    FirebaseAnalytics().logEvent(name: "game_limit_reached");
                   } else {
                     Navigator.of(context).push(
                       CupertinoPageRoute(builder: (context) {

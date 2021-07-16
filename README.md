@@ -4,6 +4,10 @@
 
 ## To-do
 - Check TODOs
+- test stats meaningfully
+    - look at 5, 20-game rolling scores
+- test andorid in app review after building app by publishing to release
+- test on ipad
 
 ## MVP
 - Manual game
