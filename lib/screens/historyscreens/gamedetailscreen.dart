@@ -79,7 +79,9 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
               itemBuilder: (BuildContext context) {
                 return _categories.map<PopupMenuItem<String>>((String cat) {
                   return PopupMenuItem(
-                      child: CoryatElement.text(cat), value: cat);
+                      child:
+                          CoryatElement.text(cat, size: Font.size_small_text),
+                      value: cat);
                 }).toList();
               },
             ),
