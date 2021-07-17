@@ -8,8 +8,7 @@
     - look at 5, 20-game rolling scores
 - test andorid in app review after building app by publishing to release
 - test on ipad
-- start coryat! is doesn't work
-- are history/upgrade slightly misaligned?
+- Write app description/short description
 
 ## MVP
 - Manual game

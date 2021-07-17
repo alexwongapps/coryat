@@ -80,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 CoryatElement.cupertinoButton(
-                  !_doubleCoryatPurchased ? "  History" : "History",
+                  !_doubleCoryatPurchased ? " History" : "History",
                   () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(builder: (context) {

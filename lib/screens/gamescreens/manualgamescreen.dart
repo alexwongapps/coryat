@@ -18,6 +18,7 @@ import 'package:coryat/models/marker.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:in_app_review/in_app_review.dart';
 
@@ -128,7 +129,10 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                 },
                 itemBuilder: (BuildContext context) {
                   return _categories.map<PopupMenuItem<String>>((String cat) {
-                    return PopupMenuItem(child: Text(cat), value: cat);
+                    return PopupMenuItem(
+                        child:
+                            CoryatElement.text(cat, size: Font.size_small_text),
+                        value: cat);
                   }).toList();
                 },
               ),
@@ -317,12 +321,17 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                         ),
                         CoryatElement.cupertinoButton(
                           "Incorrect",
-                          () {
-                            setState(() {
-                              _addResponse(Response.incorrect);
-                              _redoEvent = null;
-                            });
-                          },
+                          _isDailyDouble
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _addResponse(Response.incorrect);
+                                    _redoEvent = null;
+                                  });
+                                },
+                          color: _isDailyDouble
+                              ? CustomColor.disabledButton
+                              : CustomColor.primaryColor,
                         ),
                         CoryatElement.cupertinoButton(
                           "No Answer",
@@ -513,65 +522,116 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     ),
                     Text("Maximum Possible Coryat: \$" +
                         widget.game.getStat(Stat.REACHABLE_CORYAT).toString()),
-                    CupertinoButton(
-                        child: Text(
-                          "Finish Game",
-                          style: TextStyle(
-                              fontSize: Font.size_large_button,
-                              color: _gameDone()
-                                  ? CustomColor.primaryColor
-                                  : CustomColor.disabledButton),
-                        ),
-                        onPressed: !_gameDone()
-                            ? null
-                            : () async {
-                                FirebaseAnalytics()
-                                    .logEvent(name: "finish_game");
-                                FirebaseAnalytics()
-                                    .logEvent(name: "score", parameters: {
-                                  "coryat": widget.game.getStat(Stat.CORYAT),
-                                  "jeopardy_coryat":
-                                      widget.game.getStat(Stat.JEOPARDY_CORYAT),
-                                  "double_jeopardy_coryat": widget.game
-                                      .getStat(Stat.DOUBLE_JEOPARDY_CORYAT),
-                                  "final_jeopardy": widget.game
-                                              .getCustomPerformance((c) =>
-                                                  c.question.round ==
-                                                  Round.final_jeopardy)[
-                                          Response.correct] >
-                                      0
-                                });
-                                SqlitePersistence.addGame(widget.game);
-                                List<Game> games =
-                                    await SqlitePersistence.getGames();
-                                if (games.length >= IAP.FREE_NUMBER_OF_GAMES &&
-                                    !(await IAP.doubleCoryatPurchased() ||
-                                        await IAP.finalCoryatPurchased())) {
-                                  games.sort((a, b) =>
-                                      a.datePlayed.compareTo(b.datePlayed));
-                                  SqlitePersistence.setGames(games.sublist(
-                                      games.length - IAP.FREE_NUMBER_OF_GAMES));
-                                }
-                                int count = 0;
-                                Navigator.of(context)
-                                    .popUntil((_) => count++ >= 2);
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                if (!(prefs.getBool(SharedPreferencesKey
-                                        .ASKED_FOR_REVIEW) ??
-                                    false)) {
-                                  if (games.length >= 10) {
-                                    final InAppReview inAppReview =
-                                        InAppReview.instance;
-                                    if (await inAppReview.isAvailable()) {
-                                      inAppReview.requestReview();
-                                      prefs.setBool(
-                                          SharedPreferencesKey.ASKED_FOR_REVIEW,
-                                          true);
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        CupertinoButton(
+                          child: Text(
+                            "Finish",
+                            style: TextStyle(
+                                fontSize: Font.size_large_button,
+                                color: _gameDone()
+                                    ? CustomColor.primaryColor
+                                    : CustomColor.disabledButton),
+                          ),
+                          onPressed: !_gameDone()
+                              ? null
+                              : () async {
+                                  FirebaseAnalytics()
+                                      .logEvent(name: "finish_game");
+                                  FirebaseAnalytics()
+                                      .logEvent(name: "score", parameters: {
+                                    "coryat": widget.game.getStat(Stat.CORYAT),
+                                    "jeopardy_coryat": widget.game
+                                        .getStat(Stat.JEOPARDY_CORYAT),
+                                    "double_jeopardy_coryat": widget.game
+                                        .getStat(Stat.DOUBLE_JEOPARDY_CORYAT),
+                                    "final_jeopardy": widget.game
+                                                .getCustomPerformance((c) =>
+                                                    c.question.round ==
+                                                    Round.final_jeopardy)[
+                                            Response.correct] >
+                                        0
+                                  });
+                                  SqlitePersistence.addGame(widget.game);
+                                  List<Game> games =
+                                      await SqlitePersistence.getGames();
+                                  if (games.length >=
+                                          IAP.FREE_NUMBER_OF_GAMES &&
+                                      !(await IAP.doubleCoryatPurchased() ||
+                                          await IAP.finalCoryatPurchased())) {
+                                    games.sort((a, b) =>
+                                        a.datePlayed.compareTo(b.datePlayed));
+                                    SqlitePersistence.setGames(games.sublist(
+                                        games.length -
+                                            IAP.FREE_NUMBER_OF_GAMES));
+                                  }
+                                  int count = 0;
+                                  Navigator.of(context)
+                                      .popUntil((_) => count++ >= 2);
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  if (!(prefs.getBool(SharedPreferencesKey
+                                          .ASKED_FOR_REVIEW) ??
+                                      false)) {
+                                    if (games.length >= 10) {
+                                      final InAppReview inAppReview =
+                                          InAppReview.instance;
+                                      if (await inAppReview.isAvailable()) {
+                                        inAppReview.requestReview();
+                                        prefs.setBool(
+                                            SharedPreferencesKey
+                                                .ASKED_FOR_REVIEW,
+                                            true);
+                                      }
                                     }
                                   }
-                                }
-                              })
+                                },
+                        ),
+                        CupertinoButton(
+                          child: Text(
+                            "Share",
+                            style: TextStyle(
+                                fontSize: Font.size_large_button,
+                                color: CustomColor.primaryColor),
+                          ),
+                          onPressed: () {
+                            FirebaseAnalytics().logEvent(name: "share");
+                            List<int> performance = widget.game
+                                .getCustomPerformance((c) =>
+                                    c.question.round != Round.final_jeopardy);
+                            List<int> dd = widget.game
+                                .getCustomPerformance((c) => c.isDailyDouble());
+                            List<int> fj = widget.game.getCustomPerformance(
+                                (c) =>
+                                    c.question.round == Round.final_jeopardy);
+                            Share.share(widget.game
+                                    .dateDescription(dayOfWeek: false) +
+                                " Jeopardy Performance: \$" +
+                                widget.game.getStat(Stat.CORYAT).toString() +
+                                " Coryat, " +
+                                performance[Response.correct].toString() +
+                                " R, " +
+                                performance[Response.incorrect].toString() +
+                                " W, " +
+                                dd[Response.correct].toString() +
+                                "/" +
+                                (dd[Response.correct] +
+                                        dd[Response.incorrect] +
+                                        dd[Response.none])
+                                    .toString() +
+                                " DD, " +
+                                fj[Response.correct].toString() +
+                                "/" +
+                                (fj[Response.correct] +
+                                        fj[Response.incorrect] +
+                                        fj[Response.none])
+                                    .toString() +
+                                " FJ (Made with Coryat: bit.ly/coryatapp)");
+                          },
+                        ),
+                      ],
+                    )
                   ],
             ),
           ),

@@ -35,7 +35,7 @@ class _PlayHelpScreenState extends State<PlayHelpScreen> {
                       "After 30 clues (a full board), you will automatically be advanced to the next round. If the board is not cleared, you can also press the Next Round button."),
                   CoryatElement.helpDivider(),
                   CoryatElement.text(
-                      "For Final Jeopardy, simply click your result, and click Finish Game to save the game."),
+                      "For Final Jeopardy, simply click your result, then click Share to share the game and Finish to save the game."),
                 ],
               ),
             ),

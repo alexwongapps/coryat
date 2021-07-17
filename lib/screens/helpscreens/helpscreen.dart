@@ -18,15 +18,21 @@ class _HelpScreenState extends State<HelpScreen> {
 
   @override
   void initState() {
+    super.initState();
     SharedPreferences.getInstance().then((prefs) {
       if (prefs.getBool(SharedPreferencesKey.FIRST_LAUNCH) ?? true) {
-        _firstLaunch = true;
         prefs.setBool(SharedPreferencesKey.FIRST_LAUNCH, false);
         CoryatElement.presentBasicAlertDialog(context, "Welcome to Coryat!",
             "Learn about Coryat here, then press Start Coryat! or the top-left back button to begin.");
+        WidgetsBinding.instance.addPostFrameCallback((_) => onload(context));
       }
     });
-    super.initState();
+  }
+
+  void onload(BuildContext context) {
+    setState(() {
+      _firstLaunch = true;
+    });
   }
 
   @override

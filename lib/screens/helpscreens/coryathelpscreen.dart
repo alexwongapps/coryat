@@ -25,7 +25,7 @@ class _CoryatHelpScreenState extends State<CoryatHelpScreen> {
                   Text("How would you do on Jeopardy? Find out with Coryat!"),
                   CoryatElement.helpDivider(),
                   Text(
-                      "Named after two-day Jeopardy! champion Karl Coryat, a Coryat score is a simple measure of game performance. To calculate it, play along with Jeopardy! and:\n\n• Add values of clues you get correct\n• Subtract values of clues you get incorrect\n• Daily Doubles are counted as the underlying clue value\n• Final Jeopardy is not counted (but this app tracks your performance separately)"),
+                      "Named after two-day Jeopardy! champion Karl Coryat, a Coryat score is a simple measure of game performance. To calculate it, play along with Jeopardy! and:\n\n• Add values of clues you get correct\n• Subtract values of clues you get incorrect\n• Daily Doubles are counted as the underlying clue value, and you can guess without penalty\n• Final Jeopardy is not counted (but this app tracks your performance separately)"),
                   CoryatElement.helpDivider(),
                   Text(
                       "According to Karl Coryat himself, a Jeopardy!-level Coryat score is roughly \$25,000."),

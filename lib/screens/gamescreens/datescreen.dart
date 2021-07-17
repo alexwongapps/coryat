@@ -19,7 +19,7 @@ class DateScreen extends StatefulWidget {
 }
 
 class _DateScreenState extends State<DateScreen> {
-  DateTime _chosenDateTime = DateTime.now();
+  DateTime _chosenDateTime;
   bool _trackCategories = false;
 
   @override
@@ -30,6 +30,14 @@ class _DateScreenState extends State<DateScreen> {
             prefs.getBool(SharedPreferencesKey.TRACKS_CATEGORIES) ?? false;
       });
     });
+    DateTime now = DateTime.now();
+    if (now.weekday == DateTime.saturday) {
+      _chosenDateTime = DateTime(now.year, now.month, now.day - 1);
+    } else if (now.weekday == DateTime.sunday) {
+      _chosenDateTime = DateTime(now.year, now.month, now.day - 2);
+    } else {
+      _chosenDateTime = now;
+    }
     super.initState();
   }
 
