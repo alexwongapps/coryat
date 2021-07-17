@@ -3,10 +3,6 @@
 [Google Doc](https://docs.google.com/document/d/1Zv8SKOVWy4V1g2C6xmQH91oUexX5lUQnp8sOtDngBns/edit?usp=sharing)
 
 ## To-do
-- Check TODOs
-- test stats meaningfully
-    - look at 5, 20-game rolling scores
-- Write app description/short description
 
 ## MVP
 - Manual game

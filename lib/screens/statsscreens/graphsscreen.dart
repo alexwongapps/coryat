@@ -174,6 +174,33 @@ class _GraphsScreenState extends State<GraphsScreen> {
                               Container(
                                 height: _chartHeight,
                                 child: charts.TimeSeriesChart(
+                                  _createCoryatStackedData(rollingDays: 10),
+                                  animate: _animateGraphs,
+                                  defaultRenderer: charts.LineRendererConfig(
+                                    includeArea: true,
+                                    stacked: true,
+                                    includePoints: true,
+                                  ),
+                                  behaviors: [
+                                    _chartLegend(),
+                                    _chartTitle("10-Game Rolling Coryat"),
+                                    charts.LinePointHighlighter(
+                                        showHorizontalFollowLine: charts
+                                            .LinePointHighlighterFollowLineType
+                                            .nearest,
+                                        showVerticalFollowLine: charts
+                                            .LinePointHighlighterFollowLineType
+                                            .none),
+                                  ],
+                                ),
+                                padding: EdgeInsets.only(
+                                    left: _horizontalPadding,
+                                    right: _horizontalPadding),
+                              ),
+                              CoryatElement.gameDivider(),
+                              Container(
+                                height: _chartHeight,
+                                child: charts.TimeSeriesChart(
                                   _createCoryatStackedData(rollingDays: 20),
                                   animate: _animateGraphs,
                                   defaultRenderer: charts.LineRendererConfig(
@@ -379,9 +406,9 @@ class _GraphsScreenState extends State<GraphsScreen> {
     }
     // trim
     singleEntries =
-        singleEntries.sublist(min(_games.length - 1, rollingDays - 1));
+        singleEntries.sublist(min(singleEntries.length - 1, rollingDays - 1));
     doubleEntries =
-        doubleEntries.sublist(min(_games.length - 1, rollingDays - 1));
+        doubleEntries.sublist(min(doubleEntries.length - 1, rollingDays - 1));
 
     return [
       new charts.Series<MapEntry<DateTime, double>, DateTime>(
@@ -676,8 +703,6 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                       "OK",
                                       () {
                                         Navigator.of(ctx).pop();
-                                        print(_chosenStartTime);
-                                        print(_chosenEndTime);
                                         if (dateAired) {
                                           setState(() {
                                             _dateAiredLabel = "Aired: " +
@@ -713,7 +738,6 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                                             _chosenEndTime) <=
                                                         0)
                                                 .toList();
-                                            print(_games);
                                           });
                                         }
                                       },

@@ -51,8 +51,7 @@ class _StatsScreenState extends State<StatsScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       resizeToAvoidBottomInset: false,
-      navigationBar:
-          CoryatElement.cupertinoNavigationBar("Stats", border: false),
+      navigationBar: CoryatElement.cupertinoNavigationBar("Stats"),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,

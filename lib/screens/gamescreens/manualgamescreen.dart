@@ -537,22 +537,33 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                           onPressed: !_gameDone()
                               ? null
                               : () async {
-                                  FirebaseAnalytics()
-                                      .logEvent(name: "finish_game");
-                                  FirebaseAnalytics()
-                                      .logEvent(name: "score", parameters: {
-                                    "coryat": widget.game.getStat(Stat.CORYAT),
-                                    "jeopardy_coryat": widget.game
-                                        .getStat(Stat.JEOPARDY_CORYAT),
-                                    "double_jeopardy_coryat": widget.game
-                                        .getStat(Stat.DOUBLE_JEOPARDY_CORYAT),
-                                    "final_jeopardy": widget.game
-                                                .getCustomPerformance((c) =>
-                                                    c.question.round ==
-                                                    Round.final_jeopardy)[
-                                            Response.correct] >
-                                        0
-                                  });
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  int played = prefs.getInt(
+                                          SharedPreferencesKey.GAMES_PLAYED) ??
+                                      0;
+                                  played++;
+                                  prefs.setInt(
+                                      SharedPreferencesKey.GAMES_PLAYED,
+                                      played);
+                                  FirebaseAnalytics().logEvent(
+                                      name: "finish_game",
+                                      parameters: {
+                                        "games_played": played,
+                                        "coryat":
+                                            widget.game.getStat(Stat.CORYAT),
+                                        "jeopardy_coryat": widget.game
+                                            .getStat(Stat.JEOPARDY_CORYAT),
+                                        "double_jeopardy_coryat": widget.game
+                                            .getStat(
+                                                Stat.DOUBLE_JEOPARDY_CORYAT),
+                                        "final_jeopardy": widget.game
+                                                    .getCustomPerformance((c) =>
+                                                        c.question.round ==
+                                                        Round.final_jeopardy)[
+                                                Response.correct] >
+                                            0
+                                      });
                                   SqlitePersistence.addGame(widget.game);
                                   List<Game> games =
                                       await SqlitePersistence.getGames();
@@ -569,8 +580,6 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                   int count = 0;
                                   Navigator.of(context)
                                       .popUntil((_) => count++ >= 2);
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
                                   if (!(prefs.getBool(SharedPreferencesKey
                                           .ASKED_FOR_REVIEW) ??
                                       false)) {

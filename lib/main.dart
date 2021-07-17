@@ -47,11 +47,13 @@ class _MyAppState extends State<MyApp> {
     }, onError: (error) {
       doubleCoryatString = "Unable to find IAPs";
     });
-    // TODO: delete this when ready to go
+    // for testing IAP
+    /*
     final storage = new FlutterSecureStorage();
     storage.write(
         key: SecureStorage.DOUBLE_CORYAT_KEY,
         value: SecureStorage.NOT_PURCHASED);
+        */
     super.initState();
   }
 
