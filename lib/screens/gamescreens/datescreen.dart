@@ -105,7 +105,21 @@ class _DateScreenState extends State<DateScreen> {
                             .weekday ==
                         DateTime.sunday)) {
                   List<Game> games = await SqlitePersistence.getGames();
-                  if (games.length >= IAP.FREE_NUMBER_OF_GAMES &&
+                  bool already = false;
+                  for (Game game in games) {
+                    DateTime date = game.dateAired;
+                    if (date.year == _chosenDateTime.year &&
+                        date.month == _chosenDateTime.month &&
+                        date.day == _chosenDateTime.day) {
+                      already = true;
+                    }
+                  }
+                  if (already) {
+                    CoryatElement.presentBasicAlertDialog(
+                        context,
+                        "Error: Already Played",
+                        "A game was already played on this date");
+                  } else if (games.length >= IAP.FREE_NUMBER_OF_GAMES &&
                       !(await IAP.doubleCoryatPurchased() ||
                           await IAP.finalCoryatPurchased())) {
                     Widget okButton = CoryatElement.cupertinoButton(

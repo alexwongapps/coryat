@@ -379,15 +379,26 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       );
     }
 
-    CupertinoAlertDialog alert = CupertinoAlertDialog(
-      title: Text("Select Response"),
-      actions: [
-        responseButton(Response.correct),
-        responseButton(Response.incorrect),
-        responseButton(Response.none),
-        CoryatElement.cupertinoButton("Done", () => Navigator.pop(context)),
-      ],
-    );
+    CupertinoAlertDialog alert = c.isDailyDouble()
+        ? CupertinoAlertDialog(
+            title: Text("Select Response"),
+            actions: [
+              responseButton(Response.correct),
+              responseButton(Response.none),
+              CoryatElement.cupertinoButton(
+                  "Done", () => Navigator.pop(context)),
+            ],
+          )
+        : CupertinoAlertDialog(
+            title: Text("Select Response"),
+            actions: [
+              responseButton(Response.correct),
+              responseButton(Response.incorrect),
+              responseButton(Response.none),
+              CoryatElement.cupertinoButton(
+                  "Done", () => Navigator.pop(context)),
+            ],
+          );
 
     showCupertinoDialog(
       context: context,
@@ -464,8 +475,11 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     ));
   }
 
-  Widget _addClueButton() {
+  Widget _addClueButton({bool pop = false}) {
     return CoryatElement.cupertinoButton("Add Clue", () {
+      if (pop) {
+        Navigator.of(context).pop();
+      }
       CupertinoButton roundButton(int round) {
         return CupertinoButton(
           child: Text(
@@ -660,19 +674,32 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       );
     }
 
-    CupertinoAlertDialog alert = CupertinoAlertDialog(
-      title: Text("Select Response"),
-      actions: [
-        responseButton(Response.correct),
-        responseButton(Response.incorrect),
-        responseButton(Response.none),
-        CoryatElement.cupertinoButton(
-          "Cancel",
-          () => Navigator.pop(context),
-          color: CupertinoColors.destructiveRed,
-        ),
-      ],
-    );
+    CupertinoAlertDialog alert = isDailyDouble
+        ? CupertinoAlertDialog(
+            title: Text("Select Response"),
+            actions: [
+              responseButton(Response.correct),
+              responseButton(Response.none),
+              CoryatElement.cupertinoButton(
+                "Cancel",
+                () => Navigator.pop(context),
+                color: CupertinoColors.destructiveRed,
+              ),
+            ],
+          )
+        : CupertinoAlertDialog(
+            title: Text("Select Response"),
+            actions: [
+              responseButton(Response.correct),
+              responseButton(Response.incorrect),
+              responseButton(Response.none),
+              CoryatElement.cupertinoButton(
+                "Cancel",
+                () => Navigator.pop(context),
+                color: CupertinoColors.destructiveRed,
+              ),
+            ],
+          );
 
     showCupertinoDialog(
       context: context,
@@ -686,17 +713,42 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     return new ReorderableListView.builder(
       header: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-              _addClueButton(),
-            ] +
-            (widget.game.tracksCategories()
+        children: (widget.game.tracksCategories()
                 ? [
-                    CoryatElement.cupertinoButton("Categories", () {
-                      _showEditCategoriesDialog(Round.jeopardy);
+                    CoryatElement.cupertinoButton("Edit", () {
+                      Widget okButton = CoryatElement.cupertinoButton(
+                        "Back",
+                        () {
+                          Navigator.pop(context);
+                        },
+                        color: CupertinoColors.destructiveRed,
+                      );
+
+                      CupertinoAlertDialog alert = CupertinoAlertDialog(
+                        title: Text("Edit"),
+                        actions: [
+                          _addClueButton(pop: true),
+                          CoryatElement.cupertinoButton("Categories", () {
+                            Navigator.of(context).pop();
+                            _showEditCategoriesDialog(Round.jeopardy);
+                          }),
+                          okButton,
+                        ],
+                      );
+
+                      showCupertinoDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return alert;
+                        },
+                      );
                     }),
                   ]
-                : []) +
+                : [_addClueButton()]) +
             [
+              CoryatElement.cupertinoButton("Share", () {
+                CoryatElement.share(context, widget.game);
+              }),
               CoryatElement.cupertinoButton("Help", () {
                 CoryatElement.presentBasicAlertDialog(context, "Help",
                     "Each clue is listed as [clue round/number]: [category number (if nec.)] [value/response] [Daily Double (if nec.)]\n\nE: Edit clue\n\nD: Delete clue\n\nReorder: Tap and hold the clue you want to move until you see it pop out, then drag it to the appropriate spot");

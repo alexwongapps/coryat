@@ -596,38 +596,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                 color: CustomColor.primaryColor),
                           ),
                           onPressed: () {
-                            FirebaseAnalytics().logEvent(name: "share");
-                            List<int> performance = widget.game
-                                .getCustomPerformance((c) =>
-                                    c.question.round != Round.final_jeopardy);
-                            List<int> dd = widget.game
-                                .getCustomPerformance((c) => c.isDailyDouble());
-                            List<int> fj = widget.game.getCustomPerformance(
-                                (c) =>
-                                    c.question.round == Round.final_jeopardy);
-                            Share.share(widget.game
-                                    .dateDescription(dayOfWeek: false) +
-                                " Jeopardy Performance: \$" +
-                                widget.game.getStat(Stat.CORYAT).toString() +
-                                " Coryat, " +
-                                performance[Response.correct].toString() +
-                                " R, " +
-                                performance[Response.incorrect].toString() +
-                                " W, " +
-                                dd[Response.correct].toString() +
-                                "/" +
-                                (dd[Response.correct] +
-                                        dd[Response.incorrect] +
-                                        dd[Response.none])
-                                    .toString() +
-                                " DD, " +
-                                fj[Response.correct].toString() +
-                                "/" +
-                                (fj[Response.correct] +
-                                        fj[Response.incorrect] +
-                                        fj[Response.none])
-                                    .toString() +
-                                " FJ (Made with Coryat: bit.ly/coryatapp)");
+                            CoryatElement.share(context, widget.game);
                           },
                         ),
                       ],

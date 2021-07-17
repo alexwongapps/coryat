@@ -1,7 +1,13 @@
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/font.dart';
+import 'package:coryat/enums/response.dart';
+import 'package:coryat/enums/round.dart';
+import 'package:coryat/enums/stat.dart';
+import 'package:coryat/models/game.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'design.dart';
 
@@ -145,6 +151,37 @@ class CoryatElement {
       builder: (BuildContext context) {
         return alert;
       },
+    );
+  }
+
+  static void share(BuildContext context, Game game) {
+    FirebaseAnalytics().logEvent(name: "share");
+    List<int> performance = game
+        .getCustomPerformance((c) => c.question.round != Round.final_jeopardy);
+    List<int> dd = game.getCustomPerformance((c) => c.isDailyDouble());
+    List<int> fj = game
+        .getCustomPerformance((c) => c.question.round == Round.final_jeopardy);
+    final Size size = MediaQuery.of(context).size;
+    Share.share(
+      game.dateDescription(dayOfWeek: false) +
+          " Jeopardy Performance: \$" +
+          game.getStat(Stat.CORYAT).toString() +
+          " Coryat, " +
+          performance[Response.correct].toString() +
+          " R, " +
+          performance[Response.incorrect].toString() +
+          " W, " +
+          dd[Response.correct].toString() +
+          "/" +
+          (dd[Response.correct] + dd[Response.incorrect] + dd[Response.none])
+              .toString() +
+          " DD, " +
+          fj[Response.correct].toString() +
+          "/" +
+          (fj[Response.correct] + fj[Response.incorrect] + fj[Response.none])
+              .toString() +
+          " FJ (Made with Coryat: bit.ly/coryatapp)",
+      sharePositionOrigin: Rect.fromLTWH(0, 0, size.width, size.height / 2),
     );
   }
 }
