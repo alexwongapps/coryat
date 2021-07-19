@@ -75,19 +75,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   Widget noButton = CupertinoButton(
                       child: Text(
                         "No",
-                        style: TextStyle(color: CupertinoColors.destructiveRed),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
                       });
                   Widget yesButton = CupertinoButton(
-                      child: Text("Yes"),
-                      onPressed: () {
-                        SqlitePersistence.deleteGame(game);
-                        _games.remove(game);
-                        setState(() {});
-                        Navigator.pop(context);
-                      });
+                    child: Text(
+                      "Yes",
+                      style: TextStyle(color: CupertinoColors.destructiveRed),
+                    ),
+                    onPressed: () {
+                      SqlitePersistence.deleteGame(game);
+                      _games.remove(game);
+                      setState(() {});
+                      Navigator.pop(context);
+                    },
+                  );
 
                   CupertinoAlertDialog alert = CupertinoAlertDialog(
                     title: Text("Are you sure?"),
@@ -324,6 +327,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 */
   // Show the modal that contains the CupertinoDatePicker
   void _showDatePicker(ctx, Game game) {
+    DateTime chosenDateTime = game.dateAired;
     // showCupertinoModalPopup is a built-in function of the cupertino library
     showCupertinoModalPopup(
         context: ctx,
@@ -332,24 +336,48 @@ class _HistoryScreenState extends State<HistoryScreen> {
               color: Color.fromARGB(255, 255, 255, 255),
               child: Column(
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15.0),
+                    child: Text("Select Game Date"),
+                  ),
                   Container(
                     height: 400,
                     child: CupertinoDatePicker(
                         initialDateTime: game.dateAired,
                         mode: CupertinoDatePickerMode.date,
                         onDateTimeChanged: (val) {
-                          setState(() {
-                            game.dateAired = val;
-                            SqlitePersistence.updateGame(game);
-                          });
+                          chosenDateTime = val;
                         }),
                   ),
 
                   // Close the modal
                   CoryatElement.cupertinoButton(
                     "OK",
-                    () => Navigator.of(ctx).pop(),
-                  )
+                    () {
+                      bool already = false;
+                      for (Game other in _games) {
+                        DateTime date = other.dateAired;
+                        if (other.id != game.id &&
+                            date.year == chosenDateTime.year &&
+                            date.month == chosenDateTime.month &&
+                            date.day == chosenDateTime.day) {
+                          already = true;
+                        }
+                      }
+                      if (already) {
+                        CoryatElement.presentBasicAlertDialog(
+                            context,
+                            "Error: Already Played",
+                            "A game was already played on this date");
+                      } else {
+                        Navigator.of(ctx).pop();
+                        setState(() {
+                          game.dateAired = chosenDateTime;
+                        });
+                        SqlitePersistence.updateGame(game);
+                      }
+                    },
+                  ),
                 ],
               ),
             ));

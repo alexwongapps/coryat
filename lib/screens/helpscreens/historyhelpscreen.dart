@@ -26,7 +26,7 @@ class _HistoryHelpScreenState extends State<HistoryHelpScreen> {
                       "To view/edit previous games, click History on the home screen."),
                   CoryatElement.helpDivider(),
                   CoryatElement.text(
-                      "There, you can delete games or click on a game's row to view a clue-by-clue breakdown. You can also sort games by date aired or date played."),
+                      "There, you can delete games, edit a game's date, or click on a game's row to view a clue-by-clue breakdown. You can also sort games by date aired or date played."),
                   CoryatElement.helpDivider(),
                   CoryatElement.text(
                       "On the detailed breakdown, you can add, edit, delete, or reorder clues."),

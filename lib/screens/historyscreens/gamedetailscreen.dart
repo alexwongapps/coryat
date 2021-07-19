@@ -199,7 +199,6 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                               () {
                                 Navigator.pop(context);
                               },
-                              color: CupertinoColors.destructiveRed,
                             );
                             Widget yesButton = CoryatElement.cupertinoButton(
                               "Yes",
@@ -209,6 +208,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                                 setState(() {});
                                 Navigator.pop(context);
                               },
+                              color: CupertinoColors.destructiveRed,
                             );
 
                             CupertinoAlertDialog alert = CupertinoAlertDialog(

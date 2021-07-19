@@ -346,7 +346,8 @@ class _StatsScreenState extends State<StatsScreen> {
           break;
       }
     }
-    return _round(total / possible * 100, 1).toString() + "%";
+    return _round(possible == 0 ? 0 : (total / possible * 100), 1).toString() +
+        "%";
   }
 
   String _getExtremeCoryatString(bool maximum) {

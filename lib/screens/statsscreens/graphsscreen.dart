@@ -37,12 +37,15 @@ class _GraphsScreenState extends State<GraphsScreen> {
   final int _averageGame = 1;
   final int _clueValuePerformance = 2;
   int _currentTypeCategory = 0;
+  final List<int> _presetRollingDays = [5, 10, 20];
+  int _currentRollingDays;
 
   @override
   void initState() {
     refresh();
     _dateAiredLabel = _presetRanges[_dateAired];
     _datePlayedLabel = _presetRanges[_datePlayed];
+    _currentRollingDays = _presetRollingDays[1];
     super.initState();
   }
 
@@ -144,37 +147,46 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                     right: _horizontalPadding),
                               ),
                               CoryatElement.gameDivider(),
-                              Container(
-                                height: _chartHeight,
-                                child: charts.TimeSeriesChart(
-                                  _createCoryatStackedData(rollingDays: 5),
-                                  animate: _animateGraphs,
-                                  defaultRenderer: charts.LineRendererConfig(
-                                    includeArea: true,
-                                    stacked: true,
-                                    includePoints: true,
+                              Material(
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                    left: Design.divider_indent,
+                                    right: Design.divider_indent,
                                   ),
-                                  behaviors: [
-                                    _chartLegend(),
-                                    _chartTitle("5-Game Rolling Coryat"),
-                                    charts.LinePointHighlighter(
-                                        showHorizontalFollowLine: charts
-                                            .LinePointHighlighterFollowLineType
-                                            .nearest,
-                                        showVerticalFollowLine: charts
-                                            .LinePointHighlighterFollowLineType
-                                            .none),
-                                  ],
+                                  decoration: BoxDecoration(
+                                    color: CustomColor.backgroundColor,
+                                  ),
+                                  child: DropdownButton(
+                                    value: _currentRollingDays,
+                                    dropdownColor: CustomColor.backgroundColor,
+                                    underline: SizedBox(),
+                                    isExpanded: true,
+                                    iconSize: Design.dropdown_icon_size,
+                                    onChanged: (int newValue) {
+                                      setState(() {
+                                        _currentRollingDays = newValue;
+                                      });
+                                    },
+                                    items: _presetRollingDays.map((int num) {
+                                      return DropdownMenuItem(
+                                        value: num,
+                                        child: Center(
+                                          child: CoryatElement.text(
+                                            num.toString() +
+                                                "-Game Rolling Coryat",
+                                            bold: true,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
                                 ),
-                                padding: EdgeInsets.only(
-                                    left: _horizontalPadding,
-                                    right: _horizontalPadding),
                               ),
-                              CoryatElement.gameDivider(),
                               Container(
                                 height: _chartHeight,
                                 child: charts.TimeSeriesChart(
-                                  _createCoryatStackedData(rollingDays: 10),
+                                  _createCoryatStackedData(
+                                      rollingDays: _currentRollingDays),
                                   animate: _animateGraphs,
                                   defaultRenderer: charts.LineRendererConfig(
                                     includeArea: true,
@@ -183,34 +195,6 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                   ),
                                   behaviors: [
                                     _chartLegend(),
-                                    _chartTitle("10-Game Rolling Coryat"),
-                                    charts.LinePointHighlighter(
-                                        showHorizontalFollowLine: charts
-                                            .LinePointHighlighterFollowLineType
-                                            .nearest,
-                                        showVerticalFollowLine: charts
-                                            .LinePointHighlighterFollowLineType
-                                            .none),
-                                  ],
-                                ),
-                                padding: EdgeInsets.only(
-                                    left: _horizontalPadding,
-                                    right: _horizontalPadding),
-                              ),
-                              CoryatElement.gameDivider(),
-                              Container(
-                                height: _chartHeight,
-                                child: charts.TimeSeriesChart(
-                                  _createCoryatStackedData(rollingDays: 20),
-                                  animate: _animateGraphs,
-                                  defaultRenderer: charts.LineRendererConfig(
-                                    includeArea: true,
-                                    stacked: true,
-                                    includePoints: true,
-                                  ),
-                                  behaviors: [
-                                    _chartLegend(),
-                                    _chartTitle("20-Game Rolling Coryat"),
                                     charts.LinePointHighlighter(
                                         showHorizontalFollowLine: charts
                                             .LinePointHighlighterFollowLineType
