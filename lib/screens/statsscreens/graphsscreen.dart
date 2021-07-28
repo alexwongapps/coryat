@@ -90,7 +90,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                   child: Center(
                                     child: CoryatElement.text(
                                         _presetCategories[_coryat],
-                                        bold: true),
+                                        bold: true,
+                                        shrinkToFit: true),
                                   ),
                                 ),
                                 DropdownMenuItem(
@@ -98,7 +99,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                   child: Center(
                                     child: CoryatElement.text(
                                         _presetCategories[_averageGame],
-                                        bold: true),
+                                        bold: true,
+                                        shrinkToFit: true),
                                   ),
                                 ),
                                 DropdownMenuItem(
@@ -107,7 +109,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                     child: CoryatElement.text(
                                         _presetCategories[
                                             _clueValuePerformance],
-                                        bold: true),
+                                        bold: true,
+                                        shrinkToFit: true),
                                   ),
                                 ),
                               ],
@@ -175,6 +178,7 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                             num.toString() +
                                                 "-Game Rolling Coryat",
                                             bold: true,
+                                            shrinkToFit: true,
                                           ),
                                         ),
                                       );
@@ -545,8 +549,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
             DropdownMenuItem(
               value: _allTime,
               child: Center(
-                child: CoryatElement.text(_presetRanges[_allTime], bold: true),
-              ),
+                  child: CoryatElement.text(_presetRanges[_allTime],
+                      bold: true, shrinkToFit: true)),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
                 setState(() {
@@ -558,7 +562,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
             DropdownMenuItem(
               value: _lastGame,
               child: Center(
-                child: CoryatElement.text(_presetRanges[_lastGame], bold: true),
+                child: CoryatElement.text(_presetRanges[_lastGame],
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
@@ -573,8 +578,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
             DropdownMenuItem(
               value: _last5Games,
               child: Center(
-                child:
-                    CoryatElement.text(_presetRanges[_last5Games], bold: true),
+                child: CoryatElement.text(_presetRanges[_last5Games],
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
@@ -589,8 +594,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
             DropdownMenuItem(
               value: _last10Games,
               child: Center(
-                child:
-                    CoryatElement.text(_presetRanges[_last10Games], bold: true),
+                child: CoryatElement.text(_presetRanges[_last10Games],
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
@@ -605,7 +610,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
             DropdownMenuItem(
               value: _dateAired,
               child: Center(
-                child: CoryatElement.text(_dateAiredLabel, bold: true),
+                child: CoryatElement.text(_dateAiredLabel,
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
@@ -615,7 +621,8 @@ class _GraphsScreenState extends State<GraphsScreen> {
             DropdownMenuItem(
               value: _datePlayed,
               child: Center(
-                child: CoryatElement.text(_datePlayedLabel, bold: true),
+                child: CoryatElement.text(_datePlayedLabel,
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();

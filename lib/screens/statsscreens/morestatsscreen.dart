@@ -88,7 +88,8 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                               child: Center(
                                 child: CoryatElement.text(
                                     _presetRounds[_jeopardyStats],
-                                    bold: true),
+                                    bold: true,
+                                    shrinkToFit: true),
                               ),
                             ),
                             DropdownMenuItem(
@@ -96,7 +97,8 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                               child: Center(
                                 child: CoryatElement.text(
                                     _presetRounds[_doubleJeopardyStats],
-                                    bold: true),
+                                    bold: true,
+                                    shrinkToFit: true),
                               ),
                             ),
                             DropdownMenuItem(
@@ -104,7 +106,8 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                               child: Center(
                                 child: CoryatElement.text(
                                     _presetRounds[_allStats],
-                                    bold: true),
+                                    bold: true,
+                                    shrinkToFit: true),
                               ),
                             ),
                           ],
@@ -138,7 +141,8 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                                         child: Center(
                                           child: CoryatElement.text(
                                               _categories[index],
-                                              bold: true),
+                                              bold: true,
+                                              shrinkToFit: true),
                                         ),
                                       ))
                                   .toList(),
@@ -500,22 +504,28 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
             DropdownMenuItem(
               value: _allTime,
               child: Center(
-                child: CoryatElement.text(_presetRanges[_allTime], bold: true),
-              ),
+                  child: CoryatElement.text(_presetRanges[_allTime],
+                      bold: true, shrinkToFit: true)),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
-                setState(() {});
+                setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
+                });
               },
             ),
             DropdownMenuItem(
               value: _lastGame,
               child: Center(
-                child: CoryatElement.text(_presetRanges[_lastGame], bold: true),
+                child: CoryatElement.text(_presetRanges[_lastGame],
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
                 _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
                 setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
                   _games = _games.sublist(0, min(_games.length, 1));
                 });
               },
@@ -523,13 +533,15 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
             DropdownMenuItem(
               value: _last5Games,
               child: Center(
-                child:
-                    CoryatElement.text(_presetRanges[_last5Games], bold: true),
+                child: CoryatElement.text(_presetRanges[_last5Games],
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
                 _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
                 setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
                   _games = _games.sublist(0, min(_games.length, 5));
                 });
               },
@@ -537,13 +549,15 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
             DropdownMenuItem(
               value: _last10Games,
               child: Center(
-                child:
-                    CoryatElement.text(_presetRanges[_last10Games], bold: true),
+                child: CoryatElement.text(_presetRanges[_last10Games],
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
                 _games.sort((a, b) => b.datePlayed.compareTo(a.datePlayed));
                 setState(() {
+                  _dateAiredLabel = _presetRanges[_dateAired];
+                  _datePlayedLabel = _presetRanges[_datePlayed];
                   _games = _games.sublist(0, min(_games.length, 10));
                 });
               },
@@ -551,7 +565,8 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
             DropdownMenuItem(
               value: _dateAired,
               child: Center(
-                child: CoryatElement.text(_dateAiredLabel, bold: true),
+                child: CoryatElement.text(_dateAiredLabel,
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
@@ -561,7 +576,8 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
             DropdownMenuItem(
               value: _datePlayed,
               child: Center(
-                child: CoryatElement.text(_datePlayedLabel, bold: true),
+                child: CoryatElement.text(_datePlayedLabel,
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();

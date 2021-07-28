@@ -216,7 +216,7 @@ class _DateScreenState extends State<DateScreen> {
   }
 
   String _dateString(DateTime date) {
-    final df = new DateFormat('M/d/yyyy (EEEE)');
+    final df = new DateFormat('M/d/yyyy (EEE)');
     return df.format(date);
   }
 }

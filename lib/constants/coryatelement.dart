@@ -79,7 +79,21 @@ class CoryatElement {
   static Widget text(String text,
       {double size = Font.size_regular_text,
       Color color = Colors.black,
-      bool bold = false}) {
+      bool bold = false,
+      bool shrinkToFit = false}) {
+    if (shrinkToFit) {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          text,
+          style: TextStyle(
+              fontSize: size,
+              color: color,
+              fontFamily: Font.family,
+              fontWeight: bold ? FontWeight.bold : FontWeight.normal),
+        ),
+      );
+    }
     return Text(
       text,
       style: TextStyle(

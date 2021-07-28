@@ -87,7 +87,8 @@ class _StatsScreenState extends State<StatsScreen> {
                                         child: Center(
                                           child: CoryatElement.text(
                                               _categories[index],
-                                              bold: true),
+                                              bold: true,
+                                              shrinkToFit: true),
                                         ),
                                       ))
                                   .toList(),
@@ -628,8 +629,8 @@ class _StatsScreenState extends State<StatsScreen> {
             DropdownMenuItem(
               value: _allTime,
               child: Center(
-                child: CoryatElement.text(_presetRanges[_allTime], bold: true),
-              ),
+                  child: CoryatElement.text(_presetRanges[_allTime],
+                      bold: true, shrinkToFit: true)),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
                 setState(() {
@@ -641,7 +642,8 @@ class _StatsScreenState extends State<StatsScreen> {
             DropdownMenuItem(
               value: _lastGame,
               child: Center(
-                child: CoryatElement.text(_presetRanges[_lastGame], bold: true),
+                child: CoryatElement.text(_presetRanges[_lastGame],
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
@@ -656,8 +658,8 @@ class _StatsScreenState extends State<StatsScreen> {
             DropdownMenuItem(
               value: _last5Games,
               child: Center(
-                child:
-                    CoryatElement.text(_presetRanges[_last5Games], bold: true),
+                child: CoryatElement.text(_presetRanges[_last5Games],
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
@@ -672,8 +674,8 @@ class _StatsScreenState extends State<StatsScreen> {
             DropdownMenuItem(
               value: _last10Games,
               child: Center(
-                child:
-                    CoryatElement.text(_presetRanges[_last10Games], bold: true),
+                child: CoryatElement.text(_presetRanges[_last10Games],
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
@@ -688,7 +690,8 @@ class _StatsScreenState extends State<StatsScreen> {
             DropdownMenuItem(
               value: _dateAired,
               child: Center(
-                child: CoryatElement.text(_dateAiredLabel, bold: true),
+                child: CoryatElement.text(_dateAiredLabel,
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
@@ -698,7 +701,8 @@ class _StatsScreenState extends State<StatsScreen> {
             DropdownMenuItem(
               value: _datePlayed,
               child: Center(
-                child: CoryatElement.text(_datePlayedLabel, bold: true),
+                child: CoryatElement.text(_datePlayedLabel,
+                    bold: true, shrinkToFit: true),
               ),
               onTap: () async {
                 _games = await SqlitePersistence.getGames();
