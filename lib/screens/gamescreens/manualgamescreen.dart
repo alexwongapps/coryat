@@ -229,16 +229,58 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
     }
   }
 
+  Widget continueGameButton(BuildContext context) {
+    return CupertinoButton(
+      child: Text("Stay Here"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  Widget exitGameButton(BuildContext context) {
+    return CupertinoButton(
+      child: Text(
+        "Exit Game",
+        style: TextStyle(
+          color: CupertinoColors.destructiveRed,
+        ),
+      ),
+      onPressed: () {
+        int count = 0;
+        Navigator.of(context).popUntil((_) => count++ >= 2);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       resizeToAvoidBottomInset: false,
-      navigationBar:
-          CoryatElement.cupertinoNavigationBar(_currentRound == Round.jeopardy
+      navigationBar: CoryatElement.cupertinoNavigationBar(
+          _currentRound == Round.jeopardy
               ? "Jeopardy Round"
               : _currentRound == Round.double_jeopardy
                   ? "Double Jeopardy Round"
-                  : "Final Jeopardy"),
+                  : "Final Jeopardy",
+          leading: CupertinoNavigationBarBackButton(onPressed: () {
+        CupertinoAlertDialog alert = CupertinoAlertDialog(
+          title: Text("Are you sure?"),
+          content: Text(
+              "The current game will be lost. To save a game, click Finish after Final Jeopardy"),
+          actions: [
+            exitGameButton(context),
+            continueGameButton(context),
+          ],
+        );
+
+        showCupertinoDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return alert;
+          },
+        );
+      })),
       child: Center(
         child: Scrollbar(
           child: SingleChildScrollView(
@@ -494,24 +536,63 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
-                            "\$" +
-                                widget.game
-                                    .getStat(Stat.CORRECT_TOTAL_VALUE)
-                                    .toString(),
+                            widget.game
+                                    .getCustomPerformance((c) =>
+                                        c.question.round !=
+                                        Round.final_jeopardy)[Response.correct]
+                                    .toString() +
+                                " | \$" +
+                                (widget.game.getStat(
+                                            Stat.CORRECT_TOTAL_VALUE) ~/
+                                        1000)
+                                    .toString() +
+                                "." +
+                                ((widget.game.getStat(
+                                                Stat.CORRECT_TOTAL_VALUE) %
+                                            1000) ~/
+                                        100)
+                                    .toString() +
+                                "k",
                             style: TextStyle(color: CustomColor.correctGreen),
                           ),
                           Text(
-                            "−\$" +
-                                widget.game
-                                    .getStat(Stat.INCORRECT_TOTAL_VALUE)
-                                    .toString(),
+                            widget.game
+                                    .getCustomPerformance((c) =>
+                                        c.question.round !=
+                                        Round
+                                            .final_jeopardy)[Response.incorrect]
+                                    .toString() +
+                                " | −\$" +
+                                (widget.game.getStat(
+                                            Stat.INCORRECT_TOTAL_VALUE) ~/
+                                        1000)
+                                    .toString() +
+                                "." +
+                                ((widget.game.getStat(
+                                                Stat.INCORRECT_TOTAL_VALUE) %
+                                            1000) ~/
+                                        100)
+                                    .toString() +
+                                "k",
                             style: TextStyle(color: CustomColor.incorrectRed),
                           ),
-                          Text("(\$" +
-                              widget.game
-                                  .getStat(Stat.NO_ANSWER_TOTAL_VALUE)
+                          Text(widget.game
+                                  .getCustomPerformance((c) =>
+                                      c.question.round !=
+                                      Round.final_jeopardy)[Response.none]
                                   .toString() +
-                              ")"),
+                              " | (\$" +
+                              (widget.game.getStat(
+                                          Stat.NO_ANSWER_TOTAL_VALUE) ~/
+                                      1000)
+                                  .toString() +
+                              "." +
+                              ((widget.game.getStat(
+                                              Stat.NO_ANSWER_TOTAL_VALUE) %
+                                          1000) ~/
+                                      100)
+                                  .toString() +
+                              "k)"),
                         ],
                       ),
                     ),

@@ -13,7 +13,7 @@ import 'design.dart';
 
 class CoryatElement {
   static CupertinoNavigationBar cupertinoNavigationBar(String text,
-      {Widget trailing, bool border}) {
+      {Widget leading, Widget trailing, bool border}) {
     if (border == null || border) {
       return CupertinoNavigationBar(
         middle: Text(
@@ -22,6 +22,7 @@ class CoryatElement {
             fontFamily: Font.family,
           ),
         ),
+        leading: leading,
         trailing: trailing,
       );
     }
