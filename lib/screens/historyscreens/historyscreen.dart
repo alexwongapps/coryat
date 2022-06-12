@@ -123,6 +123,44 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
+  Widget _byGameButton(BuildContext context) {
+    return CupertinoButton(
+      child: Text("By Game"),
+      onPressed: () async {
+        Navigator.pop(context);
+        String data = ListToCsvConverter().convert(_getCSV(false));
+        final dir = await getApplicationSupportDirectory();
+        final String directory = dir.path;
+        final path =
+            "$directory/coryat-${DateFormat('yyyy-MM-dd').format(DateTime.now())}" +
+                "-game" +
+                ".csv";
+        final File file = File(path);
+        await file.writeAsString(data);
+        Share.shareFiles([path]);
+      },
+    );
+  }
+
+  Widget _byClueButton(BuildContext context) {
+    return CupertinoButton(
+      child: Text("By Clue"),
+      onPressed: () async {
+        Navigator.pop(context);
+        String data = ListToCsvConverter().convert(_getCSV(true));
+        final dir = await getApplicationSupportDirectory();
+        final String directory = dir.path;
+        final path =
+            "$directory/coryat-${DateFormat('yyyy-MM-dd').format(DateTime.now())}" +
+                "-clue" +
+                ".csv";
+        final File file = File(path);
+        await file.writeAsString(data);
+        Share.shareFiles([path]);
+      },
+    );
+  }
+
   Widget _buildGames() {
     return new ListView.separated(
         itemCount: 1 + _games.length,
@@ -138,15 +176,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     "Export",
                     _doubleCoryatPurchased
                         ? () async {
-                            String data =
-                                ListToCsvConverter().convert(_getCSV());
-                            final dir = await getApplicationSupportDirectory();
-                            final String directory = dir.path;
-                            final path =
-                                "$directory/coryat-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.csv";
-                            final File file = File(path);
-                            await file.writeAsString(data);
-                            Share.shareFiles([path]);
+                            CupertinoAlertDialog alert = CupertinoAlertDialog(
+                              title: Text("Export Format"),
+                              actions: [
+                                _byGameButton(context),
+                                _byClueButton(context),
+                              ],
+                            );
+
+                            showCupertinoDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return alert;
+                              },
+                            );
                           }
                         : () {
                             Widget backButton =
@@ -235,73 +278,134 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ));
   }
 
-  List<List<String>> _getCSV() {
+  List<List<String>> _getCSV(bool byClue) {
     List<List<String>> ret = [];
-    List<String> headers = [
-      "Game Number",
-      "Date Aired",
-      "Date Played",
-      "Game Coryat",
-      "Round",
-      "Clue Number",
-      "Clue Category",
-      "Clue Value",
-      "Daily Double?",
-      "Response",
-    ];
-    ret.add(headers);
-    int numberOn = 1;
-    int roundOn = Round.jeopardy;
-    for (int i = 0; i < _games.length; i++) {
-      Game game = _games[i];
-      for (Event event in game.getEvents()) {
-        if (event.type == EventType.clue) {
-          Clue c = event as Clue;
-          List<String> thisClue = [
-            (i + 1).toString(),
-            game.dateAired.toIso8601String(),
-            game.datePlayed.toIso8601String(),
-            game.getStat(Stat.CORYAT).toString(),
-          ];
-          if (c.question.round == Round.jeopardy) {
-            thisClue.add("Jeopardy");
-          } else if (c.question.round == Round.double_jeopardy) {
-            thisClue.add("Double Jeopardy");
-          } else {
-            thisClue.add("Final Jeopardy");
+
+    if (byClue) {
+      List<String> headers = [
+        "Game Number",
+        "Date Aired",
+        "Date Played",
+        "Game Coryat",
+        "Round",
+        "Clue Number",
+        "Clue Category",
+        "Clue Value",
+        "Daily Double?",
+        "Response",
+      ];
+      ret.add(headers);
+      int numberOn = 1;
+      int roundOn = Round.jeopardy;
+      for (int i = 0; i < _games.length; i++) {
+        Game game = _games[i];
+        for (Event event in game.getEvents()) {
+          if (event.type == EventType.clue) {
+            Clue c = event as Clue;
+            List<String> thisClue = [
+              (i + 1).toString(),
+              game.dateAired.toIso8601String(),
+              game.datePlayed.toIso8601String(),
+              game.getStat(Stat.CORYAT).toString(),
+            ];
+            if (c.question.round == Round.jeopardy) {
+              thisClue.add("Jeopardy");
+            } else if (c.question.round == Round.double_jeopardy) {
+              thisClue.add("Double Jeopardy");
+            } else {
+              thisClue.add("Final Jeopardy");
+            }
+            if (c.question.round != roundOn) {
+              numberOn = 1;
+              roundOn = c.question.round;
+            }
+            thisClue.add(numberOn.toString());
+            numberOn++;
+            if (game.tracksCategories()) {
+              thisClue.add(game.getCategory(c.question.round, c.categoryIndex));
+            } else {
+              thisClue.add("");
+            }
+            if (c.question.round == Round.final_jeopardy) {
+              thisClue.add("");
+            } else {
+              thisClue.add(c.question.value.toString());
+            }
+            if (c.question.round == Round.final_jeopardy) {
+              thisClue.add("");
+            } else if (c.isDailyDouble()) {
+              thisClue.add("Yes");
+            } else {
+              thisClue.add("No");
+            }
+            if (c.response == Response.correct) {
+              thisClue.add("Correct");
+            } else if (c.response == Response.incorrect) {
+              thisClue.add("Incorrect");
+            } else {
+              thisClue.add("No Answer");
+            }
+            ret.add(thisClue);
           }
-          if (c.question.round != roundOn) {
-            numberOn = 1;
-            roundOn = c.question.round;
-          }
-          thisClue.add(numberOn.toString());
-          numberOn++;
-          if (game.tracksCategories()) {
-            thisClue.add(game.getCategory(c.question.round, c.categoryIndex));
-          } else {
-            thisClue.add("");
-          }
-          if (c.question.round == Round.final_jeopardy) {
-            thisClue.add("");
-          } else {
-            thisClue.add(c.question.value.toString());
-          }
-          if (c.question.round == Round.final_jeopardy) {
-            thisClue.add("");
-          } else if (c.isDailyDouble()) {
-            thisClue.add("Yes");
-          } else {
-            thisClue.add("No");
-          }
-          if (c.response == Response.correct) {
-            thisClue.add("Correct");
-          } else if (c.response == Response.incorrect) {
-            thisClue.add("Incorrect");
-          } else {
-            thisClue.add("No Answer");
-          }
-          ret.add(thisClue);
         }
+      }
+    } else {
+      List<String> headers = [
+        "Game Number",
+        "Date Aired",
+        "Date Played",
+        "Game Coryat",
+        "Jeopardy Coryat",
+        "Double Jeopardy Coryat",
+        "Correct Clues",
+        "Incorrect Clues",
+        "No Answer Clues",
+        "Correct Value",
+        "Incorrect Value",
+        "No Answer Value",
+        "DD Correct",
+        "DD No Answer",
+        "FJ Response",
+      ];
+      ret.add(headers);
+      for (int i = 0; i < _games.length; i++) {
+        Game game = _games[i];
+        List<int> fj = game.getCustomPerformance(
+            (c) => c.question.round == Round.final_jeopardy);
+        String fjResponse = fj[Response.correct] > 0
+            ? "Correct"
+            : (fj[Response.incorrect] > 0 ? "Incorrect" : "No Answer");
+        List<String> thisGame = [
+          (i + 1).toString(),
+          game.dateAired.toIso8601String(),
+          game.datePlayed.toIso8601String(),
+          game.getStat(Stat.CORYAT).toString(),
+          game.getStat(Stat.JEOPARDY_CORYAT).toString(),
+          game.getStat(Stat.DOUBLE_JEOPARDY_CORYAT).toString(),
+          game
+              .getCustomPerformance((c) =>
+                  c.question.round != Round.final_jeopardy)[Response.correct]
+              .toString(),
+          game
+              .getCustomPerformance((c) =>
+                  c.question.round != Round.final_jeopardy)[Response.incorrect]
+              .toString(),
+          game
+              .getCustomPerformance((c) =>
+                  c.question.round != Round.final_jeopardy)[Response.none]
+              .toString(),
+          game.getStat(Stat.CORRECT_TOTAL_VALUE).toString(),
+          game.getStat(Stat.INCORRECT_TOTAL_VALUE).toString(),
+          game.getStat(Stat.NO_ANSWER_TOTAL_VALUE).toString(),
+          game
+              .getCustomPerformance((c) => c.isDailyDouble())[Response.correct]
+              .toString(),
+          game
+              .getCustomPerformance((c) => c.isDailyDouble())[Response.none]
+              .toString(),
+          fjResponse,
+        ];
+        ret.add(thisGame);
       }
     }
     return ret;
