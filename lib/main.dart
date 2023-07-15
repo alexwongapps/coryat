@@ -4,7 +4,6 @@ import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/iap.dart';
 import 'package:coryat/constants/securestorage.dart';
-import 'package:coryat/data/firebase.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/screens/homescreen.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +13,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'constants/font.dart';
 
@@ -25,6 +25,7 @@ void main() async {
   if (defaultTargetPlatform == TargetPlatform.android) {
     InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
   }
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 

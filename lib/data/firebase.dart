@@ -12,9 +12,10 @@ class Firebase {
   static const FINAL_CORYAT_FIELD = "finalCoryat";
 
   static Future<Map<String, bool>> redeemCode(String code) async {
-    CollectionReference codes = Firestore.instance.collection(CODES_COLLECTION);
+    CollectionReference codes =
+        FirebaseFirestore.instance.collection(CODES_COLLECTION);
     DocumentSnapshot snapshot =
-        await codes.document(code).get().catchError((error) {});
+        await codes.doc(code).get().catchError((error) {});
 
     if (snapshot == null) {
       return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
@@ -28,9 +29,9 @@ class Firebase {
       return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
     }
 
-    Map<String, dynamic> data = snapshot.data;
+    Map<String, dynamic> data = snapshot.data();
     if (!(data[REDEEMED_FIELD] ?? true)) {
-      codes.document(code).updateData({REDEEMED_FIELD: true});
+      codes.doc(code).update({REDEEMED_FIELD: true});
     } else {
       return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
     }
@@ -41,8 +42,9 @@ class Firebase {
   }
 
   static void createCode(String code, bool doubleCoryat, bool finalCoryat) {
-    CollectionReference codes = Firestore.instance.collection(CODES_COLLECTION);
-    codes.document(code).setData({
+    CollectionReference codes =
+        FirebaseFirestore.instance.collection(CODES_COLLECTION);
+    codes.doc(code).set({
       REDEEMED_FIELD: false,
       DOUBLE_CORYAT_FIELD: doubleCoryat,
       FINAL_CORYAT_FIELD: finalCoryat
@@ -50,9 +52,10 @@ class Firebase {
   }
 
   static Future<List<Game>> loadGames(User user) async {
-    CollectionReference users = Firestore.instance.collection(USERS_COLLECTION);
+    CollectionReference users =
+        FirebaseFirestore.instance.collection(USERS_COLLECTION);
 
-    DocumentSnapshot snapshot = await users.document(user.id).get();
+    DocumentSnapshot snapshot = await users.doc(user.id).get();
     // TODO: PlatformException (PlatformException(Error 14, FIRFirestoreErrorDomain, Failed to get document because the client is offline., null))
 
     if (!snapshot.exists) {
@@ -61,7 +64,7 @@ class Firebase {
     }
 
     List<Game> g = [];
-    Map<String, dynamic> data = snapshot.data;
+    Map<String, dynamic> data = snapshot.data();
     if (data["games"] == null) {
       return g;
     }
@@ -82,22 +85,22 @@ class Firebase {
           game.dateAired.day.toString()] = game.encode(firebase: true);
     }
     try {
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection(USERS_COLLECTION)
-          .document(user.id)
+          .doc(user.id)
           .get()
           .then((doc) {
         if (doc.exists) {
-          Firestore.instance
+          FirebaseFirestore.instance
               .collection(USERS_COLLECTION)
-              .document(user.id)
-              .updateData(m);
+              .doc(user.id)
+              .update(m);
           return;
         } else {
-          Firestore.instance
+          FirebaseFirestore.instance
               .collection(USERS_COLLECTION)
-              .document(user.id)
-              .setData(m);
+              .doc(user.id)
+              .set(m);
           return;
         }
       });

@@ -158,7 +158,8 @@ class _DateScreenState extends State<DateScreen> {
                         return alert;
                       },
                     );
-                    FirebaseAnalytics().logEvent(name: "game_limit_reached");
+                    await FirebaseAnalytics.instance
+                        .logEvent(name: "game_limit_reached");
                   } else {
                     Navigator.of(context).push(
                       CupertinoPageRoute(builder: (context) {

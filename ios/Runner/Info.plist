@@ -51,5 +51,7 @@
 	<false/>
 	<key>UIRequiresFullScreen</key>
 	<true/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 </dict>
 </plist>

@@ -235,7 +235,7 @@ class _StatsScreenState extends State<StatsScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CoryatElement.cupertinoButton("More Stats", () async {
-                      if (await IAP.doubleCoryatPurchased()) {
+                      if (true) {
                         Navigator.of(context).push(
                           CupertinoPageRoute(builder: (context) {
                             return MoreStatsScreen();
@@ -265,7 +265,7 @@ class _StatsScreenState extends State<StatsScreen> {
                       }
                     }),
                     CoryatElement.cupertinoButton("Graphs", () async {
-                      if (await IAP.doubleCoryatPurchased()) {
+                      if (true) {
                         Navigator.of(context).push(
                           CupertinoPageRoute(builder: (context) {
                             return GraphsScreen();

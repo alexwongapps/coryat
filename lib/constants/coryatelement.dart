@@ -170,7 +170,7 @@ class CoryatElement {
   }
 
   static void share(BuildContext context, Game game) {
-    FirebaseAnalytics().logEvent(name: "share");
+    FirebaseAnalytics.instance.logEvent(name: "share");
     List<int> performance = game
         .getCustomPerformance((c) => c.question.round != Round.final_jeopardy);
     List<int> dd = game.getCustomPerformance((c) => c.isDailyDouble());

@@ -627,7 +627,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                   prefs.setInt(
                                       SharedPreferencesKey.GAMES_PLAYED,
                                       played);
-                                  FirebaseAnalytics().logEvent(
+                                  await FirebaseAnalytics.instance.logEvent(
                                       name: "finish_game",
                                       parameters: {
                                         "games_played": played,
