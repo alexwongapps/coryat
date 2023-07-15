@@ -1,26 +1,8 @@
 # Coryat
 
-[Google Doc](https://docs.google.com/document/d/1Zv8SKOVWy4V1g2C6xmQH91oUexX5lUQnp8sOtDngBns/edit?usp=sharing)
+## Play along with Jeopardy! and track your score.
 
-## To-do
-
-## MVP
-- Manual game
-- Local save
-- Numerical stats
-- IAP
-
-## Basic (Firebase easy)
-- Firebase save
-- Accounts
-- Global average
-
-## Advanced (Firebase hard)
-- Graphs
-- Leaderboard (friends/global)
-- Challenges
-
-## IAP
-- Double Coryat: More stats, graphs (all non-Firebase)
-- Final Coryat: Account, leaderboards (all Firebase)
-- Both come with unlimited games
+- Scoring is done with an easy-to-use scoring page, complete with category tracking
+- Once done, the user can edit the game if they messed up or share it on social media
+- The app includes comprehensive stats, including average game score and Daily Double performance
+- A one-time upgrade to Double Coryat includes unlimited game storage, more stats, graphs, and exporting
