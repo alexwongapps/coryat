@@ -9,12 +9,12 @@ import 'package:coryat/models/game.dart';
 import 'package:coryat/models/question.dart';
 
 class Clue implements Event {
-  String order;
-  int type;
+  late String order;
+  late int type;
   int response;
-  Question question;
+  late Question question;
   int categoryIndex;
-  Set<String> tags;
+  late Set<String> tags;
 
   Clue(this.response, {this.categoryIndex = Category.NA}) {
     this.order = "";

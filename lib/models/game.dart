@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:coryat/data/jarchive.dart';
 import 'package:coryat/data/serialize.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
@@ -16,14 +15,14 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 class Game {
-  String id;
-  DateTime dateAired;
-  DateTime datePlayed;
-  User user;
-  bool synced;
-  List<String> _userCategories; // null if doesn't use categories
-  List<Event> _events;
-  List<int> _stats;
+  late String id;
+  late DateTime dateAired;
+  late DateTime datePlayed;
+  late User user;
+  late bool synced;
+  List<String>? _userCategories; // null if doesn't use categories
+  late List<Event> _events;
+  late List<int> _stats;
 
   Game(int year, int month, int day, {user, events}) {
     this.id = Uuid().v4();
@@ -46,7 +45,7 @@ class Game {
   }
 
   void addManualResponse(int response, int round, int value, Set<String> tags,
-      {int categoryIndex, int index}) {
+      {int? categoryIndex, int? index}) {
     Clue clue = Clue(response);
     clue.question.value = value;
     clue.question.round = round;
@@ -88,7 +87,7 @@ class Game {
     _refresh();
   }
 
-  Event undo() {
+  Event? undo() {
     if (_events.length == 0) {
       return null;
     }
@@ -300,25 +299,25 @@ class Game {
       _userCategories = ["", "", "", "", "", "", "", "", "", "", "", "", ""];
     }
     if (round == Round.final_jeopardy) {
-      _userCategories[12] = name;
+      _userCategories![12] = name;
       return;
     }
     int offset = round == Round.jeopardy ? 0 : 6;
-    _userCategories[offset + category] = name;
+    _userCategories![offset + category] = name;
   }
 
-  String getCategory(int round, int category) {
+  String? getCategory(int round, int category) {
     if (_userCategories == null) {
       return null;
     }
     if (round == Round.final_jeopardy) {
-      return _userCategories[12];
+      return _userCategories![12];
     }
     int offset = round == Round.jeopardy ? 0 : 6;
-    return _userCategories[offset + category];
+    return _userCategories![offset + category];
   }
 
-  List<String> allCategories() {
+  List<String>? allCategories() {
     return _userCategories;
   }
 
@@ -335,7 +334,7 @@ class Game {
       user.encode(firebase: firebase),
     ];
     if (tracksCategories()) {
-      data.addAll(_userCategories);
+      data.addAll(_userCategories!);
     } else {
       data.addAll(["", "", "", "", "", "", "", "", "", "", "", "", ""]);
     }
@@ -345,7 +344,7 @@ class Game {
     return Serialize.encode(data, delimiter);
   }
 
-  static Game decode(String encoded, {String id, bool firebase = false}) {
+  static Game decode(String encoded, {String? id, bool firebase = false}) {
     List<String> dec = Serialize.decode(encoded, delimiter);
     List<String> events = dec.sublist(18);
     List<Event> ev = [];
@@ -359,8 +358,11 @@ class Game {
       g.id = id;
     }
     g._userCategories = dec.sublist(5, 18);
+    if (g._userCategories == null) {
+      return g;
+    }
     // if all empty strings, doesn't use categories
-    if (g._userCategories
+    if (g._userCategories!
             .map((e) => e.length)
             .reduce((value, element) => value + element) ==
         0) {

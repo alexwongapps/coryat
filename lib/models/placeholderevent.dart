@@ -3,10 +3,10 @@ import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/models/event.dart';
 
 class PlaceholderEvent implements Event {
-  String order;
-  int type;
-  String notes;
-  Set<String> tags;
+  late String order;
+  late int type;
+  late String notes;
+  late Set<String> tags;
 
   PlaceholderEvent() {
     this.order = "";

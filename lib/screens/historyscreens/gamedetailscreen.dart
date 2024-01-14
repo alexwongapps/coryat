@@ -6,19 +6,17 @@ import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
 import 'package:coryat/enums/round.dart';
-import 'package:coryat/enums/stat.dart';
 import 'package:coryat/enums/tags.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class GameDetailScreen extends StatefulWidget {
   final Game game;
 
-  GameDetailScreen({Key key, @required this.game}) : super(key: key);
+  GameDetailScreen({Key? key, required this.game}) : super(key: key);
 
   @override
   _GameDetailScreenState createState() => _GameDetailScreenState();
@@ -46,7 +44,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     Set<String> cats = Set();
     for (Game game in games) {
       if (game.tracksCategories()) {
-        cats.addAll(game.allCategories());
+        cats.addAll(game.allCategories()!);
       }
     }
     List<String> l = cats.toList();
@@ -95,7 +93,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     int fields = round == Round.final_jeopardy ? 1 : 6;
 
     for (int i = 0; i < fields; i++) {
-      textEditingControllers[i].text = widget.game.getCategory(round, i);
+      textEditingControllers[i].text = widget.game.getCategory(round, i)!;
     }
 
     Widget doneButton = CoryatElement.cupertinoButton(
@@ -177,7 +175,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                   CoryatElement.cupertinoButton(
                     event.type == EventType.marker ? "" : "E",
                     event.type == EventType.marker
-                        ? null
+                        ? () {}
                         : () {
                             Clue clue = event as Clue;
                             if (clue.question.round == Round.final_jeopardy) {
@@ -192,7 +190,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                   CoryatElement.cupertinoButton(
                     event.type == EventType.marker ? "" : "D",
                     event.type == EventType.marker
-                        ? null
+                        ? () {}
                         : () {
                             Widget noButton = CoryatElement.cupertinoButton(
                               "No",
@@ -242,7 +240,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   void _editCategory(Clue c) {
     CupertinoButton categoryButton(int category) {
       return CupertinoButton(
-        child: Text(widget.game.getCategory(c.question.round, category) +
+        child: Text(widget.game.getCategory(c.question.round, category)! +
             (c.categoryIndex == category ? " (Current)" : "")),
         onPressed: () {
           setState(() {
@@ -418,55 +416,55 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
           : (event as Clue).question.round != Round.final_jeopardy
               ? [
                   TextSpan(text: event.order + ": "),
-                  (event as Clue).response == Response.correct
+                  (event).response == Response.correct
                       ? TextSpan(
-                          text: ((event as Clue).categoryIndex == Category.NA
+                          text: ((event).categoryIndex == Category.NA
                                   ? ""
                                   : "C" +
-                                      ((event as Clue).categoryIndex + 1)
+                                      ((event).categoryIndex + 1)
                                           .toString() +
                                       " ") +
                               "\$" +
-                              (event as Clue).question.value.toString() +
-                              ((event as Clue).isDailyDouble() ? " (DD)" : ""),
+                              (event).question.value.toString() +
+                              ((event).isDailyDouble() ? " (DD)" : ""),
                           style: TextStyle(color: CustomColor.correctGreen))
-                      : (event as Clue).response == Response.incorrect
+                      : (event).response == Response.incorrect
                           ? TextSpan(
-                              text: ((event as Clue).categoryIndex ==
+                              text: ((event).categoryIndex ==
                                           Category.NA
                                       ? ""
                                       : "C" +
-                                          ((event as Clue).categoryIndex + 1)
+                                          ((event).categoryIndex + 1)
                                               .toString() +
                                           " ") +
                                   "−\$" +
-                                  (event as Clue).question.value.toString() +
-                                  ((event as Clue).isDailyDouble()
+                                  (event).question.value.toString() +
+                                  ((event).isDailyDouble()
                                       ? " (DD)"
                                       : ""),
                               style: TextStyle(color: CustomColor.incorrectRed))
                           : TextSpan(
-                              text: ((event as Clue).categoryIndex ==
+                              text: ((event).categoryIndex ==
                                           Category.NA
                                       ? ""
                                       : "C" +
-                                          ((event as Clue).categoryIndex + 1)
+                                          ((event).categoryIndex + 1)
                                               .toString() +
                                           " ") +
                                   "(\$" +
-                                  (event as Clue).question.value.toString() +
+                                  (event).question.value.toString() +
                                   ")" +
-                                  ((event as Clue).isDailyDouble()
+                                  ((event).isDailyDouble()
                                       ? " (DD)"
                                       : "")),
                 ]
               : [
                   TextSpan(text: event.order + ": "),
-                  (event as Clue).response == Response.correct
+                  (event).response == Response.correct
                       ? TextSpan(
                           text: "Correct",
                           style: TextStyle(color: CustomColor.correctGreen))
-                      : (event as Clue).response == Response.incorrect
+                      : (event).response == Response.incorrect
                           ? TextSpan(
                               text: "Incorrect",
                               style: TextStyle(color: CustomColor.incorrectRed))
@@ -532,7 +530,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     CupertinoButton categoryButton(int category) {
       return CupertinoButton(
         child: Text(
-          widget.game.getCategory(round, category),
+          widget.game.getCategory(round, category)!,
         ),
         onPressed: () {
           setState(() {
@@ -756,10 +754,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             ],
       ),
       itemBuilder: (context, i) {
-        if (i < widget.game.getEvents().length) {
-          return _buildEventRow(widget.game.getEvents()[i]);
-        }
-        return null;
+        return _buildEventRow(widget.game.getEvents()[i]);
       },
       itemCount: widget.game.getEvents().length,
       onReorder: (int oldIndex, int newIndex) {

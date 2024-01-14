@@ -2,12 +2,9 @@ import 'dart:io';
 
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
-import 'package:coryat/constants/design.dart';
 import 'package:coryat/constants/font.dart';
 import 'package:coryat/constants/iap.dart';
 import 'package:coryat/constants/sharedpreferenceskey.dart';
-import 'package:coryat/data/firebase.dart';
-import 'package:coryat/data/jarchive.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/enums/response.dart';
@@ -16,7 +13,6 @@ import 'package:coryat/enums/stat.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
-import 'package:coryat/models/user.dart';
 import 'package:coryat/screens/historyscreens/gamedetailscreen.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/cupertino.dart';
@@ -33,7 +29,6 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   List<Game> _games = [];
-  User _user;
   final int _dateAired = 0;
   final int _datePlayed = 1;
   int _sortMethod = 0;
@@ -137,7 +132,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ".csv";
         final File file = File(path);
         await file.writeAsString(data);
-        Share.shareFiles([path]);
+        Share.shareXFiles([XFile(path)]);
       },
     );
   }
@@ -156,7 +151,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ".csv";
         final File file = File(path);
         await file.writeAsString(data);
-        Share.shareFiles([path]);
+        Share.shareXFiles([XFile(path)]);
       },
     );
   }
@@ -322,7 +317,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
             thisClue.add(numberOn.toString());
             numberOn++;
             if (game.tracksCategories()) {
-              thisClue.add(game.getCategory(c.question.round, c.categoryIndex));
+              thisClue
+                  .add(game.getCategory(c.question.round, c.categoryIndex)!);
             } else {
               thisClue.add("");
             }
@@ -412,23 +408,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void refresh() async {
-    /*
-    if (firebaseUser == null) {
-    */
     _games = await SqlitePersistence.getGames();
-    /*} else {
-      _user =
-          User(firebaseUser.email, firebaseUser.displayName, firebaseUser.uid);
-      _games = await Firebase.loadGames(_user);
-    }*/
     setState(() {});
   }
 
-/*
-  bool _isLoggedIn() {
-    return _user != null;
-  }
-*/
   // Show the modal that contains the CupertinoDatePicker
   void _showDatePicker(ctx, Game game) {
     DateTime chosenDateTime = game.dateAired;

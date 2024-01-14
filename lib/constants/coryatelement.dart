@@ -13,7 +13,7 @@ import 'design.dart';
 
 class CoryatElement {
   static CupertinoNavigationBar cupertinoNavigationBar(String text,
-      {Widget leading, Widget trailing, bool border}) {
+      {Widget? leading, Widget? trailing, bool? border}) {
     if (border == null || border) {
       return CupertinoNavigationBar(
         middle: Text(
@@ -40,9 +40,9 @@ class CoryatElement {
 
   static Widget cupertinoButton(
     String text,
-    Function onPressed, {
+    VoidCallback onPressed, {
     double size = Font.size_regular_button,
-    Color color,
+    Color? color,
   }) {
     return CupertinoButton(
         child: Text(
@@ -56,7 +56,7 @@ class CoryatElement {
   }
 
   static Widget fractionallySizedButton(
-      BuildContext context, double fraction, Text text, Function onPressed,
+      BuildContext context, double fraction, Text text, VoidCallback onPressed,
       {double padding = 0.0}) {
     return Container(
       width: MediaQuery.of(context).size.width * fraction,
@@ -142,7 +142,7 @@ class CoryatElement {
 
   static void presentBasicAlertDialog(
       BuildContext context, String title, String content,
-      {Function onPressed}) {
+      {VoidCallback? onPressed}) {
     Widget okButton = CupertinoButton(
       child: Text("OK"),
       onPressed: () {

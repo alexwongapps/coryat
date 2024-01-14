@@ -10,7 +10,7 @@ class IAP {
 
   static Future<bool> doubleCoryatPurchased() async {
     final storage = new FlutterSecureStorage();
-    String value = await storage.read(key: SecureStorage.DOUBLE_CORYAT_KEY);
+    String? value = await storage.read(key: SecureStorage.DOUBLE_CORYAT_KEY);
     if (value == null) {
       return false;
     }
@@ -22,7 +22,7 @@ class IAP {
 
   static Future<bool> finalCoryatPurchased() async {
     final storage = new FlutterSecureStorage();
-    String value = await storage.read(key: SecureStorage.FINAL_CORYAT_KEY);
+    String? value = await storage.read(key: SecureStorage.FINAL_CORYAT_KEY);
     if (value == null) {
       return false;
     }

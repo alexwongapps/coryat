@@ -1,15 +1,13 @@
-import 'dart:math';
-
 import 'package:coryat/data/serialize.dart';
 import 'package:coryat/enums/eventtype.dart';
 import 'package:coryat/models/event.dart';
 
 class Marker implements Event {
   static const NEXT_ROUND = "Next Round";
-  String order;
-  int type;
+  late String order;
+  late int type;
   String _name;
-  Set<String> tags;
+  late Set<String> tags;
 
   Marker(this._name) {
     this.order = "";

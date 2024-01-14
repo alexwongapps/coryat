@@ -5,9 +5,9 @@ import 'package:coryat/models/marker.dart';
 import 'package:coryat/models/placeholderevent.dart';
 
 abstract class Event {
-  String order;
-  int type;
-  Set<String> tags;
+  late String order;
+  late int type;
+  late Set<String> tags;
 
   String primaryText();
 
@@ -22,13 +22,10 @@ abstract class Event {
     switch (int.parse(dec[1])) {
       case EventType.clue:
         return Clue.decode(encoded);
-        break;
       case EventType.marker:
         return Marker.decode(encoded);
-        break;
       case EventType.placeholder:
         return PlaceholderEvent.decode(encoded);
-        break;
     }
     return PlaceholderEvent();
   }

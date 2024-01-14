@@ -8,7 +8,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 class UpgradeScreen extends StatefulWidget {
-  UpgradeScreen({Key key, this.doubleCoryatString = "", this.onUpgradeSelected})
+  UpgradeScreen(
+      {Key? key, this.doubleCoryatString = "", required this.onUpgradeSelected})
       : super(key: key);
 
   final String doubleCoryatString;
@@ -55,7 +56,7 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                   CoryatElement.cupertinoButton(
                     "Buy Double Coryat",
                     _successfulPurchase()
-                        ? null
+                        ? () {}
                         : () async {
                             final bool available =
                                 await InAppPurchase.instance.isAvailable();
@@ -114,7 +115,7 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                   CoryatElement.cupertinoButton(
                     "Restore",
                     _restoring
-                        ? null
+                        ? () {}
                         : () async {
                             setState(() {
                               _restoring = true;
@@ -153,29 +154,28 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                             await Firebase.redeemCode(_codeTextController.text);
                         setState(() {
                           _doubleCoryatCoded =
-                              map[Firebase.DOUBLE_CORYAT_FIELD];
-                          _finalCoryatCoded = map[Firebase.FINAL_CORYAT_FIELD];
+                              map[Firebase.DOUBLE_CORYAT_FIELD] ?? false;
+                          _finalCoryatCoded =
+                              map[Firebase.FINAL_CORYAT_FIELD] ?? false;
                         });
-                        if (map[Firebase.DOUBLE_CORYAT_FIELD]) {
+                        if (_doubleCoryatCoded) {
                           await SecureStorage.writeIAPVariable(
                               SecureStorage.DOUBLE_CORYAT_KEY, true);
                         }
-                        if (map[Firebase.FINAL_CORYAT_FIELD]) {
+                        if (_finalCoryatCoded) {
                           await SecureStorage.writeIAPVariable(
                               SecureStorage.FINAL_CORYAT_KEY, true);
                         }
-                        if (map[Firebase.DOUBLE_CORYAT_FIELD] ||
-                            map[Firebase.FINAL_CORYAT_FIELD]) {
+                        if (_doubleCoryatCoded || _finalCoryatCoded) {
                           CoryatElement.presentBasicAlertDialog(
                               context,
                               "Code Redeemed!",
                               "Redeemed:" +
-                                  (map[Firebase.DOUBLE_CORYAT_FIELD]
+                                  (_doubleCoryatCoded
                                       ? "\nDouble Coryat"
                                       : "") +
-                                  (map[Firebase.FINAL_CORYAT_FIELD]
-                                      ? "\Final Coryat"
-                                      : ""), onPressed: () {
+                                  (_finalCoryatCoded ? "\Final Coryat" : ""),
+                              onPressed: () {
                             Navigator.of(context).pop();
                             widget.onUpgradeSelected();
                           });

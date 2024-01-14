@@ -2,7 +2,6 @@ import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/font.dart';
 import 'package:coryat/constants/iap.dart';
 import 'package:coryat/constants/sharedpreferenceskey.dart';
-import 'package:coryat/data/firebase.dart';
 import 'package:coryat/screens/gamescreens/datescreen.dart';
 import 'package:coryat/screens/helpscreens/helpscreen.dart';
 import 'package:coryat/screens/historyscreens/historyscreen.dart';
@@ -12,7 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key key, this.title, this.doubleCoryatString = ""})
+  HomeScreen({Key? key, this.title = "", this.doubleCoryatString = ""})
       : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -68,11 +67,13 @@ class _HomeScreenState extends State<HomeScreen> {
             CoryatElement.cupertinoButton(
               "Start Game",
               () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) {
-                    return DateScreen();
-                  }),
-                );
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(builder: (context) {
+                      return DateScreen();
+                    }),
+                  );
+                });
               },
               size: Font.size_large_button,
             ),
@@ -82,22 +83,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 CoryatElement.cupertinoButton(
                   !_doubleCoryatPurchased ? " History" : "History",
                   () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (context) {
-                        return HistoryScreen();
-                      }),
-                    );
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (context) {
+                          return HistoryScreen();
+                        }),
+                      );
+                    });
                   },
                   size: Font.size_large_button,
                 ),
                 CoryatElement.cupertinoButton(
                   !_doubleCoryatPurchased ? " Stats" : "Stats",
                   () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (context) {
-                        return StatsScreen();
-                      }),
-                    );
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (context) {
+                          return StatsScreen();
+                        }),
+                      );
+                    });
                   },
                   size: Font.size_large_button,
                 ),
@@ -110,25 +115,29 @@ class _HomeScreenState extends State<HomeScreen> {
                       CoryatElement.cupertinoButton(
                         "Upgrade",
                         () {
-                          Navigator.of(context).push(
-                            CupertinoPageRoute(builder: (context) {
-                              return UpgradeScreen(
-                                doubleCoryatString: widget.doubleCoryatString,
-                                onUpgradeSelected: _successfulPurchase,
-                              );
-                            }),
-                          );
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(builder: (context) {
+                                return UpgradeScreen(
+                                  doubleCoryatString: widget.doubleCoryatString,
+                                  onUpgradeSelected: _successfulPurchase,
+                                );
+                              }),
+                            );
+                          });
                         },
                         size: Font.size_large_button,
                       ),
                       CoryatElement.cupertinoButton(
                         "Help",
                         () {
-                          Navigator.of(context).push(
-                            CupertinoPageRoute(builder: (context) {
-                              return HelpScreen();
-                            }),
-                          );
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(builder: (context) {
+                                return HelpScreen();
+                              }),
+                            );
+                          });
                         },
                         size: Font.size_large_button,
                       ),
@@ -137,11 +146,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 : CoryatElement.cupertinoButton(
                     "Help",
                     () {
-                      Navigator.of(context).push(
-                        CupertinoPageRoute(builder: (context) {
-                          return HelpScreen();
-                        }),
-                      );
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        Navigator.of(context).push(
+                          CupertinoPageRoute(builder: (context) {
+                            return HelpScreen();
+                          }),
+                        );
+                      });
                     },
                     size: Font.size_large_button,
                   ),

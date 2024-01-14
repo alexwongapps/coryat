@@ -18,7 +18,6 @@ import 'package:coryat/models/marker.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:in_app_review/in_app_review.dart';
 
@@ -27,7 +26,7 @@ class ManualGameScreen extends StatefulWidget {
   final bool trackCategories;
 
   ManualGameScreen(
-      {Key key, @required this.game, @required this.trackCategories})
+      {Key? key, required this.game, required this.trackCategories})
       : super(key: key);
 
   @override
@@ -40,7 +39,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   int _selectedButton = 0;
   int _selectedCategory = Category.NA;
   bool _isDailyDouble = false;
-  Event _redoEvent;
+  Event? _redoEvent;
   List<String> _categories = [];
   ScrollController _scrollController = ScrollController();
   List<TextEditingController> textEditingControllers = [
@@ -69,7 +68,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
             fontSize: Font.size_regular_button),
       ),
       _currentRound == Round.final_jeopardy
-          ? null
+          ? () {}
           : () {
               setState(() {
                 _selectedCategory = number;
@@ -216,7 +215,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
     Set<String> cats = Set();
     for (Game game in games) {
       if (game.tracksCategories()) {
-        cats.addAll(game.allCategories());
+        cats.addAll(game.allCategories()!);
       }
     }
     List<String> l = cats.toList();
@@ -307,7 +306,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                           ) as Widget,
                         ])
                       // ignore: deprecated_member_use
-                      : List<Widget>()) +
+                      : <Widget>[]) +
                   [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -364,7 +363,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                         CoryatElement.cupertinoButton(
                           "Incorrect",
                           _isDailyDouble
-                              ? null
+                              ? () {}
                               : () {
                                   setState(() {
                                     _addResponse(Response.incorrect);
@@ -422,9 +421,8 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                   ? null
                                   : () {
                                       setState(() {
-                                        Event last = widget.game.undo();
-                                        if (last != null &&
-                                            last.type == EventType.marker) {
+                                        Event last = widget.game.undo()!;
+                                        if (last.type == EventType.marker) {
                                           if ((last as Marker).primaryText() ==
                                               Marker.NEXT_ROUND) {
                                             _currentRound = Round.previousRound(
@@ -441,12 +439,12 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                               () {
                                 if (_redoEvent != null) {
                                   setState(() {
-                                    if (_redoEvent.type == EventType.marker &&
-                                        _redoEvent.primaryText() ==
+                                    if (_redoEvent!.type == EventType.marker &&
+                                        _redoEvent!.primaryText() ==
                                             Marker.NEXT_ROUND) {
                                       _nextRound();
                                     } else {
-                                      widget.game.appendEvent(_redoEvent);
+                                      widget.game.appendEvent(_redoEvent!);
                                     }
                                     _redoEvent = null;
                                   });
@@ -480,12 +478,12 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                       ? Text("")
                                       : ((event as Clue).question.round ==
                                               Round.final_jeopardy
-                                          ? ((event as Clue).response ==
+                                          ? ((event).response ==
                                                   Response.correct
                                               ? CoryatElement.text("Correct",
                                                   color:
                                                       CustomColor.correctGreen)
-                                              : (event as Clue).response ==
+                                              : (event).response ==
                                                       Response.incorrect
                                                   ? CoryatElement.text(
                                                       "Incorrect",
@@ -493,13 +491,12 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                                           .incorrectRed)
                                                   : CoryatElement.text(
                                                       "No Answer"))
-                                          : (event as Clue).response ==
-                                                  Response.correct
+                                          : (event).response == Response.correct
                                               ? CoryatElement.text(
                                                   "\$" + event.getValueString(),
                                                   color:
                                                       CustomColor.correctGreen)
-                                              : (event as Clue).response ==
+                                              : (event).response ==
                                                       Response.incorrect
                                                   ? CoryatElement.text(
                                                       "−\$" +
@@ -516,13 +513,12 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                       ? ""
                                       : (widget.game.tracksCategories()
                                           ? ("C" +
-                                              ((event as Clue).categoryIndex +
-                                                      1)
+                                              ((event).categoryIndex + 1)
                                                   .toString() +
-                                              ((event as Clue).isDailyDouble()
+                                              ((event).isDailyDouble()
                                                   ? " (DD)"
                                                   : ""))
-                                          : ((event as Clue).isDailyDouble()
+                                          : ((event).isDailyDouble()
                                               ? "(DD)"
                                               : ""))),
                                 ]))
@@ -638,12 +634,15 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                         "double_jeopardy_coryat": widget.game
                                             .getStat(
                                                 Stat.DOUBLE_JEOPARDY_CORYAT),
-                                        "final_jeopardy": widget.game
-                                                    .getCustomPerformance((c) =>
-                                                        c.question.round ==
-                                                        Round.final_jeopardy)[
-                                                Response.correct] >
-                                            0
+                                        "final_jeopardy":
+                                            widget.game.getCustomPerformance((c) =>
+                                                            c.question.round ==
+                                                            Round
+                                                                .final_jeopardy)[
+                                                        Response.correct] >
+                                                    0
+                                                ? 1
+                                                : 0
                                       });
                                   SqlitePersistence.addGame(widget.game);
                                   List<Game> games =

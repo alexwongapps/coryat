@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/iap.dart';
 import 'package:coryat/constants/securestorage.dart';
@@ -12,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'constants/font.dart';
@@ -35,7 +33,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  StreamSubscription<List<PurchaseDetails>> _subscription;
+  StreamSubscription<List<PurchaseDetails>>? _subscription;
   String doubleCoryatString = "";
 
   @override
@@ -44,10 +42,12 @@ class _MyAppState extends State<MyApp> {
     _subscription = purchaseUpdated.listen((purchaseDetailsList) {
       _listenToPurchaseUpdated(purchaseDetailsList);
     }, onDone: () {
-      _subscription.cancel();
+      if (_subscription != null) {
+        _subscription!.cancel();
+      }
     }, onError: (error) {
       doubleCoryatString = "Unable to find IAPs";
-    });
+    }) as StreamSubscription<List<PurchaseDetails>>?;
     // for testing IAP
     /*
     final storage = new FlutterSecureStorage();
@@ -60,7 +60,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
-    _subscription.cancel();
+    if (_subscription != null) {
+      _subscription!.cancel();
+    }
     super.dispose();
   }
 

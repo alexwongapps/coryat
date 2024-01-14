@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:coryat/constants/coryatelement.dart';
 import 'package:coryat/constants/customcolor.dart';
 import 'package:coryat/constants/design.dart';
@@ -26,7 +26,6 @@ class _GraphsScreenState extends State<GraphsScreen> {
   List<Game> _games = [];
   final double _chartHeight = 300;
   final double _horizontalPadding = 10;
-  final bool _animateGraphs = true;
 
   final List<String> _presetCategories = [
     "Coryat",
@@ -38,7 +37,7 @@ class _GraphsScreenState extends State<GraphsScreen> {
   final int _clueValuePerformance = 2;
   int _currentTypeCategory = 0;
   final List<int> _presetRollingDays = [5, 10, 20];
-  int _currentRollingDays;
+  late int _currentRollingDays;
 
   @override
   void initState() {
@@ -79,10 +78,12 @@ class _GraphsScreenState extends State<GraphsScreen> {
                               underline: SizedBox(),
                               isExpanded: true,
                               iconSize: Design.dropdown_icon_size,
-                              onChanged: (int newValue) {
-                                setState(() {
-                                  _currentTypeCategory = newValue;
-                                });
+                              onChanged: (int? newValue) {
+                                if (newValue != null) {
+                                  setState(() {
+                                    _currentTypeCategory = newValue;
+                                  });
+                                }
                               },
                               items: [
                                 DropdownMenuItem(
@@ -126,24 +127,12 @@ class _GraphsScreenState extends State<GraphsScreen> {
                           ? [
                               Container(
                                 height: _chartHeight,
-                                child: charts.TimeSeriesChart(
-                                  _createCoryatStackedData(),
-                                  defaultRenderer: charts.LineRendererConfig(
-                                      includeArea: true,
-                                      stacked: true,
-                                      includePoints: true),
-                                  animate: _animateGraphs,
-                                  behaviors: [
-                                    _chartLegend(),
-                                    _chartTitle("Coryat"),
-                                    charts.LinePointHighlighter(
-                                        showHorizontalFollowLine: charts
-                                            .LinePointHighlighterFollowLineType
-                                            .nearest,
-                                        showVerticalFollowLine: charts
-                                            .LinePointHighlighterFollowLineType
-                                            .none),
-                                  ],
+                                child: SfCartesianChart(
+                                  title: _chartTitle("Coryat"),
+                                  primaryXAxis: _chartDateTimeAxis(),
+                                  primaryYAxis: _chartYAxis(),
+                                  series: _createCoryatStackedData(),
+                                  legend: _chartLegend(),
                                 ),
                                 padding: EdgeInsets.only(
                                     left: _horizontalPadding,
@@ -165,10 +154,12 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                     underline: SizedBox(),
                                     isExpanded: true,
                                     iconSize: Design.dropdown_icon_size,
-                                    onChanged: (int newValue) {
-                                      setState(() {
-                                        _currentRollingDays = newValue;
-                                      });
+                                    onChanged: (int? newValue) {
+                                      if (newValue != null) {
+                                        setState(() {
+                                          _currentRollingDays = newValue;
+                                        });
+                                      }
                                     },
                                     items: _presetRollingDays.map((int num) {
                                       return DropdownMenuItem(
@@ -188,25 +179,13 @@ class _GraphsScreenState extends State<GraphsScreen> {
                               ),
                               Container(
                                 height: _chartHeight,
-                                child: charts.TimeSeriesChart(
-                                  _createCoryatStackedData(
+                                child: SfCartesianChart(
+                                  title: _chartTitle("Coryat"),
+                                  primaryXAxis: _chartDateTimeAxis(),
+                                  primaryYAxis: _chartYAxis(),
+                                  series: _createCoryatStackedData(
                                       rollingDays: _currentRollingDays),
-                                  animate: _animateGraphs,
-                                  defaultRenderer: charts.LineRendererConfig(
-                                    includeArea: true,
-                                    stacked: true,
-                                    includePoints: true,
-                                  ),
-                                  behaviors: [
-                                    _chartLegend(),
-                                    charts.LinePointHighlighter(
-                                        showHorizontalFollowLine: charts
-                                            .LinePointHighlighterFollowLineType
-                                            .nearest,
-                                        showVerticalFollowLine: charts
-                                            .LinePointHighlighterFollowLineType
-                                            .none),
-                                  ],
+                                  legend: _chartLegend(),
                                 ),
                                 padding: EdgeInsets.only(
                                     left: _horizontalPadding,
@@ -217,26 +196,13 @@ class _GraphsScreenState extends State<GraphsScreen> {
                               ? [
                                   Container(
                                     height: _chartHeight,
-                                    child: charts.LineChart(
-                                      _createAverageGameData(Round.jeopardy),
-                                      defaultRenderer:
-                                          charts.LineRendererConfig(
-                                              includePoints: true),
-                                      animate: _animateGraphs,
-                                      behaviors: [
-                                        _chartTitle("Jeopardy Round"),
-                                        _chartTitle("Clue Number",
-                                            position:
-                                                charts.BehaviorPosition.bottom,
-                                            size: Font.size_legend_text),
-                                        charts.LinePointHighlighter(
-                                            showHorizontalFollowLine: charts
-                                                .LinePointHighlighterFollowLineType
-                                                .nearest,
-                                            showVerticalFollowLine: charts
-                                                .LinePointHighlighterFollowLineType
-                                                .none),
-                                      ],
+                                    child: SfCartesianChart(
+                                      series: _createAverageGameData(
+                                          Round.jeopardy),
+                                      title: _chartTitle("Jeopardy Round"),
+                                      primaryXAxis: NumericAxis(
+                                          labelStyle: _chartLabelStyle()),
+                                      primaryYAxis: _chartYAxis(),
                                     ),
                                     padding: EdgeInsets.only(
                                         left: _horizontalPadding,
@@ -245,27 +211,14 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                   CoryatElement.gameDivider(),
                                   Container(
                                     height: _chartHeight,
-                                    child: charts.LineChart(
-                                      _createAverageGameData(
+                                    child: SfCartesianChart(
+                                      series: _createAverageGameData(
                                           Round.double_jeopardy),
-                                      defaultRenderer:
-                                          charts.LineRendererConfig(
-                                              includePoints: true),
-                                      animate: _animateGraphs,
-                                      behaviors: [
-                                        _chartTitle("Double Jeopardy Round"),
-                                        _chartTitle("Clue Number",
-                                            position:
-                                                charts.BehaviorPosition.bottom,
-                                            size: Font.size_legend_text),
-                                        charts.LinePointHighlighter(
-                                            showHorizontalFollowLine: charts
-                                                .LinePointHighlighterFollowLineType
-                                                .nearest,
-                                            showVerticalFollowLine: charts
-                                                .LinePointHighlighterFollowLineType
-                                                .none),
-                                      ],
+                                      title:
+                                          _chartTitle("Double Jeopardy Round"),
+                                      primaryXAxis: NumericAxis(
+                                          labelStyle: _chartLabelStyle()),
+                                      primaryYAxis: _chartYAxis(),
                                     ),
                                     padding: EdgeInsets.only(
                                         left: _horizontalPadding,
@@ -275,13 +228,13 @@ class _GraphsScreenState extends State<GraphsScreen> {
                               : [
                                   Container(
                                     height: _chartHeight,
-                                    child: charts.BarChart(
-                                      _createClueValuePerformanceData(
+                                    child: SfCartesianChart(
+                                      series: _createClueValuePerformanceData(
                                           Round.jeopardy),
-                                      animate: _animateGraphs,
-                                      behaviors: [
-                                        _chartTitle("Jeopardy Round"),
-                                      ],
+                                      title: _chartTitle("Jeopardy Round"),
+                                      primaryXAxis: CategoryAxis(
+                                          labelStyle: _chartLabelStyle()),
+                                      primaryYAxis: _chartYAxis(),
                                     ),
                                     padding: EdgeInsets.only(
                                         left: _horizontalPadding,
@@ -290,13 +243,14 @@ class _GraphsScreenState extends State<GraphsScreen> {
                                   CoryatElement.gameDivider(),
                                   Container(
                                     height: _chartHeight,
-                                    child: charts.BarChart(
-                                      _createClueValuePerformanceData(
+                                    child: SfCartesianChart(
+                                      series: _createClueValuePerformanceData(
                                           Round.double_jeopardy),
-                                      animate: _animateGraphs,
-                                      behaviors: [
-                                        _chartTitle("Double Jeopardy Round"),
-                                      ],
+                                      title:
+                                          _chartTitle("Double Jeopardy Round"),
+                                      primaryXAxis: CategoryAxis(
+                                          labelStyle: _chartLabelStyle()),
+                                      primaryYAxis: _chartYAxis(),
                                     ),
                                     padding: EdgeInsets.only(
                                         left: _horizontalPadding,
@@ -316,33 +270,59 @@ class _GraphsScreenState extends State<GraphsScreen> {
 
   // charts
 
-  var color1 = charts.MaterialPalette.blue.shadeDefault;
-  var color2 = charts.MaterialPalette.purple.shadeDefault;
+  var color1 = const Color.fromARGB(255, 0, 0, 255);
+  var color2 = const Color.fromARGB(255, 150, 0, 255);
 
-  charts.ChartTitle _chartTitle(String text,
-      {position = charts.BehaviorPosition.top,
+  ChartTitle _chartTitle(String text,
+      {position = ChartAlignment.center,
       double size = Font.size_regular_text}) {
-    return charts.ChartTitle(
-      text,
-      innerPadding: 20,
-      titleStyleSpec: charts.TextStyleSpec(
-          fontFamily: Font.family,
-          color: charts.Color.black,
-          fontSize: size.toInt()),
-      behaviorPosition: position,
+    return ChartTitle(
+        text: text,
+        alignment: position,
+        textStyle: TextStyle(
+            fontSize: size,
+            color: Color.fromARGB(255, 0, 0, 0),
+            fontFamily: Font.family));
+  }
+
+  Legend _chartLegend() {
+    return Legend(
+        position: LegendPosition.bottom,
+        textStyle: TextStyle(
+            fontFamily: Font.family,
+            color: Color.fromARGB(255, 0, 0, 0),
+            fontSize: Font.size_legend_text));
+  }
+
+  MarkerSettings _chartMarker(Color color) {
+    return MarkerSettings(
+      isVisible: true,
+      color: color,
+      height: 5,
+      width: 5,
     );
   }
 
-  charts.SeriesLegend _chartLegend() {
-    return charts.SeriesLegend(
-        position: charts.BehaviorPosition.bottom,
-        entryTextStyle: charts.TextStyleSpec(
-            fontFamily: Font.family,
-            color: charts.Color.black,
-            fontSize: Font.size_legend_text.toInt()));
+  ChartAxis _chartDateTimeAxis() {
+    return DateTimeAxis(
+      dateFormat: DateFormat('M/d/yy'),
+      intervalType: DateTimeIntervalType.days,
+      labelStyle: _chartLabelStyle(),
+      edgeLabelPlacement: EdgeLabelPlacement.shift,
+    );
   }
 
-  List<charts.Series<MapEntry<DateTime, double>, DateTime>>
+  ChartAxis _chartYAxis() {
+    return NumericAxis(labelStyle: _chartLabelStyle());
+  }
+
+  TextStyle _chartLabelStyle() {
+    return TextStyle(
+      color: Colors.black,
+    );
+  }
+
+  List<StackedAreaSeries<MapEntry<DateTime, double>, DateTime>>
       _createCoryatStackedData({rollingDays = 1}) {
     // sort games
     List<Game> sorted = List.from(_games);
@@ -379,12 +359,20 @@ class _GraphsScreenState extends State<GraphsScreen> {
     }
     // get averages
     for (final entry in singleData.entries) {
-      singleData[entry.key] /= min(_games.length, rollingDays);
-      doubleData[entry.key] /= min(_games.length, rollingDays);
+      if (singleData[entry.key] != null) {
+        singleData[entry.key] =
+            singleData[entry.key]! / min(_games.length, rollingDays);
+      }
+      if (doubleData[entry.key] != null) {
+        doubleData[entry.key] =
+            doubleData[entry.key]! / min(_games.length, rollingDays);
+      }
     }
     // put into list, sort by date
-    List<MapEntry> singleEntries = singleData.entries.toList();
-    List<MapEntry> doubleEntries = doubleData.entries.toList();
+    List<MapEntry<DateTime, double>> singleEntries =
+        singleData.entries.toList();
+    List<MapEntry<DateTime, double>> doubleEntries =
+        doubleData.entries.toList();
     if (_currentRange == _datePlayed) {
       singleEntries.sort((a, b) => a.key.compareTo(b.key));
       doubleEntries.sort((a, b) => a.key.compareTo(b.key));
@@ -398,25 +386,31 @@ class _GraphsScreenState extends State<GraphsScreen> {
     doubleEntries =
         doubleEntries.sublist(min(doubleEntries.length - 1, rollingDays - 1));
 
-    return [
-      new charts.Series<MapEntry<DateTime, double>, DateTime>(
-        id: 'Jeopardy Round',
-        colorFn: (_, __) => color1,
-        domainFn: (MapEntry<DateTime, double> entry, _) => entry.key,
-        measureFn: (MapEntry<DateTime, double> entry, _) => entry.value,
-        data: singleEntries,
+    return <StackedAreaSeries<MapEntry<DateTime, double>, DateTime>>[
+      StackedAreaSeries<MapEntry<DateTime, double>, DateTime>(
+        dataSource: singleEntries,
+        color: color1.withOpacity(0.3),
+        borderColor: color1,
+        borderWidth: 2,
+        xValueMapper: (MapEntry<DateTime, double> entry, _) => entry.key,
+        yValueMapper: (MapEntry<DateTime, double> entry, _) => entry.value,
+        name: "Jeopardy Round",
+        markerSettings: _chartMarker(color1),
       ),
-      new charts.Series<MapEntry<DateTime, double>, DateTime>(
-        id: 'Total',
-        colorFn: (_, __) => color2,
-        domainFn: (MapEntry<DateTime, double> entry, _) => entry.key,
-        measureFn: (MapEntry<DateTime, double> entry, _) => entry.value,
-        data: doubleEntries,
-      ),
+      StackedAreaSeries<MapEntry<DateTime, double>, DateTime>(
+        dataSource: doubleEntries,
+        color: color2.withOpacity(0.3),
+        borderColor: color2,
+        borderWidth: 2,
+        xValueMapper: (MapEntry<DateTime, double> entry, _) => entry.key,
+        yValueMapper: (MapEntry<DateTime, double> entry, _) => entry.value,
+        name: "Double Jeopardy Round",
+        markerSettings: _chartMarker(color2),
+      )
     ];
   }
 
-  List<charts.Series<MapEntry<int, List<int>>, String>>
+  List<ColumnSeries<MapEntry<int, List<int>>, String>>
       _createClueValuePerformanceData(int round) {
     Map<int, List<int>> map = {};
     for (Game game in _games) {
@@ -426,9 +420,9 @@ class _GraphsScreenState extends State<GraphsScreen> {
           if (c.question.round == round) {
             if (map[c.question.value] != null) {
               map[c.question.value] = [
-                map[c.question.value][0] +
+                map[c.question.value]![0] +
                     (c.response == Response.correct ? 1 : 0),
-                map[c.question.value][1] + 1
+                map[c.question.value]![1] + 1
               ];
             } else {
               map[c.question.value] = [
@@ -442,20 +436,19 @@ class _GraphsScreenState extends State<GraphsScreen> {
     }
     var entries = map.entries.toList();
     entries.sort((a, b) => a.key.compareTo(b.key));
-    return [
-      new charts.Series<MapEntry<int, List<int>>, String>(
-        id: 'Performance by Clue Value',
-        colorFn: (_, __) => color1,
-        domainFn: (MapEntry<int, List<int>> entry, _) =>
-            "\$" + entry.key.toString(),
-        measureFn: (MapEntry<int, List<int>> entry, _) =>
-            entry.value[0] / entry.value[1] * 100,
-        data: entries,
-      ),
+
+    return <ColumnSeries<MapEntry<int, List<int>>, String>>[
+      ColumnSeries<MapEntry<int, List<int>>, String>(
+          dataSource: entries,
+          xValueMapper: (MapEntry<int, List<int>> entry, _) =>
+              "\$" + entry.key.toString(),
+          yValueMapper: (MapEntry<int, List<int>> entry, _) =>
+              entry.value[0] / entry.value[1] * 100,
+          color: color1)
     ];
   }
 
-  List<charts.Series<List<int>, int>> _createAverageGameData(int round) {
+  List<LineSeries<List<int>, int>> _createAverageGameData(int round) {
     List<int> coryatCollect = [];
     for (int i = 0; i < 30; i++) {
       coryatCollect.add(0);
@@ -482,16 +475,15 @@ class _GraphsScreenState extends State<GraphsScreen> {
       coryatThrough.add(
           [i + 1, coryatThrough[i - 1][1] + coryatCollect[i] ~/ _games.length]);
     }
-    return [
-      new charts.Series<List<int>, int>(
-        id: round == Round.jeopardy
-            ? "Jeopardy Round"
-            : "Double Jeopardy Round",
-        colorFn: (_, __) => color1,
-        domainFn: (List<int> lst, _) => lst[0],
-        measureFn: (List<int> lst, _) => lst[1],
-        data: coryatThrough,
-      ),
+
+    return <LineSeries<List<int>, int>>[
+      LineSeries<List<int>, int>(
+        dataSource: coryatThrough,
+        color: color1,
+        xValueMapper: (List<int> lst, _) => lst[0],
+        yValueMapper: (List<int> lst, _) => lst[1],
+        markerSettings: _chartMarker(color1),
+      )
     ];
   }
 
@@ -540,10 +532,12 @@ class _GraphsScreenState extends State<GraphsScreen> {
           underline: SizedBox(),
           isExpanded: true,
           iconSize: Design.dropdown_icon_size,
-          onChanged: (int newValue) {
-            setState(() {
-              _currentRange = newValue;
-            });
+          onChanged: (int? newValue) {
+            if (newValue != null) {
+              setState(() {
+                _currentRange = newValue;
+              });
+            }
           },
           items: [
             DropdownMenuItem(

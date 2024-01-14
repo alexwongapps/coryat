@@ -1,8 +1,6 @@
 import 'package:coryat/models/game.dart';
 import 'package:coryat/models/user.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 
 class Firebase {
   static const USERS_COLLECTION = "users";
@@ -14,8 +12,14 @@ class Firebase {
   static Future<Map<String, bool>> redeemCode(String code) async {
     CollectionReference codes =
         FirebaseFirestore.instance.collection(CODES_COLLECTION);
-    DocumentSnapshot snapshot =
-        await codes.doc(code).get().catchError((error) {});
+
+    DocumentSnapshot<Object?>? snapshot;
+    try {
+      snapshot = await codes.doc(code).get();
+    } catch (error) {
+      print('Error occurred: $error');
+      snapshot = null;
+    }
 
     if (snapshot == null) {
       return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
@@ -29,7 +33,7 @@ class Firebase {
       return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
     }
 
-    Map<String, dynamic> data = snapshot.data();
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     if (!(data[REDEEMED_FIELD] ?? true)) {
       codes.doc(code).update({REDEEMED_FIELD: true});
     } else {
@@ -64,7 +68,7 @@ class Firebase {
     }
 
     List<Game> g = [];
-    Map<String, dynamic> data = snapshot.data();
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     if (data["games"] == null) {
       return g;
     }

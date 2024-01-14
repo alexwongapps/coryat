@@ -6,7 +6,6 @@ import 'package:coryat/constants/sharedpreferenceskey.dart';
 import 'package:coryat/data/sqlitepersistence.dart';
 import 'package:coryat/models/game.dart';
 import 'package:coryat/screens/gamescreens/manualgamescreen.dart';
-import 'package:coryat/screens/helpscreens/helpscreen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +18,7 @@ class DateScreen extends StatefulWidget {
 }
 
 class _DateScreenState extends State<DateScreen> {
-  DateTime _chosenDateTime;
+  late DateTime _chosenDateTime;
   bool _trackCategories = false;
 
   @override
@@ -81,13 +80,16 @@ class _DateScreenState extends State<DateScreen> {
                     fillColor:
                         MaterialStateProperty.all(CustomColor.primaryColor),
                     value: _trackCategories,
-                    onChanged: (bool value) {
-                      setState(() {
-                        _trackCategories = value;
-                      });
-                      SharedPreferences.getInstance().then((prefs) =>
-                          prefs.setBool(SharedPreferencesKey.TRACKS_CATEGORIES,
-                              _trackCategories));
+                    onChanged: (bool? value) {
+                      if (value != null) {
+                        setState(() {
+                          _trackCategories = value;
+                        });
+                        SharedPreferences.getInstance().then((prefs) =>
+                            prefs.setBool(
+                                SharedPreferencesKey.TRACKS_CATEGORIES,
+                                _trackCategories));
+                      }
                     },
                   ),
                 ),
@@ -96,84 +98,71 @@ class _DateScreenState extends State<DateScreen> {
             CoryatElement.cupertinoButton(
               "Start Game",
               () async {
-                if (!(DateTime(_chosenDateTime.year, _chosenDateTime.month,
-                                _chosenDateTime.day)
-                            .weekday ==
-                        DateTime.saturday ||
-                    DateTime(_chosenDateTime.year, _chosenDateTime.month,
-                                _chosenDateTime.day)
-                            .weekday ==
-                        DateTime.sunday)) {
-                  List<Game> games = await SqlitePersistence.getGames();
-                  bool already = false;
-                  for (Game game in games) {
-                    DateTime date = game.dateAired;
-                    if (date.year == _chosenDateTime.year &&
-                        date.month == _chosenDateTime.month &&
-                        date.day == _chosenDateTime.day) {
-                      already = true;
-                    }
+                List<Game> games = await SqlitePersistence.getGames();
+                bool already = false;
+                for (Game game in games) {
+                  DateTime date = game.dateAired;
+                  if (date.year == _chosenDateTime.year &&
+                      date.month == _chosenDateTime.month &&
+                      date.day == _chosenDateTime.day) {
+                    already = true;
                   }
-                  if (already) {
-                    CoryatElement.presentBasicAlertDialog(
-                        context,
-                        "Error: Already Played",
-                        "A game was already played on this date");
-                  } else if (games.length >= IAP.FREE_NUMBER_OF_GAMES &&
-                      !(await IAP.doubleCoryatPurchased() ||
-                          await IAP.finalCoryatPurchased())) {
-                    Widget okButton = CoryatElement.cupertinoButton(
-                      "OK",
-                      () {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).push(
-                          CupertinoPageRoute(builder: (context) {
-                            return ManualGameScreen(
-                              game: Game(_chosenDateTime.year,
-                                  _chosenDateTime.month, _chosenDateTime.day),
-                              trackCategories: _trackCategories,
-                            );
-                          }),
-                        );
-                      },
-                    );
-                    Widget backButton =
-                        CoryatElement.cupertinoButton("Back", () {
-                      Navigator.pop(context);
-                    }, color: CupertinoColors.destructiveRed);
-
-                    CupertinoAlertDialog alert = CupertinoAlertDialog(
-                      title: Text("Warning: Free Game Limit Reached"),
-                      content: Text(
-                          "When you finish this game, your oldest played game will be deleted. To store unlimited games, purchase Double Coryat from the main menu."),
-                      actions: [
-                        backButton,
-                        okButton,
-                      ],
-                    );
-
-                    showCupertinoDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return alert;
-                      },
-                    );
-                    await FirebaseAnalytics.instance
-                        .logEvent(name: "game_limit_reached");
-                  } else {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (context) {
-                        return ManualGameScreen(
-                          game: Game(_chosenDateTime.year,
-                              _chosenDateTime.month, _chosenDateTime.day),
-                          trackCategories: _trackCategories,
-                        );
-                      }),
-                    );
-                  }
-                } else {
+                }
+                if (already) {
                   CoryatElement.presentBasicAlertDialog(
-                      context, "Invalid date", "Please choose a weekday");
+                      context,
+                      "Error: Already Played",
+                      "A game was already played on this date");
+                } else if (games.length >= IAP.FREE_NUMBER_OF_GAMES &&
+                    !(await IAP.doubleCoryatPurchased() ||
+                        await IAP.finalCoryatPurchased())) {
+                  Widget okButton = CoryatElement.cupertinoButton(
+                    "OK",
+                    () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (context) {
+                          return ManualGameScreen(
+                            game: Game(_chosenDateTime.year,
+                                _chosenDateTime.month, _chosenDateTime.day),
+                            trackCategories: _trackCategories,
+                          );
+                        }),
+                      );
+                    },
+                  );
+                  Widget backButton = CoryatElement.cupertinoButton("Back", () {
+                    Navigator.pop(context);
+                  }, color: CupertinoColors.destructiveRed);
+
+                  CupertinoAlertDialog alert = CupertinoAlertDialog(
+                    title: Text("Warning: Free Game Limit Reached"),
+                    content: Text(
+                        "When you finish this game, your oldest played game will be deleted. To store unlimited games, purchase Double Coryat from the main menu."),
+                    actions: [
+                      backButton,
+                      okButton,
+                    ],
+                  );
+
+                  showCupertinoDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return alert;
+                    },
+                  );
+                  await FirebaseAnalytics.instance
+                      .logEvent(name: "game_limit_reached");
+                } else {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(builder: (context) {
+                      return ManualGameScreen(
+                        game: Game(_chosenDateTime.year, _chosenDateTime.month,
+                            _chosenDateTime.day),
+                        trackCategories: _trackCategories,
+                      );
+                    }),
+                  );
                 }
               },
               size: Font.size_large_button,
@@ -186,34 +175,36 @@ class _DateScreenState extends State<DateScreen> {
 
   // Show the modal that contains the CupertinoDatePicker
   void _showDatePicker(ctx) {
-    // showCupertinoModalPopup is a built-in function of the cupertino library
-    showCupertinoModalPopup(
-        context: ctx,
-        builder: (_) => Container(
-              height: 500,
-              color: Color.fromARGB(255, 255, 255, 255),
-              child: Column(
-                children: [
-                  Container(
-                    height: 400,
-                    child: CupertinoDatePicker(
-                        initialDateTime: _chosenDateTime,
-                        mode: CupertinoDatePickerMode.date,
-                        onDateTimeChanged: (val) {
-                          setState(() {
-                            _chosenDateTime = val;
-                          });
-                        }),
-                  ),
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // showCupertinoModalPopup is a built-in function of the cupertino library
+      showCupertinoModalPopup(
+          context: ctx,
+          builder: (_) => Container(
+                height: 500,
+                color: Color.fromARGB(255, 255, 255, 255),
+                child: Column(
+                  children: [
+                    Container(
+                      height: 400,
+                      child: CupertinoDatePicker(
+                          initialDateTime: _chosenDateTime,
+                          mode: CupertinoDatePickerMode.date,
+                          onDateTimeChanged: (val) {
+                            setState(() {
+                              _chosenDateTime = val;
+                            });
+                          }),
+                    ),
 
-                  // Close the modal
-                  CoryatElement.cupertinoButton(
-                    "OK",
-                    () => Navigator.of(ctx).pop(),
-                  )
-                ],
-              ),
-            ));
+                    // Close the modal
+                    CoryatElement.cupertinoButton(
+                      "OK",
+                      () => Navigator.of(ctx).pop(),
+                    )
+                  ],
+                ),
+              ));
+    });
   }
 
   String _dateString(DateTime date) {

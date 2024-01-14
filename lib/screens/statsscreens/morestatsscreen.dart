@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class MoreStatsScreen extends StatefulWidget {
-  const MoreStatsScreen({Key key}) : super(key: key);
+  const MoreStatsScreen({Key? key}) : super(key: key);
 
   @override
   _MoreStatsScreenState createState() => _MoreStatsScreenState();
@@ -77,10 +77,12 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                           underline: SizedBox(),
                           isExpanded: true,
                           iconSize: Design.dropdown_icon_size,
-                          onChanged: (int newValue) {
-                            setState(() {
-                              _currentRound = newValue;
-                            });
+                          onChanged: (int? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                _currentRound = newValue;
+                              });
+                            }
                           },
                           items: [
                             DropdownMenuItem(
@@ -129,10 +131,12 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
                           underline: SizedBox(),
                           isExpanded: true,
                           iconSize: Design.dropdown_icon_size,
-                          onChanged: (int newValue) {
-                            setState(() {
-                              _currentCategory = newValue;
-                            });
+                          onChanged: (int? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                _currentCategory = newValue;
+                              });
+                            }
                           },
                           items:
                               List<int>.generate(_categories.length, (i) => i)
@@ -239,7 +243,7 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
     );
   }
 
-  RichText _getNonFinalPerformanceRichText({int rd, int value}) {
+  RichText _getNonFinalPerformanceRichText({int? rd, int? value}) {
     // rd == null means no final jeopardy
     List<int> performance = [0, 0, 0];
     for (Game game in _games) {
@@ -377,11 +381,11 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
     );
   }
 
-  String _getExtremeCoryatString(bool maximum, {int round}) {
+  String _getExtremeCoryatString(bool maximum, {int? round}) {
     if (_games.length == 0) {
       return "N/A";
     }
-    DateTime date;
+    DateTime? date;
     int val = -1;
     for (Game game in _games) {
       int cor;
@@ -400,6 +404,9 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
         date = game.dateAired;
         val = cor;
       }
+    }
+    if (date == null) {
+      return "N/A";
     }
     return "\$" + val.toString() + " (" + _dateString(date) + ")";
   }
@@ -469,7 +476,7 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
     Set<String> cats = Set();
     for (Game game in _games) {
       if (game.tracksCategories()) {
-        cats.addAll(game.allCategories());
+        cats.addAll(game.allCategories()!);
       }
     }
     List<String> l = cats.toList();
@@ -495,10 +502,12 @@ class _MoreStatsScreenState extends State<MoreStatsScreen> {
           underline: SizedBox(),
           isExpanded: true,
           iconSize: Design.dropdown_icon_size,
-          onChanged: (int newValue) {
-            setState(() {
-              _currentRange = newValue;
-            });
+          onChanged: (int? newValue) {
+            if (newValue != null) {
+              setState(() {
+                _currentRange = newValue;
+              });
+            }
           },
           items: [
             DropdownMenuItem(

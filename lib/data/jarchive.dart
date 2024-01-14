@@ -28,8 +28,9 @@ class JArchive {
                 .transform(Utf8Decoder())
                 .transform(JsonDecoder())
                 .listen((contents) {
-              return contents;
+              // return contents;
             })); // transforms and prints the response
+    throw Error();
   }
 
   static void loadIntoGame(Game game) async {
@@ -43,9 +44,9 @@ class JArchive {
         game.addClue(Round.jeopardy, m["category"], m["value"] as int,
             m["clue"], m["answer"], m["order"] as int);
         if (seen.containsKey(m["category"])) {
-          seen[m["category"]].add(m["order"]);
+          seen[m["category"]]!.add(m["order"]);
         } else {
-          seen[m["category"]] = new List();
+          seen[m["category"]] = <int>[];
         }
       }
     }

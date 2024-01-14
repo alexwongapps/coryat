@@ -13,7 +13,6 @@ import 'package:coryat/enums/stat.dart';
 import 'package:coryat/models/clue.dart';
 import 'package:coryat/models/event.dart';
 import 'package:coryat/models/game.dart';
-import 'package:coryat/screens/helpscreens/helpscreen.dart';
 import 'package:coryat/screens/statsscreens/graphsscreen.dart';
 import 'package:coryat/screens/statsscreens/morestatsscreen.dart';
 import 'package:flutter/cupertino.dart';
@@ -75,10 +74,12 @@ class _StatsScreenState extends State<StatsScreen> {
                           underline: SizedBox(),
                           isExpanded: true,
                           iconSize: Design.dropdown_icon_size,
-                          onChanged: (int newValue) {
-                            setState(() {
-                              _currentCategory = newValue;
-                            });
+                          onChanged: (int? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                _currentCategory = newValue;
+                              });
+                            }
                           },
                           items:
                               List<int>.generate(_categories.length, (i) => i)
@@ -235,7 +236,7 @@ class _StatsScreenState extends State<StatsScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CoryatElement.cupertinoButton("More Stats", () async {
-                      if (true) {
+                      if (await IAP.doubleCoryatPurchased()) {
                         Navigator.of(context).push(
                           CupertinoPageRoute(builder: (context) {
                             return MoreStatsScreen();
@@ -265,7 +266,7 @@ class _StatsScreenState extends State<StatsScreen> {
                       }
                     }),
                     CoryatElement.cupertinoButton("Graphs", () async {
-                      if (true) {
+                      if (await IAP.doubleCoryatPurchased()) {
                         Navigator.of(context).push(
                           CupertinoPageRoute(builder: (context) {
                             return GraphsScreen();
@@ -355,7 +356,7 @@ class _StatsScreenState extends State<StatsScreen> {
     if (_games.length == 0) {
       return "N/A";
     }
-    DateTime date;
+    DateTime? date;
     int val = -1;
     for (Game game in _games) {
       int cor = game.getStat(Stat.CORYAT);
@@ -367,6 +368,9 @@ class _StatsScreenState extends State<StatsScreen> {
         date = game.dateAired;
         val = cor;
       }
+    }
+    if (date == null) {
+      return "N/A";
     }
     return "\$" + val.toString() + " (" + _dateString(date) + ")";
   }
@@ -422,7 +426,7 @@ class _StatsScreenState extends State<StatsScreen> {
       for (Event event in game.getEvents()) {
         if (event.type == EventType.clue &&
             (event as Clue).question.round != Round.final_jeopardy) {
-          Clue c = event as Clue;
+          Clue c = event;
           if (c.isCategory(category, game)) {
             performance[c.response] += c.question.value;
           }
@@ -471,7 +475,7 @@ class _StatsScreenState extends State<StatsScreen> {
       for (Event event in game.getEvents()) {
         if (event.type == EventType.clue &&
             (event as Clue).question.round != Round.final_jeopardy) {
-          Clue c = event as Clue;
+          Clue c = event;
           if (c.isCategory(category, game)) {
             performance[c.response] += c.question.value;
           }
@@ -512,7 +516,7 @@ class _StatsScreenState extends State<StatsScreen> {
       for (Event event in game.getEvents()) {
         if (event.type == EventType.clue &&
             (event as Clue).question.round != Round.final_jeopardy) {
-          Clue c = event as Clue;
+          Clue c = event;
           if (c.isCategory(category, game) && c.isDailyDouble()) {
             totals[c.response]++;
           }
@@ -541,8 +545,8 @@ class _StatsScreenState extends State<StatsScreen> {
       for (Event event in game.getEvents()) {
         if (event.type == EventType.clue &&
             (event as Clue).question.round == Round.final_jeopardy &&
-            (event as Clue).isCategory(category, game)) {
-          Clue c = event as Clue;
+            (event).isCategory(category, game)) {
+          Clue c = event;
           if (c.response == Response.correct) {
             right += 1;
           }
@@ -594,7 +598,7 @@ class _StatsScreenState extends State<StatsScreen> {
     Set<String> cats = Set();
     for (Game game in _games) {
       if (game.tracksCategories()) {
-        cats.addAll(game.allCategories());
+        cats.addAll(game.allCategories()!);
       }
     }
     List<String> l = cats.toList();
@@ -620,10 +624,12 @@ class _StatsScreenState extends State<StatsScreen> {
           underline: SizedBox(),
           isExpanded: true,
           iconSize: Design.dropdown_icon_size,
-          onChanged: (int newValue) {
-            setState(() {
-              _currentRange = newValue;
-            });
+          onChanged: (int? newValue) {
+            if (newValue != null) {
+              setState(() {
+                _currentRange = newValue;
+              });
+            }
           },
           items: [
             DropdownMenuItem(
