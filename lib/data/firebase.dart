@@ -29,10 +29,6 @@ class Firebase {
       return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
     }
 
-    if (snapshot.data == null) {
-      return {DOUBLE_CORYAT_FIELD: false, FINAL_CORYAT_FIELD: false};
-    }
-
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     if (!(data[REDEEMED_FIELD] ?? true)) {
       codes.doc(code).update({REDEEMED_FIELD: true});

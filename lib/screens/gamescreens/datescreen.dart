@@ -78,7 +78,7 @@ class _DateScreenState extends State<DateScreen> {
                   color: CustomColor.backgroundColor,
                   child: Checkbox(
                     fillColor:
-                        MaterialStateProperty.all(CustomColor.primaryColor),
+                        WidgetStateProperty.all(CustomColor.primaryColor),
                     value: _trackCategories,
                     onChanged: (bool? value) {
                       if (value != null) {
