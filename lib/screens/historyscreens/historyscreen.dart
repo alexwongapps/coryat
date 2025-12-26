@@ -122,6 +122,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return CupertinoButton(
       child: Text("By Game"),
       onPressed: () async {
+        final box = Overlay.of(context).context.findRenderObject() as RenderBox;
         Navigator.pop(context);
         String data = ListToCsvConverter().convert(_getCSV(false));
         final dir = await getApplicationSupportDirectory();
@@ -132,7 +133,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ".csv";
         final File file = File(path);
         await file.writeAsString(data);
-        Share.shareXFiles([XFile(path)]);
+        Share.shareXFiles([XFile(path)],
+            sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
       },
     );
   }
@@ -141,6 +143,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return CupertinoButton(
       child: Text("By Clue"),
       onPressed: () async {
+        final box = Overlay.of(context).context.findRenderObject() as RenderBox;
         Navigator.pop(context);
         String data = ListToCsvConverter().convert(_getCSV(true));
         final dir = await getApplicationSupportDirectory();
@@ -151,7 +154,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ".csv";
         final File file = File(path);
         await file.writeAsString(data);
-        Share.shareXFiles([XFile(path)]);
+        Share.shareXFiles([XFile(path)],
+            sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
       },
     );
   }

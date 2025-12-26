@@ -9,26 +9,26 @@ class IAP {
   static const String RESTORE_SUCCESSFUL_MESSAGE = "Restore Successful!";
 
   static Future<bool> doubleCoryatPurchased() async {
-    final storage = new FlutterSecureStorage();
-    String? value = await storage.read(key: SecureStorage.DOUBLE_CORYAT_KEY);
-    if (value == null) {
-      return false;
-    }
-    if (value != SecureStorage.PURCHASED) {
-      return false;
-    }
+    // final storage = new FlutterSecureStorage();
+    // String? value = await storage.read(key: SecureStorage.DOUBLE_CORYAT_KEY);
+    // if (value == null) {
+    //   return false;
+    // }
+    // if (value != SecureStorage.PURCHASED) {
+    //   return false;
+    // }
     return true;
   }
 
   static Future<bool> finalCoryatPurchased() async {
-    final storage = new FlutterSecureStorage();
-    String? value = await storage.read(key: SecureStorage.FINAL_CORYAT_KEY);
-    if (value == null) {
-      return false;
-    }
-    if (value != SecureStorage.PURCHASED) {
-      return false;
-    }
+    // final storage = new FlutterSecureStorage();
+    // String? value = await storage.read(key: SecureStorage.FINAL_CORYAT_KEY);
+    // if (value == null) {
+    //   return false;
+    // }
+    // if (value != SecureStorage.PURCHASED) {
+    //   return false;
+    // }
     return true;
   }
 }

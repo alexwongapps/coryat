@@ -34,6 +34,7 @@ class ManualGameScreen extends StatefulWidget {
 }
 
 class _ManualGameScreenState extends State<ManualGameScreen> {
+  late Game game;
   int _currentRound = Round.jeopardy;
   int _selectedValue = 0;
   int _selectedButton = 0;
@@ -58,7 +59,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
       Text(
         _currentRound == Round.final_jeopardy
             ? ""
-            : widget.game.getCategory(_currentRound, number) ?? "",
+            : game.getCategory(_currentRound, number) ?? "",
         style: TextStyle(
             color: _currentRound == Round.final_jeopardy
                 ? CustomColor.disabledButton
@@ -155,7 +156,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
       () {
         for (int i = 0; i < fields; i++) {
           setState(() {
-            widget.game.setCategory(
+            game.setCategory(
                 round,
                 i,
                 textEditingControllers[i].text == ""
@@ -206,6 +207,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
 
   @override
   void initState() {
+    game = widget.game;
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => onload(context));
   }
@@ -213,9 +215,9 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   Future<void> onload(BuildContext context) async {
     List<Game> games = await SqlitePersistence.getGames();
     Set<String> cats = Set();
-    for (Game game in games) {
-      if (game.tracksCategories()) {
-        cats.addAll(game.allCategories()!);
+    for (Game otherGame in games) {
+      if (otherGame.tracksCategories()) {
+        cats.addAll(otherGame.allCategories()!);
       }
     }
     List<String> l = cats.toList();
@@ -282,11 +284,12 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
       })),
       child: Center(
         child: Scrollbar(
+          controller: _scrollController,
           child: SingleChildScrollView(
             controller: _scrollController,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: (widget.game.tracksCategories()
+              children: (game.tracksCategories()
                       ? ([
                           // ignore: unnecessary_cast
                           Row(
@@ -412,16 +415,16 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                               child: Text(
                                 "Undo",
                                 style: TextStyle(
-                                  color: widget.game.getEvents().length == 0
+                                  color: game.getEvents().length == 0
                                       ? CustomColor.disabledButton
                                       : CustomColor.primaryColor,
                                 ),
                               ),
-                              onPressed: widget.game.getEvents().length == 0
+                              onPressed: game.getEvents().length == 0
                                   ? null
                                   : () {
                                       setState(() {
-                                        Event last = widget.game.undo()!;
+                                        Event last = game.undo()!;
                                         if (last.type == EventType.marker) {
                                           if ((last as Marker).primaryText() ==
                                               Marker.NEXT_ROUND) {
@@ -444,7 +447,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                             Marker.NEXT_ROUND) {
                                       _nextRound();
                                     } else {
-                                      widget.game.appendEvent(_redoEvent!);
+                                      game.appendEvent(_redoEvent!);
                                     }
                                     _redoEvent = null;
                                   });
@@ -469,7 +472,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                         right: Design.divider_indent,
                       ),
                       child: Table(
-                        children: (widget.game.lastEvents(5))
+                        children: (game.lastEvents(5))
                             .map((event) => TableRow(children: [
                                   Text(event.primaryText() == Marker.NEXT_ROUND
                                       ? "Next Rd"
@@ -511,7 +514,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                           (event as Clue).question.round ==
                                               Round.final_jeopardy
                                       ? ""
-                                      : (widget.game.tracksCategories()
+                                      : (game.tracksCategories()
                                           ? ("C" +
                                               ((event).categoryIndex + 1)
                                                   .toString() +
@@ -532,19 +535,16 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
-                            widget.game
+                            game
                                     .getCustomPerformance((c) =>
                                         c.question.round !=
                                         Round.final_jeopardy)[Response.correct]
                                     .toString() +
                                 " | \$" +
-                                (widget.game.getStat(
-                                            Stat.CORRECT_TOTAL_VALUE) ~/
-                                        1000)
+                                (game.getStat(Stat.CORRECT_TOTAL_VALUE) ~/ 1000)
                                     .toString() +
                                 "." +
-                                ((widget.game.getStat(
-                                                Stat.CORRECT_TOTAL_VALUE) %
+                                ((game.getStat(Stat.CORRECT_TOTAL_VALUE) %
                                             1000) ~/
                                         100)
                                     .toString() +
@@ -552,39 +552,34 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                             style: TextStyle(color: CustomColor.correctGreen),
                           ),
                           Text(
-                            widget.game
+                            game
                                     .getCustomPerformance((c) =>
                                         c.question.round !=
                                         Round
                                             .final_jeopardy)[Response.incorrect]
                                     .toString() +
                                 " | −\$" +
-                                (widget.game.getStat(
-                                            Stat.INCORRECT_TOTAL_VALUE) ~/
+                                (game.getStat(Stat.INCORRECT_TOTAL_VALUE) ~/
                                         1000)
                                     .toString() +
                                 "." +
-                                ((widget.game.getStat(
-                                                Stat.INCORRECT_TOTAL_VALUE) %
+                                ((game.getStat(Stat.INCORRECT_TOTAL_VALUE) %
                                             1000) ~/
                                         100)
                                     .toString() +
                                 "k",
                             style: TextStyle(color: CustomColor.incorrectRed),
                           ),
-                          Text(widget.game
+                          Text(game
                                   .getCustomPerformance((c) =>
                                       c.question.round !=
                                       Round.final_jeopardy)[Response.none]
                                   .toString() +
                               " | (\$" +
-                              (widget.game.getStat(
-                                          Stat.NO_ANSWER_TOTAL_VALUE) ~/
-                                      1000)
+                              (game.getStat(Stat.NO_ANSWER_TOTAL_VALUE) ~/ 1000)
                                   .toString() +
                               "." +
-                              ((widget.game.getStat(
-                                              Stat.NO_ANSWER_TOTAL_VALUE) %
+                              ((game.getStat(Stat.NO_ANSWER_TOTAL_VALUE) %
                                           1000) ~/
                                       100)
                                   .toString() +
@@ -595,10 +590,10 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                     Padding(
                       padding: EdgeInsets.only(bottom: 5),
                       child: Text("Current Coryat: \$" +
-                          widget.game.getStat(Stat.CORYAT).toString()),
+                          game.getStat(Stat.CORYAT).toString()),
                     ),
                     Text("Maximum Possible Coryat: \$" +
-                        widget.game.getStat(Stat.REACHABLE_CORYAT).toString()),
+                        game.getStat(Stat.REACHABLE_CORYAT).toString()),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -627,15 +622,13 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                       name: "finish_game",
                                       parameters: {
                                         "games_played": played,
-                                        "coryat":
-                                            widget.game.getStat(Stat.CORYAT),
-                                        "jeopardy_coryat": widget.game
-                                            .getStat(Stat.JEOPARDY_CORYAT),
-                                        "double_jeopardy_coryat": widget.game
-                                            .getStat(
-                                                Stat.DOUBLE_JEOPARDY_CORYAT),
+                                        "coryat": game.getStat(Stat.CORYAT),
+                                        "jeopardy_coryat":
+                                            game.getStat(Stat.JEOPARDY_CORYAT),
+                                        "double_jeopardy_coryat": game.getStat(
+                                            Stat.DOUBLE_JEOPARDY_CORYAT),
                                         "final_jeopardy":
-                                            widget.game.getCustomPerformance((c) =>
+                                            game.getCustomPerformance((c) =>
                                                             c.question.round ==
                                                             Round
                                                                 .final_jeopardy)[
@@ -644,7 +637,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                                 ? 1
                                                 : 0
                                       });
-                                  SqlitePersistence.addGame(widget.game);
+                                  SqlitePersistence.addGame(game);
                                   List<Game> games =
                                       await SqlitePersistence.getGames();
                                   if (games.length >=
@@ -685,7 +678,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
                                 color: CustomColor.primaryColor),
                           ),
                           onPressed: () {
-                            CoryatElement.share(context, widget.game);
+                            CoryatElement.share(context, game);
                           },
                         ),
                       ],
@@ -699,25 +692,25 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   }
 
   bool _gameDone() {
-    return widget.game.getEvents().length > 0 &&
-        widget.game.getEvents().last.type == EventType.clue &&
+    return game.getEvents().length > 0 &&
+        game.getEvents().last.type == EventType.clue &&
         _currentRound == Round.final_jeopardy;
   }
 
   void _addResponse(int response) {
     if (_canRespond()) {
       if (!widget.trackCategories) {
-        widget.game.addManualResponse(response, _currentRound, _selectedValue,
+        game.addManualResponse(response, _currentRound, _selectedValue,
             _isDailyDouble ? Set.from([Tags.DAILY_DOUBLE]) : Set());
       } else {
-        widget.game.addManualResponse(response, _currentRound, _selectedValue,
+        game.addManualResponse(response, _currentRound, _selectedValue,
             _isDailyDouble ? Set.from([Tags.DAILY_DOUBLE]) : Set(),
             categoryIndex:
                 _currentRound == Round.final_jeopardy ? 0 : _selectedCategory);
       }
 
       _resetClue();
-      if (widget.game.getEvents().last.order.endsWith("30")) {
+      if (game.getEvents().last.order.endsWith("30")) {
         _nextRound();
       }
     }
@@ -736,7 +729,7 @@ class _ManualGameScreenState extends State<ManualGameScreen> {
   }
 
   void _nextRound() {
-    widget.game.nextRound();
+    game.nextRound();
     _currentRound = Round.nextRound(_currentRound);
     if (widget.trackCategories) {
       if (_currentRound != Round.jeopardy) {
